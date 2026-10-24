@@ -1,0 +1,6 @@
+{
+  "placements": {
+    "rules": { "tab": "rqblockplacements", "controller": "rules", "do": "", "restriction": "rqbp_manage" },
+    "settings": { "tab": "rqblockplacements", "controller": "settings", "do": "", "restriction": "rqbp_manage" }
+  }
+}

@@ -1,0 +1,248 @@
+{
+    "rqbp_rules": {
+        "name": "rqbp_rules",
+        "columns": {
+            "rule_id": {
+                "name": "rule_id",
+                "type": "BIGINT",
+                "length": 20,
+                "decimals": null,
+                "values": [],
+                "allow_null": false,
+                "default": null,
+                "comment": "",
+                "unsigned": true,
+                "auto_increment": true
+            },
+            "rule_name": {
+                "name": "rule_name",
+                "type": "VARCHAR",
+                "length": 255,
+                "decimals": null,
+                "values": [],
+                "allow_null": false,
+                "default": "",
+                "comment": "",
+                "unsigned": false,
+                "auto_increment": false
+            },
+            "rule_enabled": {
+                "name": "rule_enabled",
+                "type": "TINYINT",
+                "length": 1,
+                "decimals": null,
+                "values": [],
+                "allow_null": false,
+                "default": 0,
+                "comment": "",
+                "unsigned": true,
+                "auto_increment": false
+            },
+            "rule_block_id": {
+                "name": "rule_block_id",
+                "type": "BIGINT",
+                "length": 20,
+                "decimals": null,
+                "values": [],
+                "allow_null": false,
+                "default": 0,
+                "comment": "",
+                "unsigned": true,
+                "auto_increment": false
+            },
+            "rule_mode": {
+                "name": "rule_mode",
+                "type": "VARCHAR",
+                "length": 8,
+                "decimals": null,
+                "values": [],
+                "allow_null": false,
+                "default": "css",
+                "comment": "",
+                "unsigned": false,
+                "auto_increment": false
+            },
+            "rule_hook_path": {
+                "name": "rule_hook_path",
+                "type": "VARCHAR",
+                "length": 255,
+                "decimals": null,
+                "values": [],
+                "allow_null": false,
+                "default": "",
+                "comment": "",
+                "unsigned": false,
+                "auto_increment": false
+            },
+            "rule_hook_name": {
+                "name": "rule_hook_name",
+                "type": "VARCHAR",
+                "length": 100,
+                "decimals": null,
+                "values": [],
+                "allow_null": false,
+                "default": "",
+                "comment": "",
+                "unsigned": false,
+                "auto_increment": false
+            },
+            "rule_selector": {
+                "name": "rule_selector",
+                "type": "TEXT",
+                "length": 0,
+                "decimals": null,
+                "values": [],
+                "allow_null": true,
+                "default": null,
+                "comment": "",
+                "unsigned": false,
+                "auto_increment": false
+            },
+            "rule_position": {
+                "name": "rule_position",
+                "type": "VARCHAR",
+                "length": 8,
+                "decimals": null,
+                "values": [],
+                "allow_null": false,
+                "default": "after",
+                "comment": "",
+                "unsigned": false,
+                "auto_increment": false
+            },
+            "rule_occurrence": {
+                "name": "rule_occurrence",
+                "type": "VARCHAR",
+                "length": 8,
+                "decimals": null,
+                "values": [],
+                "allow_null": false,
+                "default": "first",
+                "comment": "",
+                "unsigned": false,
+                "auto_increment": false
+            },
+            "rule_occurrence_index": {
+                "name": "rule_occurrence_index",
+                "type": "INT",
+                "length": 10,
+                "decimals": null,
+                "values": [],
+                "allow_null": false,
+                "default": 1,
+                "comment": "",
+                "unsigned": true,
+                "auto_increment": false
+            },
+            "rule_sort_order": {
+                "name": "rule_sort_order",
+                "type": "INT",
+                "length": 10,
+                "decimals": null,
+                "values": [],
+                "allow_null": false,
+                "default": 0,
+                "comment": "",
+                "unsigned": true,
+                "auto_increment": false
+            },
+            "rule_platforms": {
+                "name": "rule_platforms",
+                "type": "TEXT",
+                "length": 0,
+                "decimals": null,
+                "values": [],
+                "allow_null": true,
+                "default": null,
+                "comment": "",
+                "unsigned": false,
+                "auto_increment": false
+            },
+            "rule_allow_groups": {
+                "name": "rule_allow_groups",
+                "type": "TEXT",
+                "length": 0,
+                "decimals": null,
+                "values": [],
+                "allow_null": true,
+                "default": null,
+                "comment": "",
+                "unsigned": false,
+                "auto_increment": false
+            },
+            "rule_exclude_groups": {
+                "name": "rule_exclude_groups",
+                "type": "TEXT",
+                "length": 0,
+                "decimals": null,
+                "values": [],
+                "allow_null": true,
+                "default": null,
+                "comment": "",
+                "unsigned": false,
+                "auto_increment": false
+            },
+            "rule_apps": {
+                "name": "rule_apps",
+                "type": "TEXT",
+                "length": 0,
+                "decimals": null,
+                "values": [],
+                "allow_null": true,
+                "default": null,
+                "comment": "",
+                "unsigned": false,
+                "auto_increment": false
+            },
+            "rule_include_urls": {
+                "name": "rule_include_urls",
+                "type": "TEXT",
+                "length": 0,
+                "decimals": null,
+                "values": [],
+                "allow_null": true,
+                "default": null,
+                "comment": "",
+                "unsigned": false,
+                "auto_increment": false
+            },
+            "rule_exclude_urls": {
+                "name": "rule_exclude_urls",
+                "type": "TEXT",
+                "length": 0,
+                "decimals": null,
+                "values": [],
+                "allow_null": true,
+                "default": null,
+                "comment": "",
+                "unsigned": false,
+                "auto_increment": false
+            }
+        },
+        "indexes": {
+            "PRIMARY": {
+                "type": "primary",
+                "name": "PRIMARY",
+                "length": [
+                    null
+                ],
+                "columns": [
+                    "rule_id"
+                ]
+            },
+            "placement_order": {
+                "type": "key",
+                "name": "placement_order",
+                "length": [
+                    null,
+                    null
+                ],
+                "columns": [
+                    "rule_sort_order",
+                    "rule_id"
+                ]
+            }
+        },
+        "engine": "InnoDB"
+    }
+}

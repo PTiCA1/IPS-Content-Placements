@@ -1,0 +1,6 @@
+{
+  "admin": {
+    "placements": { "default_controller": "rules", "protected": 0, "default": 1 }
+  },
+  "front": []
+}

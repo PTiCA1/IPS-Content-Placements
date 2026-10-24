@@ -1,0 +1,15 @@
+/dist/
+/node_modules/
+/test-results/
+/playwright-report/
+/.DS_Store
+*.log
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+/ips-source/
+/ips_v*/
+/conf_global.php
+/constants.php

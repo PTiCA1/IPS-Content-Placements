@@ -1,0 +1,5 @@
+{
+  "core": {
+    "Loader": { "Placements": "IPS\\rqblockplacements\\extensions\\core\\Loader\\Placements" }
+  }
+}
