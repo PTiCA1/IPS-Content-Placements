@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Čeština" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.2" long_version="1000002" update_check="">
- <app key="rqblockplacements" version="1000002">
+<language name="Čeština" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.3" long_version="1000003" update_check="">
+ <app key="rqblockplacements" version="1000003">
   <word key="__app_rqblockplacements" js="0">Pages Block Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Umístění bloků</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Pravidla umístění</word>
@@ -98,9 +98,11 @@
   <word key="rqbp_occurrence_index_desc" js="0">Číslování začíná hodnotou 1.</word>
   <word key="rqbp_open_diagnostics" js="0">Otevřít veřejnou diagnostiku</word>
   <word key="rqbp_pages_required" js="0">Před vytvářením nebo úpravou umístění nainstalujte a zapněte aplikaci Pages. Existující pravidla se obnoví, jakmile budou Pages dostupné.</word>
-  <word key="rqbp_platform_unknown" js="0">Neznámá platforma</word>
+  <word key="rqbp_platform_desktop" js="0">Desktop</word>
+  <word key="rqbp_platform_mobile" js="0">Mobil</word>
+  <word key="rqbp_platform_tablet" js="0">Tablet</word>
   <word key="rqbp_platforms" js="0">Platformy</word>
-  <word key="rqbp_platforms_desc" js="0">Prázdný výběr povoluje všechny platformy. Jde o platformy rozpoznané nativním IPS parserem user-agentu, nikoli o šířku obrazovky. „Neznámá“ zahrnuje nerozpoznanou nebo chybějící platformu.</word>
+  <word key="rqbp_platforms_desc" js="0">Prázdný výběr povoluje všechny tři třídy zařízení. Rozhoduje platforma IPS a user-agent, nikoli šířka obrazovky. Nerozpoznaná zařízení patří do Desktopu. Změna šířky okna třídu nemění. iPad s desktopovým user-agentem může být rozpoznán jako Desktop.</word>
   <word key="rqbp_position" js="0">Vložit blok</word>
   <word key="rqbp_prepare_diagnostics" js="0">Připravit testovací odkaz</word>
   <word key="rqbp_rule_enabled" js="0">Zapnout toto pravidlo</word>

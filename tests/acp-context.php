@@ -38,7 +38,14 @@ namespace IPS {
     class Member {
         public static function loggedIn(): self { static $instance; return $instance ??= new self; }
         public function language(): object { return new class {
-            public function addToStack(string $key, ...$args): string { return $key; }
+            public function addToStack(string $key, ...$args): string {
+                return match ($key) {
+                    'rqbp_platform_mobile' => 'Translated mobile',
+                    'rqbp_platform_tablet' => 'Translated tablet',
+                    'rqbp_platform_desktop' => 'Translated desktop',
+                    default => $key,
+                };
+            }
             public function parseOutputForDisplay(&$value): void {}
             public function stripVLETags($value): string { return $value; }
         }; }
@@ -127,7 +134,15 @@ namespace IPS\Helpers {
 }
 
 namespace IPS\Helpers\Form {
-    class Field { public function __construct(public string $name, public mixed $value = null, ...$args) {} }
+    class Field {
+        public function __construct(
+            public string $name,
+            public mixed $value = null,
+            public bool $required = false,
+            public array $options = [],
+            ...$args
+        ) {}
+    }
     class Text extends Field {} class TextArea extends Field {} class Number extends Field {}
     class Radio extends Field {} class Select extends Field {} class CheckboxSet extends Field {}
     class Node extends Field {} class YesNo extends Field {} class Url extends Field {}
@@ -154,6 +169,15 @@ namespace IPS\rqblockplacements {
         public string $hook_name = 'rowItem';
         public string $selector = '.category';
         public int $sort_order = 10;
+        public string $position = 'before';
+        public string $occurrence = 'nth';
+        public int $occurrence_index = 2;
+        public array $platforms = ['Android', 'Windows'];
+        public array $allow_groups = ['4'];
+        public array $exclude_groups = ['2'];
+        public array $apps = ['forums'];
+        public array $include_urls = ['/forums/*'];
+        public array $exclude_urls = ['/forums/private/*'];
         public static function all(): array { return []; }
         public static function load($id): self { return new self; }
         public function toConfig(): array { return Policy::normalize(get_object_vars($this)); }
@@ -202,7 +226,40 @@ namespace {
     $fields = \IPS\Helpers\Form::$last->fields;
     check(isset($fields['rqbp_block_picker'], $fields['rqbp_block_reference'], $fields['rqbp_hook'], $fields['rqbp_selector']), 'The native form contains both block sources and placement modes');
     check($fields['rqbp_rule_enabled']->value === false, 'New rules remain disabled by default');
+    $deviceOptions = [
+        'mobile' => 'rqbp_platform_mobile',
+        'tablet' => 'rqbp_platform_tablet',
+        'desktop' => 'rqbp_platform_desktop',
+    ];
+    $deviceLabels = ['mobile' => 'Translated mobile', 'tablet' => 'Translated tablet', 'desktop' => 'Translated desktop'];
+    check(\IPS\rqblockplacements\Policy::platformOptions() === $deviceOptions, 'Policy exposes exactly the three device choices and their language keys');
+    check(array_keys($fields['rqbp_platforms']->options['options']) === array_keys($deviceOptions), 'The new-rule form exposes mobile, tablet and desktop without OS or unknown options');
+    check($fields['rqbp_platforms']->options['options'] === $deviceLabels, 'Each device choice uses its translated label through the ACP language boundary');
+    check($fields['rqbp_platforms']->value === [], 'An empty device selection defaults to all devices');
     check(str_contains(runAcp('rules', 'form', 1), 'rqbp_rule_form'), 'The existing-rule form renders');
+    $existingFields = \IPS\Helpers\Form::$last->fields;
+    check($existingFields['rqbp_platforms']->value === ['mobile', 'tablet', 'desktop'], 'Legacy Android and Windows selections preselect the three corresponding device classes');
+    check($existingFields['rqbp_platforms']->options['options'] === $deviceLabels, 'Editing an existing rule also translates labels and excludes legacy OS and unknown choices');
+    $preserved = [
+        'rqbp_name' => 'Test rule',
+        'rqbp_rule_enabled' => true,
+        'rqbp_sort_order' => 10,
+        'rqbp_mode' => 'hook',
+        'rqbp_hook' => 'forums/front/index/forumRow|rowItem',
+        'rqbp_selector' => '.category',
+        'rqbp_position' => 'before',
+        'rqbp_occurrence' => 'nth',
+        'rqbp_occurrence_index' => 2,
+        'rqbp_allow_groups' => ['4'],
+        'rqbp_exclude_groups' => ['2'],
+        'rqbp_apps' => ['forums'],
+        'rqbp_include_urls' => '/forums/*',
+        'rqbp_exclude_urls' => '/forums/private/*',
+    ];
+    foreach ($preserved as $name => $value) {
+        check($existingFields[$name]->value === $value, "Device normalization preserves {$name}");
+    }
+    check($existingFields['rqbp_block_picker']->value instanceof \IPS\cms\Blocks\Block && $existingFields['rqbp_block_picker']->value->id === 9, 'Device normalization preserves the selected Pages block');
     check(str_contains(runAcp('rules', 'diagnostics', 1), 'rqbp_diag_scope'), 'Diagnostics renders its core scope notice');
     check(str_contains(runAcp('settings'), 'rqbp_settings_form'), 'The settings form renders');
     check(count(\IPS\Dispatcher::i()->permissions) === 6 && array_unique(\IPS\Dispatcher::i()->permissions) === ['rqbp_manage'], 'Every ACP route checks its management permission');

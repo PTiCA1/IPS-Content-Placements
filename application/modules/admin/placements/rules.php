@@ -231,9 +231,8 @@ class rules extends Controller
         }, null, null, 'rqbp_occurrence_index'));
 
         $form->addHeader('rqbp_section_audience');
-        $platformOptions = Policy::platformOptions();
-        $platformOptions['__unknown__'] = self::word('rqbp_platform_unknown');
-        $form->add(new CheckboxSet('rqbp_platforms', $this->arrayValue($config['platforms']), false, [
+        $platformOptions = array_map(static fn (string $key): string => self::word($key), Policy::platformOptions());
+        $form->add(new CheckboxSet('rqbp_platforms', Policy::platforms($config['platforms']), false, [
             'options' => $platformOptions, 'parse' => 'normal',
         ]));
         $groups = Group::groups() ?? [];
@@ -277,7 +276,8 @@ class rules extends Controller
                 $record->position = $values['rqbp_position'];
                 $record->occurrence = $values['rqbp_occurrence'];
                 $record->occurrence_index = $values['rqbp_occurrence'] === 'nth' ? (int) $values['rqbp_occurrence_index'] : 1;
-                foreach (['platforms', 'allow_groups', 'exclude_groups', 'apps'] as $field) {
+                $record->platforms = json_encode(Policy::platforms($values['rqbp_platforms'] ?? []), JSON_THROW_ON_ERROR);
+                foreach (['allow_groups', 'exclude_groups', 'apps'] as $field) {
                     $record->$field = json_encode(array_values($values['rqbp_' . $field] ?? []), JSON_THROW_ON_ERROR);
                 }
                 foreach (['include_urls', 'exclude_urls'] as $field) {

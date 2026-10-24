@@ -34,6 +34,7 @@ final class Policy
         foreach ($row as $key => $value) { $rule[str_starts_with($key, 'rule_') ? substr($key, 5) : $key] = $value; }
         foreach (['id', 'enabled', 'block_id', 'occurrence_index', 'sort_order'] as $key) { $rule[$key] = (int) ($rule[$key] ?? ($key === 'occurrence_index' ? 1 : 0)); }
         foreach (['platforms', 'allow_groups', 'exclude_groups', 'apps', 'include_urls', 'exclude_urls'] as $key) { $rule[$key] = self::lines($rule[$key] ?? []); }
+        $rule['platforms'] = self::platforms($rule['platforms']);
         foreach (['name', 'hook_path', 'hook_name', 'selector'] as $key) { $rule[$key] = (string) ($rule[$key] ?? ''); }
         $rule['mode'] = $rule['mode'] ?? 'css';
         $rule['position'] = $rule['position'] ?? 'after';
@@ -51,8 +52,7 @@ final class Policy
         if (self::matchesAny($url, $rule['exclude_urls'])) { return 'url_excluded'; }
         if ($rule['include_urls'] && !self::matchesAny($url, $rule['include_urls'])) { return 'url'; }
         if (!$audience) { return null; }
-        $platform = $context['platform'] ?? '__unknown__';
-        $platform = $platform === '' ? '__unknown__' : $platform;
+        $platform = self::deviceType($context['platform'] ?? null, $context['user_agent'] ?? null);
         if ($rule['platforms'] && !in_array($platform, $rule['platforms'], true)) { return 'platform'; }
         $groups = array_map('strval', $context['groups'] ?? []);
         if (array_intersect($groups, $rule['exclude_groups'])) { return 'group_excluded'; }
@@ -87,7 +87,42 @@ final class Policy
 
     public static function platformOptions(): array
     {
-        $values = ['Android', 'BlackBerry', 'Chrome OS', 'FreeBSD', 'iPad', 'iPhone', 'iPod', 'Kindle', 'Kindle Fire', 'Linux', 'Macintosh', 'NetBSD', 'New Nintendo 3DS', 'Nintendo 3DS', 'Nintendo DS', 'Nintendo Switch', 'Nintendo Wii', 'Nintendo WiiU', 'OpenBSD', 'PlayBook', 'PlayStation 3', 'PlayStation 4', 'PlayStation 5', 'PlayStation Vita', 'Sailfish', 'Symbian', 'Tizen', 'Windows', 'Windows Phone', 'Xbox', 'Xbox One'];
-        return array_combine($values, $values) + ['__unknown__' => 'rqbp_platform_unknown'];
+        return ['mobile' => 'rqbp_platform_mobile', 'tablet' => 'rqbp_platform_tablet', 'desktop' => 'rqbp_platform_desktop'];
+    }
+
+    /** Only three selectable classes; older OS filters are converted on read/save. */
+    public static function platforms(mixed $value): array
+    {
+        $selected = [];
+        foreach (self::lines($value) as $platform) {
+            // Old Android rules covered both phones and tablets, so keep both classes.
+            $types = strtolower($platform) === 'android' ? ['mobile', 'tablet'] : [self::deviceType($platform)];
+            foreach ($types as $type) { $selected[$type] = true; }
+        }
+        return array_values(array_intersect(array_keys(self::platformOptions()), array_keys($selected)));
+    }
+
+    /** Server-side device class, using the native IPS platform and original UA. */
+    public static function deviceType(?string $platform, ?string $userAgent = null): string
+    {
+        $platform = strtolower(trim($platform ?? ''));
+        if (isset(self::platformOptions()[$platform])) { return $platform; }
+        $userAgent ??= '';
+        // Check phones before Android: Windows Phone UAs can also contain Android.
+        if (in_array($platform, ['iphone', 'ipod', 'windows phone', 'blackberry', 'symbian', 'sailfish', 'tizen'], true)
+            || preg_match('/\b(?:iPhone|iPod|Windows Phone|IEMobile|BlackBerry|BB10|Symbian|Sailfish)\b/i', $userAgent)) {
+            return 'mobile';
+        }
+        if (in_array($platform, ['ipad', 'kindle', 'kindle fire', 'playbook'], true)
+            || preg_match('/\b(?:iPad|Tablet|PlayBook|Kindle)\b|Silk\//i', $userAgent)
+            || (($platform === 'macintosh' || preg_match('/\bMacintosh\b/i', $userAgent)) && preg_match('/\bMobile\b/i', $userAgent))) {
+            return 'tablet';
+        }
+        if ($platform === 'android' || preg_match('/\bAndroid\b/i', $userAgent)) {
+            return preg_match('/\bMobile\b/i', $userAgent) ? 'mobile' : 'tablet';
+        }
+        if (preg_match('/\b(?:Mobile|Mobi)\b/i', $userAgent)) { return 'mobile'; }
+        // Unknown agents, bots without a device marker and desktop-mode iPads share this fallback.
+        return 'desktop';
     }
 }

@@ -50,10 +50,12 @@ final class Runtime
             $query = trim(preg_replace('/(?:^|&)(?:rqbp_diagnostics|rqbp_rule)=[^&]*/', '', $query), '&');
             $url = $path . ($query !== '' ? '?' . $query : '');
         }
+        $agent = \IPS\Session::i()->userAgent;
         return [
             'app' => \IPS\Dispatcher::i()->application->directory,
             'url' => $url,
-            'platform' => \IPS\Session::i()->userAgent->platform,
+            'platform' => Policy::deviceType($agent->platform, $agent->useragent ?? null),
+            'native_platform' => $agent->platform,
             'groups' => \IPS\Member::loggedIn()->groups ?? [],
         ];
     }

@@ -13,7 +13,7 @@ namespace IPS {
     class Application { public static function appIsEnabled($key): bool { return true; } }
     class Dispatcher { public string $controllerLocation = 'front'; public object $application; public function __construct() { $this->application = (object) ['directory' => 'forums']; } public static function hasInstance(): bool { return true; } public static function i(): self { static $s; return $s ??= new self; } }
     class Settings { public bool $rqbp_enabled = true; public static function i(): self { static $s; return $s ??= new self; } }
-    class Session { public object $userAgent; public function __construct() { $this->userAgent = (object) ['platform' => 'Windows']; } public static function i(): self { static $s; return $s ??= new self; } }
+    class Session { public object $userAgent; public function __construct() { $this->userAgent = (object) ['platform' => 'Windows', 'useragent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0']; } public static function i(): self { static $s; return $s ??= new self; } }
     class Request { public bool $rqbp_diagnostics = false; public string $currentUrl = 'https://forum.example/community/forums/?page=2'; public static function i(): self { static $s; return $s ??= new self; } public function url(): string { return $this->currentUrl; } }
     class Member { public int $member_id = 0; public array $groups = [2]; public static function loggedIn(): self { static $s; return $s ??= new self; } public function language(): object { return new class {
         public function parseOutputForDisplay(&$html): void { $html = str_replace('<lang>', 'Translated', $html); $html = preg_replace('/__rqbp_front_[a-z]+__/', "Label with \"quotes\" </script>\nnext", $html); }
@@ -50,6 +50,7 @@ namespace {
         Block::$renders = 0; Block::$allowed = Block::$exists = true; Block::$callback = null;
         \IPS\Output::$cacheable = true;
         \IPS\Session::i()->userAgent->platform = 'Windows';
+        \IPS\Session::i()->userAgent->useragent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0';
         \IPS\Member::loggedIn()->groups = [2];
         \IPS\Member::loggedIn()->member_id = 0;
         \IPS\Settings::i()->rqbp_enabled = true;
@@ -64,10 +65,38 @@ namespace {
             'rule_apps' => '[]', 'rule_include_urls' => '[]', 'rule_exclude_urls' => '[]',
         ], $overrides)];
     }
-    fixture(['rule_platforms' => '["Android"]']);
+    fixture(['rule_platforms' => '["mobile"]']);
     Runtime::prepare();
     check(!\IPS\Output::$cacheable, 'Omitted UA variants must also disable page caching');
     check(Block::$renders === 0 && Runtime::payload() === '', 'Wrong platform must not render or serialize block');
+    foreach ([
+        ['Android', 'Mozilla/5.0 (Linux; Android 14; Pixel 8) Chrome/130.0 Mobile Safari/537.36', 'mobile'],
+        ['Android', 'Mozilla/5.0 (Linux; Android 14; SM-X710) Chrome/130.0 Safari/537.36', 'tablet'],
+        ['iPad', 'Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X) Mobile/15E148 Safari/604.1', 'tablet'],
+        ['Macintosh', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Version/18.0 Safari/605.1.15', 'desktop'],
+        [null, null, 'desktop'],
+    ] as [$platform, $userAgent, $device]) {
+        fixture(['rule_platforms' => json_encode([$device])]);
+        \IPS\Session::i()->userAgent->platform = $platform;
+        \IPS\Session::i()->userAgent->useragent = $userAgent;
+        $context = Runtime::context();
+        check($context['platform'] === $device && $context['native_platform'] === $platform, 'Runtime derives device class and retains native platform for diagnosis');
+        Runtime::prepare();
+        check(Block::$renders === 1 && str_contains(Runtime::payload(), 'secret'), 'Matching device receives prepared CSS block');
+        check(!\IPS\Output::$cacheable, 'Matching device route must disable shared caching');
+    }
+    fixture(['rule_platforms' => '["mobile"]', 'rule_mode' => 'hook']);
+    \IPS\Session::i()->userAgent->platform = 'iPad';
+    \IPS\Session::i()->userAgent->useragent = 'Mozilla/5.0 (iPad; CPU OS 18_0) Mobile/15E148';
+    check(Runtime::hook(1) === '' && Block::$renders === 0, 'Mobile-only hook never renders for tablet');
+    check(!\IPS\Output::$cacheable, 'Nonmatching hook device also disables shared caching');
+    foreach ([true, false] as $mobile) {
+        fixture(['rule_platforms' => '["Android"]']);
+        \IPS\Session::i()->userAgent->platform = 'Android';
+        \IPS\Session::i()->userAgent->useragent = 'Mozilla/5.0 (Linux; Android 14) Chrome/130.0 ' . ($mobile ? 'Mobile ' : '') . 'Safari/537.36';
+        Runtime::prepare();
+        check(Block::$renders === 1, 'Legacy Android rule retains both phones and tablets');
+    }
     fixture(['rule_exclude_groups' => '["4"]']);
     \IPS\Member::loggedIn()->groups = [2, 4];
     Runtime::prepare();

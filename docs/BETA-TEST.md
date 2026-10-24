@@ -1,12 +1,12 @@
 # ACP beta acceptance test
 
-Status: the owner has installed **beta.1** and reported the missing ACP icon and `template_store_missing` when opening rules. **Complete live acceptance remains pending.** Beta.2 fixes both defects. Automated mocks and browser fixtures do not establish native installation or upgrade compatibility. Record results before publishing or calling the package stable.
+Status: the owner confirmed that the **beta.2 rule editor works** after the beta.1 ACP fixes. **Beta.3 device targeting and upgrade acceptance remain pending.** Automated mocks and browser fixtures do not establish native installation or upgrade compatibility. Record results before publishing or calling the package stable.
 
-Use a licensed, private IPS **5.0.20 + Pages** test installation with a database/file backup. Record the PHP version, IPS build, theme, browser, CDN/cache configuration and application TAR SHA256. The current package is **`1.0.0-beta.2`, build `1000002`**; the earlier package was `1.0.0-beta.1`, build `1000001`.
+Use a licensed, private IPS **5.0.20 + Pages** test installation with a database/file backup. Record the PHP version, IPS build, theme, browser, CDN/cache configuration and application TAR SHA256. The current package is **`1.0.0-beta.3`, build `1000003`**; upgrade from `1.0.0-beta.2`, build `1000002`.
 
 ## Installation and basic placement
 
-1. Upload `rqblockplacements-1.0.0-beta.2.tar` through ACP Applications. Confirm no installer error, version/build `1.0.0-beta.2` / `1000002`, and a visible grid icon near the bottom of the normal compact ACP sidebar. Open **Block placements → Placement rules**, then **Block placements → Settings**. After Czech import these are **Umístění bloků → Pravidla umístění / Nastavení**. This is a separate application tab, not a submenu of native Advertisements or Pages.
+1. Upload `rqblockplacements-1.0.0-beta.3.tar` through ACP Applications. Confirm no installer error, version/build `1.0.0-beta.3` / `1000003`, and a visible grid icon near the bottom of the normal compact ACP sidebar. Open **Block placements → Placement rules**, then **Block placements → Settings**. After Czech import these are **Umístění bloků → Pravidla umístění / Nastavení**. This is a separate application tab, not a submenu of native Advertisements or Pages.
 2. Create a public Pages HTML block with a unique `RQBP TEST` heading and a link. Confirm its original native display works first.
 3. Create a CSS rule for a category actually on your forum, for example `li[data-categoryID="4"]`, **after**, first match, unrestricted audience. Check it appears between categories and does not appear between topic posts. Inspect the real category ID before choosing the selector.
 4. Change to **before**. Check the target/category ordering and absence of duplicated block output.
@@ -17,7 +17,7 @@ Direct navigation fallback: retain the actual ACP directory in your current addr
 
 ## Filtering and occurrences
 
-- Test unrestricted, Windows-only, an explicit iPhone/Android multiselect and unknown platform. IPS uses user-agent platform names, not viewport width. Merely resizing a desktop browser should not change its platform.
+- Confirm Platforms has exactly **Mobile, Tablet, Desktop** (Czech: **Mobil, Tablet, Desktop**), with no OS or Unknown options. Test an empty selection, each class separately and Mobile + Tablet together. Use an iPhone, an Android phone with `Mobile` in its user agent, an Android tablet without that token, an iPad/Kindle, a desktop and an unrecognized user agent (Desktop). Resizing must not change the class. An iPad presenting a desktop user agent may be detected as Desktop.
 - Test a member whose primary group is allowed and secondary group is excluded: exclusion must win. Test an allowed secondary group, an unlisted member, an ordinary administrator and a guest.
 - Restrict to Forums, then visit Pages and Forums. Test URL include `/topic/*`, then an overlapping exclude. Test a query string and a board installed in a subfolder.
 - With at least three real targets, test first, nth=2 and all. Test a missing nth target. Verify the application neither targets its own inserted block nor duplicates output after IPS dynamic content events.
@@ -35,9 +35,9 @@ Direct navigation fallback: retain the actual ACP directory in your current addr
 
 ## Upgrade and cleanup
 
-1. Save representative CSS and native-hook rules, ordering, group filters and platform settings. Export a backup of the database.
-2. Specifically test **beta.1 (`1000001`) → beta.2 (`1000002`)** using `rqblockplacements-1.0.0-beta.2.tar` through ACP. If beta.1 prevents rule creation due to `template_store_missing`, test the update without rules and verify data preservation with a later numbered version. Re-uploading the same beta does **not** establish migration compatibility.
-3. Confirm all rules/settings remain and native hook markers are restored once. Repeat an edit/reconcile and check no duplicate markers or placements. Confirm the new ACP icon appears on a compact sidebar and both the normal navigation and direct URL open the same rule table.
+1. In beta.2, save representative CSS and native-hook rules, ordering, group filters and legacy platform selections (Android, iPhone, iPad, Windows and Unknown). Export a backup of the database.
+2. Specifically test **beta.2 (`1000002`) → beta.3 (`1000003`)** using `rqblockplacements-1.0.0-beta.3.tar` through ACP. Re-uploading the same beta does **not** establish migration compatibility. For the earlier beta.1 → beta.2 upgrade, the missing icon and `template_store_missing` were the reported defects; beta.2 editor access is now confirmed.
+3. Confirm rules/settings remain and native hook markers are restored once. Android must become Mobile + Tablet, iPhone Mobile, iPad/Kindle/PlayBook Tablet, and Windows/Unknown Desktop. Opening a rule normalizes old values; saving persists canonical values without a schema migration. Repeat an edit/reconcile and check no duplicate markers or placements. Normal menu navigation and the direct URL must open the same rule table.
 4. Check the English defaults and optional Czech import. Verify the Czech file changes only this app's strings; check intended language metadata after native import.
 5. On the disposable test installation, uninstall. Confirm this app's tables/settings/markers are removed and existing Pages blocks still exist.
 
@@ -55,6 +55,6 @@ Keep stable 1.0.0 pending until installation, assets, permissions, cache isolati
 | Native assets / original request | Pending | |
 | Guest CDN isolation | Pending | |
 | Diagnostics / ACP restrictions | Pending | |
-| beta.1 → beta.2 upgrade | Pending | |
+| beta.2 → beta.3 upgrade / platform conversion | Pending | |
 | Czech translation | Pending | |
 | Disable / uninstall | Pending | |

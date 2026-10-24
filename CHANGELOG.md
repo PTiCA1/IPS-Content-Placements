@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0-beta.3 — 2026-10-24
+
+Build `1000003`, updateable from beta.2 without schema changes.
+
+- Replace the OS platform list with exactly Mobile, Tablet and Desktop; an empty selection allows all three.
+- Classify devices from the native IPS platform and user-agent string. Android phones and tablets are distinguished by the `Mobile` token; viewport resizing does not affect targeting.
+- Normalize legacy OS selections when reading existing rules and store canonical device classes on save. Old Android targeting covers Mobile and Tablet.
+- Keep desktop-mode iPads in Desktop when their user agent cannot be distinguished from a desktop device.
+
 ## 1.0.0-beta.2 — 2026-10-24
 
 Build `1000002`, updateable from beta.1 without schema changes.

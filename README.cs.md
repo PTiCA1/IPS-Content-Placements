@@ -2,14 +2,14 @@
 
 Samostatná aplikace pro vkládání existujících Pages bloků před nebo za CSS selektor či nativní hook Invision Community. Má vlastní pravidla pro platformy, skupiny, aplikace a URL. Zdrojový kód doplňku je pod licencí MIT. [English](README.md).
 
-**1.0.0-beta.2 — sestavení 1000002.** Připraveno podle Invision Community **5.0.20**. Tato verze doplňuje chybějící ikonu ACP a opravuje chybu `template_store_missing` při otevírání pravidel. Majitel již nainstaloval beta.1; kompletní úprava pravidel, vykreslení umístění a aktualizace beta.1 → beta.2 **zatím nebyly ověřeny**. Zveřejnění na GitHubu a stabilní 1.0.0 následují po dokončení testu.
+**1.0.0-beta.3 — sestavení 1000003.** Připraveno podle Invision Community **5.0.20**. Platformy nyní nabízejí pouze **Mobil, Tablet a Desktop**. Majitel potvrdil funkční editor pravidel v beta.2; cílení na zařízení a aktualizace beta.3 na běžícím fóru **ještě čekají na ověření**. Zveřejnění na GitHubu a stabilní 1.0.0 následují po dokončení testu.
 
 ## Funkce první verze
 
 - Výběr Pages bloku nebo zadání jednoho přesného odkazu, například `{block="welcome"}`.
 - Výběr CSS selektoru nebo dostupného nativního hooku šablony a polohy před / za prvkem.
 - První, konkrétní číslovaný nebo všechny odpovídající prvky či výskyty hooku.
-- Vícenásobný výběr konkrétních platforem IPS. Jde o rozpoznání zařízení podle IPS user-agent parseru, nikoli šířku okna. Neznámá platforma má vlastní volbu.
+- Výběr Mobilu, Tabletu a/nebo Desktopu. Prázdný výběr povoluje všechny tři třídy. Rozhoduje platforma IPS a user-agent, nikoli šířka okna.
 - Povolené a vyloučené skupiny včetně vedlejších členství. Vyloučení má přednost.
 - Volitelný výběr aplikací a povolených/vyloučených relativních URL. Zástupný znak je `*`; vyloučení má přednost. Query string je součástí porovnání, část za `#` nikoli.
 - Nativní kontrola aktivity, oprávnění a vykreslení Pages bloku přes `IPS\cms\Blocks\Block::display()` v původním požadavku stránky. Nevzniká zvláštní HTTP požadavek pro vykreslení bloku.
@@ -20,7 +20,7 @@ Doplněk nerozšiřuje nativní reklamní systém. Hook musí v instalované ša
 
 Potřebujete licencované IPS 5.0.20 se zapnutými **Pages**, povolené vlastní aplikace a oprávnění instalovat je v ACP. Použijte testovací instalaci a před instalací nebo aktualizací zálohujte databázi i soubory.
 
-1. Připravte `rqblockplacements-1.0.0-beta.2.tar`, samostatný český XML a `SHA256SUMS` z adresáře `dist/`. Ve společném adresáři je můžete ověřit příkazem `shasum -a 256 -c SHA256SUMS`.
+1. Připravte `rqblockplacements-1.0.0-beta.3.tar`, samostatný český XML a `SHA256SUMS` z adresáře `dist/`. Ve společném adresáři je můžete ověřit příkazem `shasum -a 256 -c SHA256SUMS`.
 2. V **ACP → System → Applications** zvolte nahrání/instalaci aplikace a nahrajte **TAR**. ZIP zdrojového repozitáře se neinstaluje.
 3. Otevřete **ACP → Block placements → Placement rules**. Po importu češtiny je cesta **Umístění bloků → Pravidla umístění**. Jde o vlastní záložku aplikace poblíž spodního konce postranního menu, nikoli položku uvnitř nativních reklam nebo Pages. Dalším administrátorům případně přidělte oprávnění `rqbp_manage`.
 4. V Pages vytvořte jednoduchý HTML blok a přidejte pravidlo pro jeden známý CSS selektor nebo hook. Začněte prvním výskytem, všemi platformami a bez omezení skupin či URL.
@@ -34,11 +34,13 @@ Nativní hook nezaručuje, že je do jeho místa vhodné vložit celý blok. Nev
 
 ## Čeština
 
-Instalace přidá anglické výchozí texty. Balíček obsahuje samostatný `rqblockplacements-1.0.0-beta.2-cs.xml`; stejný soubor je uvnitř TAR jako `resources/lang-cs.xml`. Nejprve nainstalujte aplikaci, potom přes správu jazyků v ACP nahrajte XML jako novou verzi zamýšleného českého jazyka. Jde jen o překlad doplňku, ne o úplný jazykový balíček IPS. Před importem zálohujte stávající jazyk; nativní import může aktualizovat jeho metadata. Po budoucí aktualizaci aplikace případně import zopakujte pro nové texty.
+Instalace přidá anglické výchozí texty. Balíček obsahuje samostatný `rqblockplacements-1.0.0-beta.3-cs.xml`; stejný soubor je uvnitř TAR jako `resources/lang-cs.xml`. Nejprve nainstalujte aplikaci, potom přes správu jazyků v ACP nahrajte XML jako novou verzi zamýšleného českého jazyka. Jde jen o překlad doplňku, ne o úplný jazykový balíček IPS. Před importem zálohujte stávající jazyk; nativní import může aktualizovat jeho metadata. Po budoucí aktualizaci aplikace případně import zopakujte pro nové texty.
 
 ## Pravidla a diagnostika
 
 Prázdný seznam platforem, povolených skupin, aplikací nebo povolených URL znamená bez omezení daným filtrem. Vyloučení skupin a URL stále platí. Pro fórum na `https://example.test/community/` zadávejte například `/topic/*`. Každý vzor patří na samostatný řádek. Regulární výrazy se nepoužívají.
+
+Android s tokenem `Mobile` patří do Mobilu; Android bez něj, iPad a Kindle do Tabletu. Ostatní nebo nerozpoznaná zařízení patří do Desktopu. Změna šířky okna třídu nemění a iPad s desktopovým user-agentem nemusí server od Desktopu rozlišit. Staré OS volby se při čtení převedou: Android → Mobil + Tablet, iPhone → Mobil, iPad/Kindle/PlayBook → Tablet, PC/neznámé → Desktop. Uložení pravidla zapíše nové hodnoty; změna schématu databáze není potřeba.
 
 U hooku jde o jeho vyvolání během jednoho serverového požadavku. Hook v opakované řádkové šabloně může mít více výskytů. V režimu CSS jde o odpovídající cílový prvek v dokumentu; vložené bloky se nepovažují za cíle. Pravidla se řadí podle nastaveného pořadí a ID. Chybějící Pages, blok, oprávnění, hook nebo selektor se mají projevit prázdným výstupem; příčinu ověřte v diagnostice pravidla a v IPS logu.
 
@@ -53,7 +55,7 @@ npm run test:build
 npx playwright install chromium
 npm run test:browser
 python3 tools/build.py --check-reproducible
-python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.2.tar
+python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.3.tar
 ```
 
 Potřebujete PHP (ověřeno s 8.3), Python 3.10+ a pro test prohlížeče Node 20+. `PHP_BINARY` může určit jinou binárku PHP; `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` vlastní Chrome/Chromium. Překlady se generují z vlastních PHP polí `application/resources/lang/{en,cs}.php`.

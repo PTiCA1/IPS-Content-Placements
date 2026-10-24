@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <language>
- <app key="rqblockplacements" version="1000002">
+ <app key="rqblockplacements" version="1000003">
   <word key="__app_rqblockplacements" js="0">Pages Block Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Block placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Placement rules</word>
@@ -98,9 +98,11 @@
   <word key="rqbp_occurrence_index_desc" js="0">Numbering starts at 1.</word>
   <word key="rqbp_open_diagnostics" js="0">Open front-end diagnostics</word>
   <word key="rqbp_pages_required" js="0">Install and enable the Pages application before creating or editing block placements. Existing rules will resume when Pages is available.</word>
-  <word key="rqbp_platform_unknown" js="0">Unknown platform</word>
+  <word key="rqbp_platform_desktop" js="0">Desktop</word>
+  <word key="rqbp_platform_mobile" js="0">Mobile</word>
+  <word key="rqbp_platform_tablet" js="0">Tablet</word>
   <word key="rqbp_platforms" js="0">Platforms</word>
-  <word key="rqbp_platforms_desc" js="0">Leave empty for all platforms. These are platforms detected by the native IPS user-agent parser, not screen-width breakpoints. “Unknown” includes an unrecognized or missing platform.</word>
+  <word key="rqbp_platforms_desc" js="0">Leave empty for all three device classes. Detection uses the IPS platform and user-agent string, not screen width. Unrecognized devices use Desktop. Resizing does not change the class. An iPad using a desktop user agent may be detected as Desktop.</word>
   <word key="rqbp_position" js="0">Insert the block</word>
   <word key="rqbp_prepare_diagnostics" js="0">Prepare test link</word>
   <word key="rqbp_rule_enabled" js="0">Enable this rule</word>
