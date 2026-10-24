@@ -9,9 +9,23 @@ import unittest
 SPEC = importlib.util.spec_from_file_location("rqbp_build", Path(__file__).resolve().parents[1] / "tools/build.py")
 BUILD = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(BUILD)
+VALIDATOR_SPEC = importlib.util.spec_from_file_location("rqbp_validate", Path(__file__).resolve().parents[1] / "tools/validate.py")
+VALIDATOR = importlib.util.module_from_spec(VALIDATOR_SPEC)
+VALIDATOR_SPEC.loader.exec_module(VALIDATOR)
 
 
 class DistributionTests(unittest.TestCase):
+    def test_compact_acp_menu_requires_an_icon(self):
+        menu = {"placements": {"rules": {"tab": "rqblockplacements"}}}
+        words = {"menutab__rqblockplacements": "Block placements"}
+        with self.assertRaisesRegex(ValueError, "ACP tab icon missing"):
+            VALIDATOR.validate_acp_menu(menu, words)
+        words["menutab__rqblockplacements_icon"] = "table-cells-large"
+        VALIDATOR.validate_acp_menu(menu, words)
+        words["menutab__rqblockplacements_icon"] = '" invalid'
+        with self.assertRaisesRegex(ValueError, "ACP tab icon missing or invalid"):
+            VALIDATOR.validate_acp_menu(menu, words)
+
     def test_archive_is_reproducible_and_has_installable_root(self):
         files = [("Application.php", b"<?php // original\n", 0o644), ("data/application.json", b"{}\n", 0o644)]
         first = BUILD.archive_bytes(files, 0)

@@ -39,7 +39,7 @@ final class HookRegistry
             $template->hookpoint_type = $data['type'];
             $template->content = $data['content'];
             $template->order = $data['order'];
-            $template->version = '1000001';
+            $template->version = Application::RQBP_BUILD;
             $template->updated = time();
             $template->save();
         }

@@ -121,14 +121,14 @@ class rules extends Controller
             'link' => Url::internal('app=rqblockplacements&module=placements&controller=settings'),
         ];
         $notice = !IPSApplication::appIsEnabled('cms') ? 'rqbp_pages_required' : 'rqbp_rules_intro';
-        Output::i()->output = Theme::i()->getTemplate('global')->message($notice, 'info') . (string) $table;
+        Output::i()->output = Theme::i()->getTemplate('global', 'core', 'admin')->message($notice, 'info') . (string) $table;
     }
 
     protected function form(): void
     {
         if (!IPSApplication::appIsEnabled('cms')) {
             Output::i()->title = self::word('rqbp_rules');
-            Output::i()->output = Theme::i()->getTemplate('global')->message('rqbp_pages_required', 'warning');
+            Output::i()->output = Theme::i()->getTemplate('global', 'core', 'admin')->message('rqbp_pages_required', 'warning');
             return;
         }
 
@@ -404,7 +404,7 @@ class rules extends Controller
                 . self::escape(self::word($passed ? 'rqbp_diag_pass' : 'rqbp_diag_fail')) . '</li>';
         }
         $html .= '</ul>';
-        $html .= Theme::i()->getTemplate('global')->message('rqbp_diag_scope', 'info');
+        $html .= Theme::i()->getTemplate('global', 'core', 'admin')->message('rqbp_diag_scope', 'info');
         $html .= '<pre class="i-padding_3">' . self::escape(json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)) . '</pre>';
 
         $target = Url::external(rtrim((string) Settings::i()->base_url, '/') . '/');

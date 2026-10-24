@@ -1,17 +1,19 @@
 # ACP beta acceptance test
 
-Status: **not run against a live IPS installation**. Automated mocks and browser fixtures do not establish native installation compatibility. Record results before publishing or calling the package stable.
+Status: the owner has installed **beta.1** and reported the missing ACP icon and `template_store_missing` when opening rules. **Complete live acceptance remains pending.** Beta.2 fixes both defects. Automated mocks and browser fixtures do not establish native installation or upgrade compatibility. Record results before publishing or calling the package stable.
 
-Use a licensed, private IPS **5.0.20 + Pages** test installation with a database/file backup. Record the PHP version, IPS build, theme, browser, CDN/cache configuration and application TAR SHA256. The initial package is `1.0.0-beta.1`, build `1000001`.
+Use a licensed, private IPS **5.0.20 + Pages** test installation with a database/file backup. Record the PHP version, IPS build, theme, browser, CDN/cache configuration and application TAR SHA256. The current package is **`1.0.0-beta.2`, build `1000002`**; the earlier package was `1.0.0-beta.1`, build `1000001`.
 
 ## Installation and basic placement
 
-1. Upload the TAR through ACP Applications. Confirm no installer error, the correct version, the dedicated Pages Block Placements tab and global setting.
+1. Upload `rqblockplacements-1.0.0-beta.2.tar` through ACP Applications. Confirm no installer error, version/build `1.0.0-beta.2` / `1000002`, and a visible grid icon near the bottom of the normal compact ACP sidebar. Open **Block placements → Placement rules**, then **Block placements → Settings**. After Czech import these are **Umístění bloků → Pravidla umístění / Nastavení**. This is a separate application tab, not a submenu of native Advertisements or Pages.
 2. Create a public Pages HTML block with a unique `RQBP TEST` heading and a link. Confirm its original native display works first.
 3. Create a CSS rule for a category actually on your forum, for example `li[data-categoryID="4"]`, **after**, first match, unrestricted audience. Check it appears between categories and does not appear between topic posts. Inspect the real category ID before choosing the selector.
 4. Change to **before**. Check the target/category ordering and absence of duplicated block output.
 5. Create a separate native-hook rule using an available safe hook, such as the `main` hook in `core/front/global/globalTemplate`, **before** or **after**. Check it displays once with valid surrounding markup. A native hook missing from your installed version is not a selectable target.
 6. Select a Pages block through the picker, then switch to the manual source and use one exact `{block="the_actual_key"}`. Both should select the same existing block. Extra HTML, two tags and other template expressions must be rejected.
+
+Direct navigation fallback: retain the actual ACP directory in your current address and open its `index.php` with `?app=rqblockplacements&module=placements&controller=rules`. A renamed ACP folder must remain unchanged. On beta.1 a blank item near the bottom of the compact sidebar may still open the application; beta.2 must show its icon without depending on hover or a screen wider than 1,900 px.
 
 ## Filtering and occurrences
 
@@ -34,8 +36,8 @@ Use a licensed, private IPS **5.0.20 + Pages** test installation with a database
 ## Upgrade and cleanup
 
 1. Save representative CSS and native-hook rules, ordering, group filters and platform settings. Export a backup of the database.
-2. Upgrade to a separately versioned candidate TAR through ACP. Re-uploading this same beta does **not** establish migration compatibility.
-3. Confirm all rules/settings remain and native hook markers are restored once. Repeat an edit/reconcile and check no duplicate markers or placements.
+2. Specifically test **beta.1 (`1000001`) → beta.2 (`1000002`)** using `rqblockplacements-1.0.0-beta.2.tar` through ACP. If beta.1 prevents rule creation due to `template_store_missing`, test the update without rules and verify data preservation with a later numbered version. Re-uploading the same beta does **not** establish migration compatibility.
+3. Confirm all rules/settings remain and native hook markers are restored once. Repeat an edit/reconcile and check no duplicate markers or placements. Confirm the new ACP icon appears on a compact sidebar and both the normal navigation and direct URL open the same rule table.
 4. Check the English defaults and optional Czech import. Verify the Czech file changes only this app's strings; check intended language metadata after native import.
 5. On the disposable test installation, uninstall. Confirm this app's tables/settings/markers are removed and existing Pages blocks still exist.
 
@@ -44,6 +46,7 @@ Keep stable 1.0.0 pending until installation, assets, permissions, cache isolati
 | Check | Result | Notes / reproduction |
 | --- | --- | --- |
 | Clean ACP install | Pending | |
+| Compact ACP menu icon / rule-editor navigation | Pending | |
 | CSS category placement | Pending | |
 | Native hook placement | Pending | |
 | Permissions / secondary groups | Pending | |
@@ -52,6 +55,6 @@ Keep stable 1.0.0 pending until installation, assets, permissions, cache isolati
 | Native assets / original request | Pending | |
 | Guest CDN isolation | Pending | |
 | Diagnostics / ACP restrictions | Pending | |
-| Actual version upgrade | Pending | |
+| beta.1 → beta.2 upgrade | Pending | |
 | Czech translation | Pending | |
 | Disable / uninstall | Pending | |

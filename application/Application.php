@@ -6,10 +6,12 @@ if (!\defined('\IPS\SUITE_UNIQUE_KEY')) { exit; }
 
 class Application extends \IPS\Application
 {
+    public const RQBP_BUILD = 1000002;
+
     public static function asset(string $name): string
     {
         if (!in_array($name, ['placements.js', 'admin.js'], true)) { throw new \InvalidArgumentException('Invalid asset'); }
-        return \IPS\Http\Url::baseUrl() . 'applications/rqblockplacements/resources/' . $name . '?v=1000001';
+        return \IPS\Http\Url::baseUrl() . 'applications/rqblockplacements/resources/' . $name . '?v=' . self::RQBP_BUILD;
     }
 
     public function installCustomTemplates(int $offset = null, int $limit = null): int
@@ -30,8 +32,8 @@ class Application extends \IPS\Application
     public static function staticTemplates(): array
     {
         return [
-            'rqbp_prepare' => ['hookpoint' => 'core/front/global/globalTemplate:head', 'type' => 'inside-start', 'key' => '', 'version' => '1000001', 'content' => '{expression="\\IPS\\rqblockplacements\\Runtime::prepare()" raw="true"}'],
-            'rqbp_payload' => ['hookpoint' => 'core/front/global/globalTemplate:body', 'type' => 'inside-end', 'key' => '', 'version' => '1000001', 'content' => '{expression="\\IPS\\rqblockplacements\\Runtime::payload()" raw="true"}'],
+            'rqbp_prepare' => ['hookpoint' => 'core/front/global/globalTemplate:head', 'type' => 'inside-start', 'key' => '', 'version' => (string) self::RQBP_BUILD, 'content' => '{expression="\\IPS\\rqblockplacements\\Runtime::prepare()" raw="true"}'],
+            'rqbp_payload' => ['hookpoint' => 'core/front/global/globalTemplate:body', 'type' => 'inside-end', 'key' => '', 'version' => (string) self::RQBP_BUILD, 'content' => '{expression="\\IPS\\rqblockplacements\\Runtime::payload()" raw="true"}'],
         ];
     }
 }

@@ -2,7 +2,7 @@
 
 Samostatná aplikace pro vkládání existujících Pages bloků před nebo za CSS selektor či nativní hook Invision Community. Má vlastní pravidla pro platformy, skupiny, aplikace a URL. Zdrojový kód doplňku je pod licencí MIT. [English](README.md).
 
-**1.0.0-beta.1 — sestavení 1000001.** Připraveno podle Invision Community **5.0.20**. Instalace a aktualizace na běžícím IPS fóru **zatím nebyla ověřena**. Balíček je určen k vašemu testu přes ACP; zveřejnění na GitHubu a stabilní 1.0.0 následují až po něm.
+**1.0.0-beta.2 — sestavení 1000002.** Připraveno podle Invision Community **5.0.20**. Tato verze doplňuje chybějící ikonu ACP a opravuje chybu `template_store_missing` při otevírání pravidel. Majitel již nainstaloval beta.1; kompletní úprava pravidel, vykreslení umístění a aktualizace beta.1 → beta.2 **zatím nebyly ověřeny**. Zveřejnění na GitHubu a stabilní 1.0.0 následují po dokončení testu.
 
 ## Funkce první verze
 
@@ -20,11 +20,13 @@ Doplněk nerozšiřuje nativní reklamní systém. Hook musí v instalované ša
 
 Potřebujete licencované IPS 5.0.20 se zapnutými **Pages**, povolené vlastní aplikace a oprávnění instalovat je v ACP. Použijte testovací instalaci a před instalací nebo aktualizací zálohujte databázi i soubory.
 
-1. Připravte `rqblockplacements-1.0.0-beta.1.tar`, samostatný český XML a `SHA256SUMS` z adresáře `dist/`. Ve společném adresáři je můžete ověřit příkazem `shasum -a 256 -c SHA256SUMS`.
+1. Připravte `rqblockplacements-1.0.0-beta.2.tar`, samostatný český XML a `SHA256SUMS` z adresáře `dist/`. Ve společném adresáři je můžete ověřit příkazem `shasum -a 256 -c SHA256SUMS`.
 2. V **ACP → System → Applications** zvolte nahrání/instalaci aplikace a nahrajte **TAR**. ZIP zdrojového repozitáře se neinstaluje.
-3. Otevřete vlastní záložku **Pages Block Placements**. Dalším administrátorům případně přidělte oprávnění `rqbp_manage`.
+3. Otevřete **ACP → Block placements → Placement rules**. Po importu češtiny je cesta **Umístění bloků → Pravidla umístění**. Jde o vlastní záložku aplikace poblíž spodního konce postranního menu, nikoli položku uvnitř nativních reklam nebo Pages. Dalším administrátorům případně přidělte oprávnění `rqbp_manage`.
 4. V Pages vytvořte jednoduchý HTML blok a přidejte pravidlo pro jeden známý CSS selektor nebo hook. Začněte prvním výskytem, všemi platformami a bez omezení skupin či URL.
 5. Projděte [testovací postup](docs/BETA-TEST.cs.md) včetně pohledu běžného člena a hosta.
+
+Pokud menu nemůžete najít, otevřete současnou adresu svého ACP s `index.php` a nahraďte pouze část dotazu za otazníkem hodnotou `app=rqblockplacements&module=placements&controller=rules`. Zachovejte skutečný adresář ACP ze své aktuální adresy, včetně případně přejmenované složky; nenahrazujte jej odhadnutou cestou `/admin/`. Globální přepínač je v **Block placements → Settings**, česky **Umístění bloků → Nastavení**. V beta.1 chyběla ikona, takže nová spodní záložka v úzkém menu vypadala prázdně; přímá URL na ikoně nezávisí.
 
 Pro rychlé vypnutí použijte globální přepínač, vypněte konkrétní pravidlo nebo celou aplikaci. Odinstalace odstraní pravidla a generované markery doplňku; existující Pages bloky neodstraňuje.
 
@@ -32,7 +34,7 @@ Nativní hook nezaručuje, že je do jeho místa vhodné vložit celý blok. Nev
 
 ## Čeština
 
-Instalace přidá anglické výchozí texty. Balíček obsahuje samostatný `rqblockplacements-1.0.0-beta.1-cs.xml`; stejný soubor je uvnitř TAR jako `resources/lang-cs.xml`. Nejprve nainstalujte aplikaci, potom přes správu jazyků v ACP nahrajte XML jako novou verzi zamýšleného českého jazyka. Jde jen o překlad doplňku, ne o úplný jazykový balíček IPS. Před importem zálohujte stávající jazyk; nativní import může aktualizovat jeho metadata. Po budoucí aktualizaci aplikace případně import zopakujte pro nové texty.
+Instalace přidá anglické výchozí texty. Balíček obsahuje samostatný `rqblockplacements-1.0.0-beta.2-cs.xml`; stejný soubor je uvnitř TAR jako `resources/lang-cs.xml`. Nejprve nainstalujte aplikaci, potom přes správu jazyků v ACP nahrajte XML jako novou verzi zamýšleného českého jazyka. Jde jen o překlad doplňku, ne o úplný jazykový balíček IPS. Před importem zálohujte stávající jazyk; nativní import může aktualizovat jeho metadata. Po budoucí aktualizaci aplikace případně import zopakujte pro nové texty.
 
 ## Pravidla a diagnostika
 
@@ -51,7 +53,7 @@ npm run test:build
 npx playwright install chromium
 npm run test:browser
 python3 tools/build.py --check-reproducible
-python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.1.tar
+python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.2.tar
 ```
 
 Potřebujete PHP (ověřeno s 8.3), Python 3.10+ a pro test prohlížeče Node 20+. `PHP_BINARY` může určit jinou binárku PHP; `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` vlastní Chrome/Chromium. Překlady se generují z vlastních PHP polí `application/resources/lang/{en,cs}.php`.

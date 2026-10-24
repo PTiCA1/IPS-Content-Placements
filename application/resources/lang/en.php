@@ -3,6 +3,7 @@
 return [
     '__app_rqblockplacements' => 'Pages Block Placements',
     'menutab__rqblockplacements' => 'Block placements',
+    'menutab__rqblockplacements_icon' => 'table-cells-large',
     'menu__rqblockplacements_placements' => 'Block placements',
     'menu__rqblockplacements_placements_rules' => 'Placement rules',
     'menu__rqblockplacements_placements_settings' => 'Settings',

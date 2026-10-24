@@ -1,11 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Čeština" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.1" long_version="1000001" update_check="">
- <app key="rqblockplacements" version="1000001">
+<language name="Čeština" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.2" long_version="1000002" update_check="">
+ <app key="rqblockplacements" version="1000002">
   <word key="__app_rqblockplacements" js="0">Pages Block Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Umístění bloků</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Pravidla umístění</word>
   <word key="menu__rqblockplacements_placements_settings" js="0">Nastavení</word>
   <word key="menutab__rqblockplacements" js="0">Umístění bloků</word>
+  <word key="menutab__rqblockplacements_icon" js="0">table-cells-large</word>
   <word key="r__placements" js="0">Umístění bloků</word>
   <word key="r__rqblockplacements" js="0">Pages Block Placements</word>
   <word key="r__rqbp_manage" js="0">Spravovat umístění bloků Pages</word>

@@ -23,6 +23,16 @@ def require(condition: bool, message: str) -> None:
         raise ValueError(message)
 
 
+def validate_acp_menu(menu: dict, words: dict[str, str]) -> None:
+    """IPS hides ACP tab labels on compact screens, so a real icon is required."""
+    for items in menu.values():
+        for item in items.values():
+            tab = item.get("tab", "")
+            require(bool(words.get(f"menutab__{tab}")), f"ACP tab label missing: {tab}")
+            icon = words.get(f"menutab__{tab}_icon", "")
+            require(bool(re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", icon)), f"ACP tab icon missing or invalid: {tab}")
+
+
 def signature(source: str, name: str) -> tuple[str, str, str]:
     match = re.search(r"public\s+(static\s+)?function\s+" + re.escape(name) + r"\s*\(([^)]*)\)\s*(?::\s*([\\\w?|]+))?", source)
     require(match is not None, f"Public method not found: {name}")
@@ -60,6 +70,7 @@ def validate(ips_source: Path | None = None, archive: Path | None = None) -> Non
         words = application.findall("word")
         keys = [word.get("key") for word in words]
         require(len(keys) == len(set(keys)) and bool(keys), "Language keys missing or duplicated")
+        validate_acp_menu(data["acpmenu"], {word.get("key"): word.text or "" for word in words})
     require({w.get("key") for w in en.find("app")} == {w.get("key") for w in cs.find("app")}, "English/Czech translation keys differ")
     for name in ("Application.php", "sources/Policy/Policy.php", "modules/admin/placements/rules.php", "modules/admin/placements/settings.php", "extensions/core/Loader/Placements.php"):
         require((APP / name).is_file(), f"Missing runtime file {name}")

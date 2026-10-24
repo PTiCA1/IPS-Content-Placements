@@ -1,11 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <language>
- <app key="rqblockplacements" version="1000001">
+ <app key="rqblockplacements" version="1000002">
   <word key="__app_rqblockplacements" js="0">Pages Block Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Block placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Placement rules</word>
   <word key="menu__rqblockplacements_placements_settings" js="0">Settings</word>
   <word key="menutab__rqblockplacements" js="0">Block placements</word>
+  <word key="menutab__rqblockplacements_icon" js="0">table-cells-large</word>
   <word key="r__placements" js="0">Block placements</word>
   <word key="r__rqblockplacements" js="0">Pages Block Placements</word>
   <word key="r__rqbp_manage" js="0">Manage Pages block placements</word>

@@ -3,6 +3,7 @@
 return [
     '__app_rqblockplacements' => 'Pages Block Placements',
     'menutab__rqblockplacements' => 'Umístění bloků',
+    'menutab__rqblockplacements_icon' => 'table-cells-large',
     'menu__rqblockplacements_placements' => 'Umístění bloků',
     'menu__rqblockplacements_placements_rules' => 'Pravidla umístění',
     'menu__rqblockplacements_placements_settings' => 'Nastavení',
