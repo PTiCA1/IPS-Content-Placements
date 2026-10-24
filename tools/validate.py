@@ -72,7 +72,7 @@ def validate(ips_source: Path | None = None, archive: Path | None = None) -> Non
         require(len(keys) == len(set(keys)) and bool(keys), "Language keys missing or duplicated")
         validate_acp_menu(data["acpmenu"], {word.get("key"): word.text or "" for word in words})
     require({w.get("key") for w in en.find("app")} == {w.get("key") for w in cs.find("app")}, "English/Czech translation keys differ")
-    for name in ("Application.php", "sources/Policy/Policy.php", "modules/admin/placements/rules.php", "modules/admin/placements/settings.php", "extensions/core/Loader/Placements.php"):
+    for name in ("Application.php", "sources/Policy/Policy.php", "sources/Translation/Translation.php", "modules/admin/placements/rules.php", "modules/admin/placements/settings.php", "extensions/core/Loader/Placements.php"):
         require((APP / name).is_file(), f"Missing runtime file {name}")
     for name in ("resources/admin.js", "resources/placements.js"):
         require((APP / name).is_file(), f"Missing original browser asset {name}")
@@ -95,7 +95,7 @@ def validate(ips_source: Path | None = None, archive: Path | None = None) -> Non
             require(re.search(pattern, (ips_source / name).read_text(encoding="utf-8")) is not None, f"IPS contract changed: {name}")
         parent = (ips_source / "system/Application/Application.php").read_text(encoding="utf-8")
         child = (APP / "Application.php").read_text(encoding="utf-8")
-        for method in ("installCustomTemplates", "buildCustomTemplates"):
+        for method in ("installCustomTemplates", "buildCustomTemplates", "installLanguages"):
             require(signature(parent, method) == signature(child, method), f"App override signature differs from native IPS: {method}")
         parent_loader = (ips_source / "system/Extensions/LoaderAbstract.php").read_text(encoding="utf-8")
         child_loader = (APP / "extensions/core/Loader/Placements.php").read_text(encoding="utf-8")

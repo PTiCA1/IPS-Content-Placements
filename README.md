@@ -2,7 +2,7 @@
 
 Place an existing Invision Community Pages block before or after a CSS selector or a native theme hook, with rules for platforms, groups, applications and URLs. Original standalone application, MIT licensed. [Česky](README.cs.md).
 
-**1.0.0-beta.3 — build 1000003.** Prepared against Invision Community **5.0.20**. Platforms now offers exactly **Mobile, Tablet and Desktop**. The owner confirmed that the beta.2 rule editor works; beta.3 device targeting and upgrade acceptance on a live forum are **pending**. GitHub publication and a stable 1.0.0 release follow the acceptance test.
+**1.0.0-beta.4 — build 1000004.** Prepared against Invision Community **5.0.20**. Czech application text is now applied automatically to existing Czech languages during installation or upgrade. Platforms offers exactly **Mobile, Tablet and Desktop**. The owner confirmed that the beta.2 rule editor works; device targeting, automatic Czech and upgrade acceptance on a live forum are **pending**. GitHub publication and a stable 1.0.0 release follow the acceptance test.
 
 ## What this release does
 
@@ -20,9 +20,9 @@ The application does not add or extend the native advertising system. Native hoo
 
 Requirements: a licensed Invision Community 5.0.20 installation with **Pages** enabled, custom applications permitted, and ACP application-management access. Use a test installation and take a database/file backup before installation or upgrade.
 
-1. Obtain `rqblockplacements-1.0.0-beta.3.tar` and `SHA256SUMS` from `dist/` or a future GitHub release. Verify the checksum, for example `shasum -a 256 -c SHA256SUMS` from the download directory containing both release files.
+1. Obtain `rqblockplacements-1.0.0-beta.4.tar` and `SHA256SUMS` from `dist/` or a future GitHub release. Verify the checksum, for example `shasum -a 256 -c SHA256SUMS` from the download directory containing both release files.
 2. Open **ACP → System → Applications**, choose the upload/install action and upload the **TAR**. The GitHub source ZIP is not the installable application.
-3. Open **ACP → Block placements → Placement rules**. This is the application's own tab near the bottom of the sidebar, not an entry under native Advertisements or Pages. With the Czech translation installed the path is **Umístění bloků → Pravidla umístění**. Allow access to the `rqbp_manage` permission for other administrators who need it.
+3. Open **ACP → Block placements → Placement rules**. This is the application's own tab near the bottom of the sidebar, not an entry under native Advertisements or Pages. When using an existing Czech language the path is **Umístění bloků → Pravidla umístění**, without a separate XML import. Allow access to the `rqbp_manage` permission for other administrators who need it.
 4. Create a simple existing Pages HTML block, then add a placement rule. Start with one known CSS selector or native hook, the first occurrence, all platforms and no audience/URL restriction.
 5. Follow the [beta acceptance checklist](docs/BETA-TEST.md). Validate the output as both an administrator and an ordinary user.
 
@@ -34,7 +34,9 @@ Native hooks are insertion points, not a guarantee that arbitrary block markup i
 
 ## Czech translation
 
-The application installs English defaults. The release also includes `rqblockplacements-1.0.0-beta.3-cs.xml` (the same file is inside the TAR as `resources/lang-cs.xml`). Install the app first, then use the ACP Languages upload/new-version action for the intended Czech language. This is a translation of this application only, not a complete Czech language pack. Back up an existing language before importing; the native importer can update its language metadata. On future app updates, import the matching translation again if new strings were added.
+The TAR includes Czech application text and applies it automatically on installation and upgrade to existing languages with Czech locale codes such as `cs_CZ`, `cs-CZ` or `Czech_…`. No separate XML import is required. Existing custom text, including an intentional empty value, is preserved. Upgrades fill new keys; changing an existing translated value requires the optional XML refresh. Other languages keep the English defaults; the application does not switch the site's default language or change language metadata.
+
+The release also includes `rqblockplacements-1.0.0-beta.4-cs.xml` (inside the TAR as `resources/lang-cs.xml`) for an explicit translation refresh or a Czech language added after the application was installed. Use ACP Languages to import it into the intended language. This file translates only this application. Back up the language before an optional native XML import, whose metadata behavior belongs to IPS.
 
 ## Rules and troubleshooting
 
@@ -57,12 +59,12 @@ npm run test:build
 npx playwright install chromium
 npm run test:browser
 python3 tools/build.py --check-reproducible
-python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.3.tar
+python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.4.tar
 ```
 
 Tools require PHP (tested with 8.3), Python 3.10+ and Node 20+ for browser tests. `PHP_BINARY` can point to a specific PHP executable. Browser tests can use `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` instead of a downloaded Chromium. The builder reads the original `application/resources/lang/{en,cs}.php` arrays and generates native `data/lang.xml`, `data/installLang.json` and the Czech import XML.
 
-The TAR has `data/application.json` at its root. File ordering, modes, ownership and timestamps are normalized; `SOURCE_DATE_EPOCH` defaults to `0`. `dist/SHA256SUMS` covers the TAR and separate Czech XML. The builder does not package Git metadata, node modules, authoring language arrays, unversioned upgrade work, or any parent workspace files. See [development and release notes](docs/DEVELOPMENT.md).
+The TAR has `data/application.json` at its root. File ordering, modes, ownership and timestamps are normalized; `SOURCE_DATE_EPOCH` defaults to `0`. `dist/SHA256SUMS` covers the TAR and separate Czech XML. The installer reads the bundled `resources/lang-cs.xml`; Git metadata, node modules, authoring language arrays, unversioned upgrade work and parent workspace files remain excluded. See [development and release notes](docs/DEVELOPMENT.md).
 
 Optional read-only API contract check against a separately obtained local platform:
 

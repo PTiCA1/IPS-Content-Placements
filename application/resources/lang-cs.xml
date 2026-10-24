@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Čeština" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.3" long_version="1000003" update_check="">
- <app key="rqblockplacements" version="1000003">
+<language name="Čeština" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.4" long_version="1000004" update_check="">
+ <app key="rqblockplacements" version="1000004">
   <word key="__app_rqblockplacements" js="0">Pages Block Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Umístění bloků</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Pravidla umístění</word>

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0-beta.4 — 2026-10-24
+
+Build `1000004`, updateable from earlier betas without schema changes.
+
+- Apply the bundled Czech application translation automatically during installation and upgrade for existing Czech locales, including `cs_CZ`, `cs-CZ` and `Czech_…`; no manual XML import is required.
+- Preserve existing custom text, including intentional empty values. New translation keys fill automatically; an explicit XML refresh remains available for existing text or Czech languages added later.
+- Keep English defaults for other languages, without changing language metadata or the site's default language.
+- Document automatic Czech and preservation checks in both acceptance checklists. Device targeting and beta.4 installation/upgrade still require native acceptance testing; beta.3 has not been confirmed on the owner's forum.
+
 ## 1.0.0-beta.3 — 2026-10-24
 
 Build `1000003`, updateable from beta.2 without schema changes.
