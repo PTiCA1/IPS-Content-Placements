@@ -43,7 +43,7 @@
             if (!position) {
                 return;
             }
-            const allowed = mode() === 'css'
+            const allowed = mode() === 'css' || mode() === 'server'
                 ? ['before', 'inside-start', 'inside-end', 'after']
                 : positionMap && Array.isArray(positionMap[hook.value]) ? positionMap[hook.value] : [];
             const current = position.value;
@@ -88,7 +88,7 @@
             hookControls(form, mode);
             const validate = () => {
                 input.setCustomValidity('');
-                if (mode() !== 'css') {
+                if (mode() !== 'css' && mode() !== 'server') {
                     return true;
                 }
                 const selector = input.value.trim();

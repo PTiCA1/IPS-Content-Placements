@@ -268,6 +268,7 @@ namespace IPS\rqblockplacements {
 namespace {
     require __DIR__ . '/../application/sources/Policy/Policy.php';
     require __DIR__ . '/../application/sources/RuleAccess/RuleAccess.php';
+    require __DIR__ . '/../application/sources/ServerSelector/ServerSelector.php';
     require __DIR__ . '/../application/Application.php';
     require __DIR__ . '/../application/modules/admin/placements/rules.php';
     require __DIR__ . '/../application/modules/admin/placements/settings.php';
@@ -303,6 +304,9 @@ namespace {
     $fields = \IPS\Helpers\Form::$last->fields;
     check(isset($fields['rqbp_block_picker'], $fields['rqbp_block_reference'], $fields['rqbp_hook'], $fields['rqbp_selector']), 'The native form contains both block sources and placement modes');
     check($fields['rqbp_block_reference']->description === 'rqbp_block_reference_help_v10', 'The block reference uses the new explicit help instead of a previously saved field description');
+    check($fields['rqbp_mode']->options['options'] === \IPS\rqblockplacements\Policy::modeOptions()
+        && $fields['rqbp_mode']->options['toggles']['server'] === ['rqbp_selector'], 'The server CSS mode is distinct and displays the selector field');
+    check($fields['rqbp_selector']->description === 'rqbp_selector_help_v14' && $fields['rqbp_occurrence']->description === 'rqbp_occurrence_help_v14', 'Fresh explicit help explains server scope and comma-list occurrences');
     check(isset($fields['rqbp_hook_app'], $fields['rqbp_hook_template']), 'Native-style selectors separate application, template and target hook');
     check($fields['rqbp_position'] instanceof \IPS\Helpers\Form\Select && $fields['rqbp_position']->options['options'] === \IPS\rqblockplacements\Policy::positionOptions(), 'The type dropdown uses all four native hook types');
     check($fields['rqbp_position']->label === 'template_hookpoint_type', 'Hook Type uses the native field label');
@@ -563,6 +567,39 @@ namespace {
     runAcp('rules', 'form');
     check(count(\IPS\rqblockplacements\Rule::$saved) === $savedCount, 'Mismatched application/template/target selectors are rejected before saving');
     foreach (['rqbp_hook_app', 'rqbp_hook_template', 'rqbp_hook', 'rqbp_mode'] as $field) { unset(\IPS\Request::i()->$field); }
+
+    \IPS\Request::i()->rqbp_mode = 'server';
+    $serverSubmission = [
+        'rqbp_name' => 'Server placement', 'rqbp_block_source' => 'picker',
+        'rqbp_block_picker' => new \IPS\cms\Blocks\Block, 'rqbp_mode' => 'server',
+        'rqbp_position' => 'after', 'rqbp_occurrence' => 'first',
+    ];
+    foreach ([
+        '#ipsLayout__main .ipsBlockSpacer > li:nth-child(3)',
+        '#ipsLayout__main .ipsEntries--topic .ipsEntry[data-ips-hook="postWrapper"]:nth-of-type(5)',
+        '[data-label="a,b"], .category:nth-child(2n + 1)',
+    ] as $selector) {
+        $savedCount = count(\IPS\rqblockplacements\Rule::$saved);
+        \IPS\Helpers\Form::$submitted = $serverSubmission + ['rqbp_selector' => $selector];
+        runAcp('rules', 'form');
+        $saved = end(\IPS\rqblockplacements\Rule::$saved);
+        check(count(\IPS\rqblockplacements\Rule::$saved) === $savedCount + 1
+            && $saved->mode === 'server' && $saved->selector === $selector
+            && $saved->hook_path === '' && $saved->hook_name === '' && !$saved->enabled, 'The ACP saves a disabled server placement without truncating its selector or retaining a stale hook');
+    }
+    foreach (['', '[', '.category:hover', '.category:has(p)', ':is(.one,.two)', '.escaped\\:class'] as $selector) {
+        $savedCount = count(\IPS\rqblockplacements\Rule::$saved);
+        \IPS\Helpers\Form::$submitted = $serverSubmission + ['rqbp_selector' => $selector];
+        runAcp('rules', 'form');
+        check(count(\IPS\rqblockplacements\Rule::$saved) === $savedCount
+            && in_array(\IPS\Helpers\Form::$last->error, ['rqbp_error_selector', 'rqbp_error_server_selector'], true), 'Unsupported server syntax is rejected before mutation instead of silently changing to JavaScript');
+    }
+    \IPS\Request::i()->rqbp_mode = 'css';
+    \IPS\Helpers\Form::$submitted = array_replace($serverSubmission, ['rqbp_mode' => 'css', 'rqbp_selector' => '.category:has(p)']);
+    runAcp('rules', 'form');
+    $saved = end(\IPS\rqblockplacements\Rule::$saved);
+    check($saved->mode === 'css' && $saved->selector === '.category:has(p)', 'Legacy browser selectors keep their original JavaScript mode and browser syntax');
+    unset(\IPS\Request::i()->rqbp_mode);
 
     foreach (\IPS\Theme::$calls as [$group, $app, $location]) {
         check($app === 'core' && ($group !== 'global' || $location === 'admin'), 'Every shared template uses its explicit core context');

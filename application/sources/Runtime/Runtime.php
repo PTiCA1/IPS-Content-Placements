@@ -15,12 +15,14 @@ final class Runtime
     private static bool $prepared = false;
     private static bool $payloadSent = false;
     private static bool $cacheChecked = false;
+    private static bool $serverProcessed = false;
 
     public static function reset(): void
     {
         self::$rules = null;
         self::$rendered = self::$rendering = self::$ordinals = self::$diagnostics = [];
         self::$prepared = self::$payloadSent = self::$cacheChecked = false;
+        self::$serverProcessed = false;
     }
 
     private static function enabled(): bool
@@ -93,10 +95,57 @@ final class Runtime
                 $reason = self::reason($rule, $context);
                 if ($reason !== null) { self::note($rule, $reason); continue; }
                 // CSS uses the original request; global hook dependencies must precede includeCSS/JS.
-                if ($rule['mode'] === 'css' || $rule['hook_path'] === 'core/front/global/globalTemplate') { self::render($rule); }
+                if ($rule['mode'] === 'css' || ($rule['mode'] === 'hook' && $rule['hook_path'] === 'core/front/global/globalTemplate')) { self::render($rule); }
             }
         } catch (\Throwable $error) { self::log($error); }
         return '';
+    }
+
+    /** Loader only: transform controller content before IPS builds the global template. */
+    public static function server(): void
+    {
+        if (self::$serverProcessed || !self::enabled()) { return; }
+        self::$serverProcessed = true;
+        $eligible = [];
+        try {
+            self::guardCache();
+            $context = self::context();
+            foreach (self::rules() as $rule) {
+                if ($rule['mode'] !== 'server') { continue; }
+                $reason = self::reason($rule, $context);
+                if ($reason !== null) { self::note($rule, $reason); continue; }
+                if (\IPS\Request::i()->isAjax()) {
+                    self::note($rule, 'server_ajax_unsupported');
+                    continue;
+                }
+                $eligible[] = $rule;
+            }
+            if (!$eligible) { return; }
+            $html = \IPS\Output::i()->output;
+            // Match the same public HTML values that IPS would resolve on send.
+            self::finalize($html);
+            $result = ServerPlacement::apply($html, $eligible, static function (array $rule): string {
+                $content = self::render($rule);
+                self::finalize($content);
+                return $content;
+            });
+            \IPS\Output::i()->output = $result['html'];
+            foreach ($result['reports'] as $report) {
+                $rule = self::rules()[$report['id']] ?? null;
+                if (!$rule) { continue; }
+                $reason = $report['reason'] !== '' ? $report['reason'] : (self::$diagnostics[$rule['id']]['status'] ?? 'block_empty');
+                self::note($rule, $reason, $report);
+            }
+        } catch (\Throwable $error) {
+            foreach ($eligible as $rule) { self::note($rule, 'server_error'); }
+            self::log($error);
+        }
+    }
+
+    private static function finalize(string &$html): void
+    {
+        \IPS\Member::loggedIn()->language()->parseOutputForDisplay($html);
+        \IPS\Output::i()->parseFileObjectUrls($html);
     }
 
     public static function hook(int $id): string
@@ -116,8 +165,7 @@ final class Runtime
             if ($wrapper === '') {
                 // Head metadata must stay in the native server-rendered hook,
                 // without a body-only wrapper or a deferred browser insertion.
-                \IPS\Member::loggedIn()->language()->parseOutputForDisplay($html);
-                \IPS\Output::i()->parseFileObjectUrls($html);
+                self::finalize($html);
                 if (!HeadContent::isValid($html)) {
                     self::note($rule, 'head_content_invalid');
                     return '';
@@ -139,7 +187,11 @@ final class Runtime
         if ($rule['content_type'] === 'template' && trim($rule['template_code']) === '') { return 'template_empty'; }
         if ($rule['mode'] === 'hook' && !HookCatalog::has($rule['hook_path'], $rule['hook_name'])) { return 'hook_missing'; }
         if ($rule['mode'] === 'hook' && !HookCatalog::has($rule['hook_path'], $rule['hook_name'], $rule['position'])) { return 'hook_context_invalid'; }
-        if ($rule['mode'] === 'css' && trim($rule['selector']) === '') { return 'selector_empty'; }
+        if (in_array($rule['mode'], ['css', 'server'], true) && trim($rule['selector']) === '') { return 'selector_empty'; }
+        if ($rule['mode'] === 'server') {
+            try { ServerSelector::parse($rule['selector']); }
+            catch (\InvalidArgumentException) { return 'server_selector_invalid'; }
+        }
         return null;
     }
 
@@ -183,8 +235,7 @@ final class Runtime
                 $html = self::$rendered[$rule['id']] ?? '';
                 if ($html === '' && !$debug) { continue; }
                 // The normal final-output pass cannot see placeholders after JSON escaping.
-                \IPS\Member::loggedIn()->language()->parseOutputForDisplay($html);
-                \IPS\Output::i()->parseFileObjectUrls($html);
+                self::finalize($html);
                 $rules[] = array_intersect_key($rule, array_flip(['id', 'name', 'selector', 'position', 'occurrence', 'occurrence_index', 'sort_order'])) + ['html' => $html];
             }
             if (!$rules && !$debug) { return ''; }
@@ -192,14 +243,19 @@ final class Runtime
             $payload = ['page_url' => ($url['path'] ?? '/') . (isset($url['query']) ? '?' . $url['query'] : ''), 'rules' => $rules];
             if ($debug) {
                 foreach (self::rules() as $rule) {
-                    if (!isset(self::$diagnostics[$rule['id']])) { self::note($rule, $rule['mode'] === 'hook' ? 'hook_not_reached' : 'ready'); }
+                    if (!isset(self::$diagnostics[$rule['id']])) {
+                        self::note($rule, match ($rule['mode']) { 'hook' => 'hook_not_reached', 'server' => 'server_not_processed', default => 'ready' });
+                    }
                 }
                 $payload['diagnostics'] = array_values(self::$diagnostics);
                 $payload['debug'] = true;
                 $language = \IPS\Member::loggedIn()->language();
                 foreach ($payload['diagnostics'] as &$diagnostic) {
-                    if ($diagnostic['status'] !== 'head_content_invalid') { continue; }
-                    $diagnostic['reason'] = $language->addToStack('rqbp_error_head_content');
+                    $key = $diagnostic['status'] === 'head_content_invalid'
+                        ? 'rqbp_error_head_content'
+                        : (str_starts_with($diagnostic['status'], 'server_') ? 'rqbp_' . $diagnostic['status'] : null);
+                    if ($key === null) { continue; }
+                    $diagnostic['reason'] = $language->addToStack($key);
                     $language->parseOutputForDisplay($diagnostic['reason']);
                     $diagnostic['reason'] = $language->stripVLETags($diagnostic['reason']);
                 }
@@ -221,10 +277,11 @@ final class Runtime
         } catch (\Throwable $error) { self::log($error); return ''; }
     }
 
-    private static function note(array $rule, string $reason): void
+    private static function note(array $rule, string $reason, array $counts = []): void
     {
         if (!self::debug()) { return; }
-        self::$diagnostics[$rule['id']] = ['id' => $rule['id'], 'name' => $rule['name'], 'mode' => $rule['mode'], 'selector' => $rule['selector'], 'status' => $reason, 'reason' => $reason];
+        self::$diagnostics[$rule['id']] = ['id' => $rule['id'], 'name' => $rule['name'], 'mode' => $rule['mode'], 'selector' => $rule['selector'], 'status' => $reason, 'reason' => $reason]
+            + array_intersect_key($counts, array_flip(['matches', 'inserted']));
     }
 
     public static function diagnose(Rule $model, ?array $context = null): array

@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.0-beta.14 — 2026-10-25
+
+Build `1000014`; opt-in server CSS placement, without new database schema changes.
+
+- Add **CSS selector — server** alongside the existing JavaScript selector mode and native hooks. Preserve stored `css`/`hook` rules; `server` fits the existing mode column and is never selected by automatic conversion or fallback.
+- Process supported normal full HTML controller output through `Loader::onFinish`, scoped to virtual `div#ipsLayout__main`. Exclude global header/navigation/footer/head and AJAX; standalone Pages/direct-output routes may bypass this lifecycle.
+- Match a strict CSS subset with one deduplicated document-order comma union and global first/nth/all handling. Reject unsupported syntax, use only HTML context without computed styles, preserve original bytes and skip unsupported/unbalanced input rather than repairing it.
+- Render content only after eligibility, native block permissions, a matching occurrence and safe context. Put server placements directly into response HTML without JavaScript insertion/payload; browser parsing handles their scripts, with ordinary script-order limitations.
+- Add localized mode/help/error/diagnostic keys in all five languages, universal selector examples and server-specific acceptance checks. No new schema migration; retain older migrations, application identity, permissions and cache boundaries.
+- Retain the 5.0.20+ target and 5.0.20 source-verification baseline. Native beta.13 → beta.14 lifecycle, selector/script behavior, installation and upgrade acceptance remain pending. Earlier release notes and the dated security audit remain historical.
+
 ## 1.0.0-beta.13 — 2026-10-25
 
 Build `1000013`; native metadata-only head placement, without new database schema changes.

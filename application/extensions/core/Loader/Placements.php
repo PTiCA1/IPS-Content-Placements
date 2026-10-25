@@ -6,5 +6,9 @@ if (!\defined('\IPS\SUITE_UNIQUE_KEY')) { exit; }
 
 class Placements extends \IPS\Extensions\LoaderAbstract
 {
-    public function onFinish(): void { \IPS\rqblockplacements\Runtime::prepare(); }
+    public function onFinish(): void
+    {
+        \IPS\rqblockplacements\Runtime::prepare();
+        \IPS\rqblockplacements\Runtime::server();
+    }
 }

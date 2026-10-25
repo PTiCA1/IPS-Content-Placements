@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Polski" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.13" long_version="1000013" update_check="">
- <app key="rqblockplacements" version="1000013">
+<language name="Polski" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.14" long_version="1000014" update_check="">
+ <app key="rqblockplacements" version="1000014">
   <word key="__app_rqblockplacements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Reguły umieszczania</word>
@@ -70,6 +70,7 @@
   <word key="rqbp_error_selector" js="0">Wprowadź niepusty selektor CSS bez znaków NUL.</word>
   <word key="rqbp_error_selector_browser" js="0">Selektor CSS jest nieprawidłowy. Sprawdź jego składnię przed zapisaniem.</word>
   <word key="rqbp_error_selector_too_long" js="0">Selektor CSS może mieć maksymalnie 1 000 znaków.</word>
+  <word key="rqbp_error_server_selector" js="0">Ten selektor nie jest obsługiwany w serwerowym trybie CSS. Użyj udokumentowanego podzbioru lub wybierz tryb JavaScript.</word>
   <word key="rqbp_error_template_empty" js="0">Wprowadź kod szablonu IPS.</word>
   <word key="rqbp_error_template_invalid" js="0">Nie udało się skompilować kodu szablonu IPS. Sprawdź składnię szablonu i wyrażeń.</word>
   <word key="rqbp_error_template_php_tags" js="0">Użyj natywnej składni szablonów IPS zamiast znaczników otwierających lub zamykających PHP.</word>
@@ -104,14 +105,17 @@
   <word key="rqbp_log_toggled" js="0">Zmieniono stan włączenia reguły umieszczania %s</word>
   <word key="rqbp_mode" js="0">Tryb umieszczania</word>
   <word key="rqbp_mode_css" js="0">Selektor CSS</word>
+  <word key="rqbp_mode_css_v14" js="0">Selektor CSS — JavaScript</word>
   <word key="rqbp_mode_desc" js="0">Każda reguła korzysta z jednego trybu umieszczania. Natywne hooki renderują zawartość na serwerze. Reguły CSS wstawiają wyrenderowany blok, gdy pasujący element jest już dostępny w przeglądarce.</word>
   <word key="rqbp_mode_hook" js="0">Natywny hook szablonu</word>
+  <word key="rqbp_mode_server" js="0">Selektor CSS — serwer</word>
   <word key="rqbp_move_down" js="0">Przesuń później</word>
   <word key="rqbp_move_up" js="0">Przesuń wcześniej</word>
   <word key="rqbp_name" js="0">Nazwa reguły</word>
   <word key="rqbp_nth" js="0">Numer wystąpienia</word>
   <word key="rqbp_occurrence" js="0">Pasujące wystąpienia</word>
   <word key="rqbp_occurrence_desc" js="0">Natywne hooki zliczają wywołania renderowania w obrębie każdego żądania. Selektory CSS zliczają pasujące elementy w kolejności dokumentu. Jeśli blok jest powtarzany, jego HTML i znacznik reklamowy muszą obsługiwać wiele instancji.</word>
+  <word key="rqbp_occurrence_help_v14" js="0">Natywne hooki zliczają wywołania renderowania w obrębie żądania. Tryby CSS zliczają pasujące elementy w kolejności dokumentu, w tym ukryte kategorie. Selektory oddzielone przecinkami tworzą jedną listę bez duplikatów: pierwsze i numerowane wystąpienie odnoszą się do całej listy, a nie osobno do każdego selektora. Powtarzana zawartość musi obsługiwać wiele instancji.</word>
   <word key="rqbp_occurrence_index" js="0">Numer wystąpienia</word>
   <word key="rqbp_occurrence_index_desc" js="0">Numeracja zaczyna się od 1.</word>
   <word key="rqbp_open_diagnostics" js="0">Otwórz diagnostykę publicznej części witryny</word>
@@ -138,6 +142,18 @@
   <word key="rqbp_section_rule" js="0">Reguła</word>
   <word key="rqbp_selector" js="0">Selektor CSS</word>
   <word key="rqbp_selector_desc" js="0">Użyj standardowego selektora CSS, na przykład &lt;code&gt;#forum-category_12 &amp;gt; .ipsData__item:nth-child(2)&lt;/code&gt;. Wybieraj stabilne identyfikatory i atrybuty danych. Jeśli element docelowy nie istnieje, blok nie zostanie umieszczony. Przeglądarka sprawdza składnię selektora.</word>
+  <word key="rqbp_selector_help_v14" js="0">Na przykład &lt;code&gt;#ipsLayout__main .ipsBlockSpacer &amp;gt; li:nth-child(3)&lt;/code&gt;. Tryb JavaScript korzysta z selektorów obsługiwanych przez przeglądarkę. Tryb serwerowy akceptuje tylko udokumentowany podzbiór CSS w głównej zawartości HTML kontrolera; nieobsługiwana składnia jest odrzucana bez przełączania na JavaScript. Obliczone style CSS nie są dostępne na serwerze.</word>
+  <word key="rqbp_server_ajax_unsupported" js="0">Serwerowe umieszczanie przez CSS nie jest dostępne dla żądań AJAX.</word>
+  <word key="rqbp_server_content_unsupported" js="0">Wyrenderowana zawartość zawiera nieobsługiwany HTML, niedopasowany znacznik zamykający lub zagnieżdżony formularz; umieszczenie serwerowe zostało pominięte.</word>
+  <word key="rqbp_server_context_unsupported" js="0">Wybrany cel lub pozycja ma nieobsługiwany kontekst HTML.</word>
+  <word key="rqbp_server_error" js="0">Nie udało się przetworzyć umieszczenia serwerowego.</word>
+  <word key="rqbp_server_fragment_too_large" js="0">HTML kontrolera przekracza limit przetwarzania serwerowego.</word>
+  <word key="rqbp_server_html_unsupported" js="0">Nie można bezpiecznie przetworzyć HTML kontrolera; umieszczenie serwerowe zostało pominięte.</word>
+  <word key="rqbp_server_no_match" js="0">W głównej zawartości HTML kontrolera nie znaleziono pasującego celu.</word>
+  <word key="rqbp_server_not_processed" js="0">Obsługiwany cykl przetwarzania HTML kontrolera nie przetworzył tej reguły serwerowej.</word>
+  <word key="rqbp_server_occurrence_missing" js="0">Żądane wystąpienie nie istnieje na wspólnej liście dopasowań.</word>
+  <word key="rqbp_server_scope" js="0">Każda reguła korzysta z jednego trybu. Serwerowe umieszczanie przez CSS działa tylko dla obsługiwanych żądań pełnych stron HTML, w głównej zawartości kontrolera reprezentowanej jako &lt;code&gt;div#ipsLayout__main&lt;/code&gt;. Nie może kierować do globalnego nagłówka, nawigacji, stopki ani head i pomija żądania AJAX. Istniejące reguły CSS zachowują tryb JavaScript. Reguły serwerowe nie korzystają z wstawiania ani trybu awaryjnego JavaScript; zawartość jest renderowana dopiero po sprawdzeniu warunków, znalezieniu pasującego celu i potwierdzeniu obsługiwanego kontekstu HTML.</word>
+  <word key="rqbp_server_selector_invalid" js="0">Selektor jest nieprawidłowy lub nieobsługiwany w trybie serwerowym.</word>
   <word key="rqbp_settings" js="0">Ustawienia umieszczania treści</word>
   <word key="rqbp_settings_intro" js="0">Przełącznik główny steruje wszystkimi regułami umieszczania. Strony spełniające warunki pomijają współdzieloną pamięć podręczną stron, aby kierowanie według platform i grup działało poprawnie. Po zmianie reguł umieszczania wyczyść pamięć podręczną stron w zewnętrznej sieci CDN lub na odwrotnym serwerze proxy. Zawartością i uprawnieniami zarządza się w Pages.</word>
   <word key="rqbp_sort_order" js="0">Kolejność</word>

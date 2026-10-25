@@ -39,7 +39,7 @@ namespace IPS {
     class Dispatcher { public string $controllerLocation = 'front'; public object $application; public function __construct() { $this->application = (object) ['directory' => 'forums']; } public static function hasInstance(): bool { return true; } public static function i(): self { static $s; return $s ??= new self; } }
     class Settings { public bool $rqbp_enabled = true; public static function i(): self { static $s; return $s ??= new self; } }
     class Session { public object $userAgent; public function __construct() { $this->userAgent = (object) ['platform' => 'Windows', 'useragent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0']; } public static function i(): self { static $s; return $s ??= new self; } }
-    class Request { public bool $rqbp_diagnostics = false; public string $currentUrl = 'https://forum.example/community/forums/?page=2'; public static function i(): self { static $s; return $s ??= new self; } public function url(): string { return $this->currentUrl; } }
+    class Request { public bool $rqbp_diagnostics = false; public bool $ajax = false; public string $currentUrl = 'https://forum.example/community/forums/?page=2'; public static function i(): self { static $s; return $s ??= new self; } public function url(): string { return $this->currentUrl; } public function isAjax(): bool { return $this->ajax; } }
     class Member { public int $member_id = 0; public array $groups = [2]; public static function loggedIn(): self { static $s; return $s ??= new self; } public function language(): object { return new class {
         public function parseOutputForDisplay(&$html): void { $html = str_replace(['<lang>', '__rqbp_error_head_content__'], ['Translated', 'Only script, style, meta and link are allowed.'], $html); $html = preg_replace('/__rqbp_front_[a-z]+__/', "Label with \"quotes\" </script>\nnext", $html); }
         public function addToStack($key): string { return '__' . $key . '__'; }
@@ -49,6 +49,7 @@ namespace IPS {
         public static bool $cacheable = true;
         public static int $noCacheFailures = 0;
         public array $httpHeaders = [];
+        public string $output = '';
         public static function setCacheTime($value = false): void { self::$cacheable = $value; }
         public static function getNoCacheHeaders(): array {
             if (self::$noCacheFailures !== 0) {
@@ -64,6 +65,7 @@ namespace IPS {
     class Db { public static array $rows = []; public static function i(): self { static $s; return $s ??= new self; } public function select(...$args): array { $rows = self::$rows; usort($rows, static fn($a, $b) => [$a['rule_sort_order'] ?? 0, $a['rule_id']] <=> [$b['rule_sort_order'] ?? 0, $b['rule_id']]); return $rows; } }
 }
 namespace IPS\Http { class Url { public static function baseUrl(): string { return 'https://forum.example/community/'; } } }
+namespace IPS\Extensions { abstract class LoaderAbstract { public function onFinish(): void {} } }
 namespace IPS\cms\Blocks {
     class Block {
         public bool $active = true; public static bool $allowed = true; public static bool $exists = true; public static int $renders = 0; public static int $loads = 0; public static $callback = null;
@@ -89,8 +91,12 @@ namespace {
     require __DIR__ . '/../application/Application.php';
     require __DIR__ . '/../application/sources/TemplateContent/TemplateContent.php';
     require __DIR__ . '/../application/sources/HeadContent/HeadContent.php';
+    require __DIR__ . '/../application/sources/ServerSelector/ServerSelector.php';
+    require __DIR__ . '/../application/sources/ServerDocument/ServerDocument.php';
+    require __DIR__ . '/../application/sources/ServerPlacement/ServerPlacement.php';
     require __DIR__ . '/../application/sources/PageCache/PageCache.php';
     require __DIR__ . '/../application/sources/Runtime/Runtime.php';
+    require __DIR__ . '/../application/extensions/core/Loader/Placements.php';
     use IPS\rqblockplacements\Runtime;
     use IPS\cms\Blocks\Block;
     $checks = 0;
@@ -106,12 +112,14 @@ namespace {
         \IPS\Output::$cacheable = true;
         \IPS\Output::$noCacheFailures = 0;
         \IPS\Output::i()->httpHeaders = [];
+        \IPS\Output::i()->output = '<section class="category">Original content</section>';
         \IPS\Session::i()->userAgent->platform = 'Windows';
         \IPS\Session::i()->userAgent->useragent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0';
         \IPS\Member::loggedIn()->groups = [2];
         \IPS\Member::loggedIn()->member_id = 0;
         \IPS\Settings::i()->rqbp_enabled = true;
         \IPS\Request::i()->rqbp_diagnostics = false;
+        \IPS\Request::i()->ajax = false;
         \IPS\Request::i()->currentUrl = 'https://forum.example/community/forums/?page=2';
         \IPS\Db::$rows = [array_replace([
             'rule_id' => 1, 'rule_name' => 'Test', 'rule_enabled' => 1, 'rule_block_id' => 9,
@@ -352,6 +360,73 @@ IPS;
         check(!array_filter($debug['rules'], static fn ($row) => $row['html'] !== ''), 'Failed templates never serialize partial HTML');
         check(count(\IPS\Log::$errors) === ($expected === 'template_error' ? 1 : 0), 'Template exceptions are logged once and ordinary omissions are not errors');
     }
+    fixture(['rule_mode' => 'server', 'rule_selector' => '#ipsLayout__main > .category']);
+    Runtime::prepare();
+    check(Block::$renders === 0 && Block::$loads === 0, 'Preparing assets does not eagerly execute a server-only placement');
+    (new \IPS\rqblockplacements\extensions\core\Loader\Placements)->onFinish();
+    $serverHtml = \IPS\Output::i()->output;
+    check(str_contains($serverHtml, 'data-rqbp-placement="1"') && str_contains($serverHtml, 'secret Translated https://cdn.example'), 'The Loader inserts finalized block HTML into the controller output before global-template rendering');
+    check(!str_contains($serverHtml, 'data-rqbp-payload') && Runtime::payload() === '', 'Server placements do not create a browser insertion payload');
+    check(Block::$renders === 1 && !\IPS\Output::$cacheable, 'Server placement rendering is cached only for this request and bypasses shared guest caching');
+    (new \IPS\rqblockplacements\extensions\core\Loader\Placements)->onFinish();
+    check(\IPS\Output::i()->output === $serverHtml && Block::$renders === 1, 'Repeated Loader calls cannot duplicate server output or run content again');
+
+    foreach ([
+        ['rule_allow_groups' => '["99"]'], ['rule_exclude_groups' => '["2"]'],
+        ['rule_platforms' => '["mobile"]'], ['rule_apps' => '["cms"]'],
+        ['rule_include_urls' => '["/other/*"]'], ['rule_exclude_urls' => '["/forums/*"]'],
+        ['rule_enabled' => 0], ['rule_selector' => '.missing'], ['rule_selector' => '.category:has(p)'],
+        ['rule_occurrence' => 'nth', 'rule_occurrence_index' => 2],
+    ] as $restrictions) {
+        fixture(array_replace(['rule_mode' => 'server'], $restrictions));
+        $original = \IPS\Output::i()->output;
+        Runtime::server();
+        check(\IPS\Output::i()->output === $original && Block::$loads === 0 && Block::$renders === 0, 'Ineligible, absent, unsupported or unselected server targets cannot load or execute a block');
+    }
+    foreach ([false, true] as $allowed) {
+        fixture(['rule_mode' => 'server']);
+        Block::$allowed = $allowed;
+        Runtime::server();
+        check(!\IPS\Output::$cacheable && Block::$renders === (int) $allowed, 'Server block view permissions still run after route-level cache protection for both visitor variants');
+    }
+    fixture(['rule_mode' => 'server', 'rule_content_type' => 'template', 'rule_template_code' => '<b>Server template</b><script>window.serverExample=true;</script>']);
+    \IPS\Application::$pages = false;
+    Runtime::server();
+    check(str_contains(\IPS\Output::i()->output, 'Server template') && \IPS\Theme::$executions === 1 && Block::$loads === 0, 'Server template content uses code permissions and eligibility without requiring Pages APIs');
+    fixture(['rule_mode' => 'server', 'rule_content_type' => 'template', 'rule_template_code' => '<b>Never executed</b>', 'rule_allow_groups' => '["99"]']);
+    Runtime::server();
+    check(\IPS\Theme::$executions === 0, 'Denied audiences never execute server template expressions');
+
+    foreach (['ajax', 'missing-loader', 'bad-markup', 'bad-selector'] as $case) {
+        fixture(['rule_mode' => 'server']);
+        \IPS\Request::i()->rqbp_diagnostics = true;
+        \IPS\Member::loggedIn()->member_id = 1;
+        if ($case === 'ajax') { \IPS\Request::i()->ajax = true; }
+        if ($case === 'bad-markup') { \IPS\Output::i()->output = '<section class="category">'; }
+        if ($case === 'bad-selector') { \IPS\Db::$rows[0]['rule_selector'] = '.category:hover'; }
+        $original = \IPS\Output::i()->output;
+        if ($case !== 'missing-loader') { Runtime::server(); }
+        $debugPayload = Runtime::payload();
+        preg_match('~<script type="application/json" data-rqbp-payload>(.*?)</script>~s', $debugPayload, $match);
+        $data = json_decode($match[1], true, 512, JSON_THROW_ON_ERROR);
+        $expected = match ($case) { 'ajax' => 'server_ajax_unsupported', 'missing-loader' => 'server_not_processed', 'bad-markup' => 'server_html_unsupported', default => 'server_selector_invalid' };
+        check($data['diagnostics'][0]['status'] === $expected && str_contains($data['diagnostics'][0]['reason'], 'rqbp_' . $expected), 'Server omissions expose a localized administrator diagnostic without a JavaScript fallback');
+        check($data['rules'] === [] && \IPS\Output::i()->output === $original && Block::$renders === 0, 'Unsupported server responses keep their original HTML and never execute deferred content');
+    }
+    fixture(['rule_mode' => 'server']);
+    $secondRule = \IPS\Db::$rows[0];
+    $secondRule['rule_id'] = 2;
+    $secondRule['rule_mode'] = 'css';
+    \IPS\Db::$rows[] = $secondRule;
+    (new \IPS\rqblockplacements\extensions\core\Loader\Placements)->onFinish();
+    $mixedPayload = Runtime::payload();
+    preg_match('~<script type="application/json" data-rqbp-payload>(.*?)</script>~s', $mixedPayload, $match);
+    $mixed = json_decode($match[1], true, 512, JSON_THROW_ON_ERROR);
+    check(array_column($mixed['rules'], 'id') === [2] && str_contains(\IPS\Output::i()->output, 'data-rqbp-placement="1"'), 'Server and legacy JavaScript rules coexist without serializing or duplicating the server rule');
+    fixture(['rule_mode' => 'server']); \IPS\Settings::i()->rqbp_enabled = false;
+    $original = \IPS\Output::i()->output;
+    Runtime::server();
+    check(\IPS\Output::i()->output === $original && Block::$loads === 0, 'The global switch also disables server insertion');
     fixture(); \IPS\Settings::i()->rqbp_enabled = false;
     check(Runtime::hook(1) === '' && Runtime::payload() === '', 'Global switch gates all output');
     check(\IPS\Log::$errors === [], 'No swallowed runtime errors in successful boundary tests');

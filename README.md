@@ -4,18 +4,18 @@ for Invision Community 5
 
 [GitHub project](https://github.com/PTiCA1/IPS-Content-Placements) · [Issues](https://github.com/PTiCA1/IPS-Content-Placements/issues)
 
-**[Beta.13 pre-release](https://github.com/PTiCA1/IPS-Content-Placements/releases/tag/v1.0.0-beta.13)** · **[Download TAR](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.13/rqblockplacements-1.0.0-beta.13.tar)** · [SHA256SUMS](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.13/SHA256SUMS)
+**[Beta.14 pre-release](https://github.com/PTiCA1/IPS-Content-Placements/releases/tag/v1.0.0-beta.14)** · **[Download TAR](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.14/rqblockplacements-1.0.0-beta.14.tar)** · [SHA256SUMS](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.14/SHA256SUMS)
 
-Optional XML: [CS](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.13/rqblockplacements-1.0.0-beta.13-cs.xml) · [SK](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.13/rqblockplacements-1.0.0-beta.13-sk.xml) · [PL](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.13/rqblockplacements-1.0.0-beta.13-pl.xml) · [DE](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.13/rqblockplacements-1.0.0-beta.13-de.xml). The TAR already contains all four translations; separate XML downloads are optional.
+Optional XML: [CS](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.14/rqblockplacements-1.0.0-beta.14-cs.xml) · [SK](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.14/rqblockplacements-1.0.0-beta.14-sk.xml) · [PL](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.14/rqblockplacements-1.0.0-beta.14-pl.xml) · [DE](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.14/rqblockplacements-1.0.0-beta.14-de.xml). The TAR already contains all four translations; separate XML downloads are optional.
 
 Place an existing Invision Community Pages block or custom IPS template code before, inside at the start, inside at the end or after a CSS target or native theme hook, with rules for platforms, groups, applications and URLs. Original standalone application, MIT licensed. [Česky](README.cs.md).
 
-**1.0.0-beta.13 — build 1000013.** Adds the native `head` hook for metadata-only output, without a wrapping `div`. Head and body hooks accept only inside positions; CSS head placement remains unsupported. No new database schema changes. Includes complete Czech, Slovak, Polish and German translations. Targets **Invision Community 5.0.20+**, with API and template-compiler checks against the **5.0.20** source code. Native installation, head placement and upgrade acceptance remain pending before a stable release. See [security boundaries](SECURITY.md) and the [dated audit report](docs/SECURITY-AUDIT-2026-10-25.md). Purge existing CDN/reverse-proxy cache for affected URLs after upgrading.
+**1.0.0-beta.14 — build 1000014.** Adds an opt-in server CSS-selector mode alongside the existing JavaScript mode and native hooks. Server placement is limited to supported main-controller HTML; it does not process the complete page shell. Existing rules keep their modes, and no database schema change is required. Includes complete Czech, Slovak, Polish and German translations. Targets **Invision Community 5.0.20+**, with API and template-compiler checks against the **5.0.20** source code. Native installation, server-selector placement, head placement and upgrade acceptance remain pending before a stable release. See [security boundaries](SECURITY.md) and the [dated audit report](docs/SECURITY-AUDIT-2026-10-25.md). Purge existing CDN/reverse-proxy cache for affected URLs after upgrading.
 
 ## What this release does
 
 - Select a Pages block, or enter one exact native reference such as `{block="my_new_block"}`. A block with that key must exist; otherwise replace `my_new_block` with your block's actual key.
-- Choose a CSS selector or select a native hook through application → template → hook, then choose before, inside at the start, inside at the end or after it.
+- Choose **CSS selector — JavaScript**, **CSS selector — server**, or a native hook through application → template → hook, then choose before, inside at the start, inside at the end or after it where supported.
 - Use the native `head` hook for `script`, `style`, `meta` and `link` elements, with inside-start/end only.
 - Select the first, a numbered, or every match (CSS) or occurrence (native hook).
 - Select Mobile, Tablet and/or Desktop. An empty selection permits all three. Device classes use the IPS platform and user-agent string, not browser-width breakpoints.
@@ -23,9 +23,33 @@ Place an existing Invision Community Pages block or custom IPS template code bef
 - Optionally restrict applications and include/exclude board-relative URLs. `*` is the wildcard; an exclusion wins. The query string participates, fragments do not.
 - Keep native Pages block activation, visibility and rendering through `IPS\cms\Blocks\Block::display()` in the original page request. There is no separate block-rendering HTTP request.
 
-The application does not add or extend the native advertising system. Native hooks must exist in the installed template. CSS mode can target a category without its own hook, for example `li[data-categoryID="4"]`; replace `4` with the ID actually present on your forum. Selector placements follow the theme's HTML structure and must be checked after theme/platform updates.
+The application does not add or extend the native advertising system. Native hooks must exist in the installed template. CSS modes can target categories without their own hooks. Selector placements follow the theme's actual HTML structure and must be checked after theme/platform updates; the examples below are starting points, not a guarantee for every theme.
 
-The four positions apply to both CSS and native-hook rules where the context permits. Before/after insert a sibling; `inside-start` and `inside-end` insert the first or last child. Native `head` and `body` hooks permit only the two inside positions. CSS can target body inside, but cannot place content in head. The native-hook picker reads the current catalog of enabled front-end templates; `title` and unsupported hooks within head are omitted even if the native IPS editor lists them. Position labels use the installed IPS core translations. Check that your block's HTML is valid at the chosen target.
+The four positions apply to CSS and native-hook rules where their scope and HTML context permit. Before/after insert a sibling; `inside-start` and `inside-end` insert the first or last child. Native `head` and `body` hooks permit only the two inside positions. JavaScript CSS mode can target body inside, but neither CSS mode can place content in head. Server CSS mode is limited to the main controller fragment. The native-hook picker reads the current catalog of enabled front-end templates; `title` and unsupported hooks within head are omitted even if the native IPS editor lists them. Position labels use the installed IPS core translations. Check that your block's HTML is valid at the chosen target.
+
+## JavaScript and server CSS modes
+
+Existing `css` rules remain **CSS selector — JavaScript**. They find targets in the browser, including content added later by IPS, and mount the prepared content with JavaScript. The new `server` mode is an explicit choice; upgrading does not convert rules or silently fall back between modes.
+
+Server mode operates through supported `Loader::onFinish` processing of the main controller HTML on normal full HTML requests. It treats that fragment as the contents of a virtual `div#ipsLayout__main`; this is a selector scope, not access to the actual whole-page shell. It cannot target the global header, navigation, footer or head. AJAX requests are skipped with a diagnostic. Standalone Pages or direct-output routes may bypass this lifecycle and remain unsupported.
+
+After rule eligibility, native block permissions, target matching and a supported insertion context are confirmed, server mode renders the selected content and inserts it into the response HTML. Unchanged original HTML bytes are preserved; the app does not repair or reserialize the page. The controller fragment must use supported balanced HTML: malformed markup or omitted optional closing tags can cause processing to be skipped. Server rules add no JavaScript insertion payload. Scripts in the inserted HTML are handled by the browser when its parser reaches them; this does not guarantee compatibility with every advertising tag or widget. A synchronous script in head still cannot see body elements that have not yet been parsed.
+
+Server processing is limited to a 2 MiB input fragment, 50,000 elements, nesting depth 256, 10,000 insertions and 8 MiB of output. Exceeding a limit skips server processing with a diagnostic. Invalid rendered block/template HTML, unmatched closing tags or a nested form also cause the affected placement to be omitted.
+
+Both CSS modes count elements in document order, including hidden categories. A comma-separated selector list produces one deduplicated union; first and numbered occurrences refer to that whole list, not to each branch. Server mode has no computed CSS styles or visibility information. For example:
+
+```css
+#ipsLayout__main .ipsBlockSpacer > li:nth-child(3)
+```
+
+A topic-row starting point is:
+
+```css
+#ipsLayout__main .ipsEntries--topic .ipsEntry[data-ips-hook="postWrapper"]:nth-of-type(5)
+```
+
+Check that these classes and attributes exist in your rendered HTML. The server subset supports tags, `*`, IDs, classes, `[attr]`, `[attr=value]`, descendant/child (`>`), adjacent/general sibling (`+`, `~`) combinators and comma lists. Supported structural pseudo-classes are `:first-child`, `:last-child`, `:only-child`, their `-of-type` counterparts, `:nth-child()` and `:nth-of-type()` with integers, `odd`, `even` or `an+b`. It rejects `:is()`, `:has()`, browser-state pseudo-classes, CSS escapes, namespaces and other unsupported syntax on save and again at runtime. Rejected syntax has no silent JavaScript fallback. Test the supported syntax and final placement on the actual forum before enabling the rule.
 
 ## Custom IPS template code
 
@@ -55,9 +79,9 @@ ACP save and diagnostics do not render a Pages block or execute template express
 
 Requirements: licensed Invision Community 5.0.20+, custom applications permitted, and ACP application-management access. Pages is required for block rules; custom template rules can run without it. Use a test installation and a database/file backup.
 
-Upgrade the existing application rather than installing a second copy. The internal key `rqblockplacements` and release filename prefix remain unchanged. The upgrade refreshes the application's standard names while preserving administrator-customized text, rules and settings. Beta.13 has no new schema migration. When upgrading an older beta, beta.12 still widens `rqbp_rules.rule_position` from `VARCHAR(8)` to `VARCHAR(16)` without rewriting existing before/after values; that migration can be retried after a partial upgrade.
+Upgrade the existing application rather than installing a second copy. The internal key `rqblockplacements` and release filename prefix remain unchanged. The upgrade refreshes the application's standard names while preserving administrator-customized text, rules and settings. Beta.14 has no new schema migration: `server` fits the existing eight-character mode column, and old `css` and `hook` values remain unchanged. When upgrading an older beta, beta.12 still widens `rqbp_rules.rule_position` from `VARCHAR(8)` to `VARCHAR(16)` without rewriting existing before/after values; that migration can be retried after a partial upgrade.
 
-1. Download [rqblockplacements-1.0.0-beta.13.tar](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.13/rqblockplacements-1.0.0-beta.13.tar) from the [beta.13 pre-release](https://github.com/PTiCA1/IPS-Content-Placements/releases/tag/v1.0.0-beta.13), or use the file in `dist/`. To verify with `shasum -a 256 -c SHA256SUMS`, keep `SHA256SUMS` and all four translation XML files in the same directory as the TAR. Installation itself requires only the TAR.
+1. Download [rqblockplacements-1.0.0-beta.14.tar](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.14/rqblockplacements-1.0.0-beta.14.tar) from the [beta.14 pre-release](https://github.com/PTiCA1/IPS-Content-Placements/releases/tag/v1.0.0-beta.14), or use the file in `dist/`. To verify with `shasum -a 256 -c SHA256SUMS`, keep `SHA256SUMS` and all four translation XML files in the same directory as the TAR. Installation itself requires only the TAR.
 2. Open **ACP → System → Applications**, choose the upload/install action and upload the **TAR**. The GitHub source ZIP is not the installable application.
 3. Open **ACP → Content Placements → Placement rules**. This is the application's own tab near the bottom of the sidebar, not an entry under native Advertisements or Pages. The standard main tab name is **Content Placements** in every language; for example, the Czech submenu is **Pravidla umístění**. Allow access to the `rqbp_manage` permission for other administrators who need it.
 4. Create a simple existing Pages HTML block, then add a placement rule. Start with one known CSS selector or native hook, the first occurrence, all platforms and no audience/URL restriction.
@@ -82,7 +106,7 @@ Each translation covers all application strings. Installation and ACP upgrades f
 
 No separate XML import is required for these existing languages. Custom text, including an intentional empty value, is preserved. Upgrades fill missing keys; changing an existing translated value requires an explicit refresh. Beta.9 also renames the exact known standard product labels from earlier betas; different custom labels stay unchanged. Other languages keep English defaults. The application does not create a language, switch the site's default language or change language metadata.
 
-The release also provides optional `rqblockplacements-1.0.0-beta.13-cs.xml`, `-sk.xml`, `-pl.xml` and `-de.xml` files, bundled in the TAR as `resources/lang-{cs,sk,pl,de}.xml`. Use the appropriate XML in ACP Languages for an explicit translation refresh or a language added after application installation. These files translate only this application. Back up the intended language before an optional native XML import, whose metadata behavior belongs to IPS.
+The release also provides optional `rqblockplacements-1.0.0-beta.14-cs.xml`, `-sk.xml`, `-pl.xml` and `-de.xml` files, bundled in the TAR as `resources/lang-{cs,sk,pl,de}.xml`. Use the appropriate XML in ACP Languages for an explicit translation refresh or a language added after application installation. These files translate only this application. Back up the intended language before an optional native XML import, whose metadata behavior belongs to IPS.
 
 ## Rules and troubleshooting
 
@@ -90,7 +114,7 @@ An empty platform/group/application/include-URL list means unrestricted for that
 
 Android user agents containing `Mobile` are Mobile; Android without it, iPad and Kindle are Tablet. Other or unrecognized devices are Desktop. Resizing the browser does not change the class, and an iPad using a desktop user agent may be indistinguishable from Desktop. Existing OS selections are normalized on read: Android → Mobile + Tablet, iPhone → Mobile, iPad/Kindle/PlayBook → Tablet, PC/unknown → Desktop. Saving the rule persists the new values; no schema migration is required.
 
-Hook occurrence means a hook invocation during the current server request. A repeated row template may produce many invocations. CSS occurrence means a matching target in the document; inserted placement nodes are not targets. Rules are ordered by their configured order and ID. Missing blocks, missing Pages, unavailable hooks/selectors or failed permission checks must produce no visitor-facing error output; inspect the rule diagnostics and IPS logs if a block is absent.
+Hook occurrence means a hook invocation during the current server request. A repeated row template may produce many invocations. CSS occurrence means a matching target in the document or supported controller fragment; inserted placement nodes are not targets. Comma lists use a single deduplicated document-order list, including hidden elements. Rules are ordered by their configured order and ID. Missing blocks, missing Pages, unavailable hooks/selectors or failed permission checks must produce no visitor-facing error output; inspect the rule diagnostics and IPS logs if a block is absent.
 
 Guest pages that may differ by placement platform/audience must not share a CDN cache variant. The runtime suppresses page caching for eligible placement routes. Purge any existing affected guest-page cache when changing rules, and test your CDN separately. The app caches rule configuration, not cross-user rendered block HTML. Native blocks retain their own IPS behavior.
 
@@ -105,7 +129,7 @@ npm run test:build
 npx playwright install chromium
 npm run test:browser
 python3 tools/build.py --check-reproducible
-python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.13.tar
+python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.14.tar
 ```
 
 Tools require PHP (tested with 8.3), Python 3.10+ and Node 20+ for browser tests. `PHP_BINARY` can point to a specific PHP executable. Browser tests can use `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` instead of a downloaded Chromium. The builder reads the original `application/resources/lang/{en,cs,sk,pl,de}.php` arrays and generates native `data/lang.xml`, `data/installLang.json` and all four translation XML files.

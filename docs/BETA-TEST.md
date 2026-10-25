@@ -1,14 +1,14 @@
 # ACP beta acceptance test
 
-Status: the owner confirmed that the **beta.2 rule editor works** after the beta.1 ACP fixes. **Device targeting, translations and native upgrades remain pending live verification.** Beta.13 adds the native head hook with metadata-only output validation; native verification of this behavior is pending. Source publication is separate from this acceptance checklist. Automated mocks and browser fixtures do not establish native installation or upgrade compatibility. Record results before calling the package stable.
+Status: the owner confirmed that the **beta.2 rule editor works** after the beta.1 ACP fixes. **Device targeting, translations and native upgrades remain pending live verification.** Beta.14 adds opt-in server CSS placement; native verification of the controller lifecycle, selector behavior and scripts remains pending. Retest the native head hook as well. Source publication is separate from this acceptance checklist. Automated mocks and browser fixtures do not establish native installation or upgrade compatibility. Record results before calling the package stable.
 
-Use a licensed, private **IPS 5.0.20+** test installation with **Pages** and a database/file backup. The source-verification baseline is **5.0.20**; record the exact version when testing a later release. Record the PHP version, IPS build, theme, browser, CDN/cache configuration and application TAR SHA256. The current package is **`1.0.0-beta.13`, build `1000013`**; test beta.12 → beta.13 and an earlier-beta upgrade that exercises existing migrations. Beta.13 has no new database changes; retain the beta.12 position-width migration for older upgrades.
+Use a licensed, private **IPS 5.0.20+** test installation with **Pages** and a database/file backup. The source-verification baseline is **5.0.20**; record the exact version when testing a later release. Record the PHP version, IPS build, theme, browser, CDN/cache configuration and application TAR SHA256. The current package is **`1.0.0-beta.14`, build `1000014`**; test beta.13 → beta.14 and an earlier-beta upgrade that exercises existing migrations. Beta.14 has no new database changes; retain the beta.12 position-width migration for older upgrades.
 
 ## Installation and basic placement
 
-1. Upload `rqblockplacements-1.0.0-beta.13.tar` through ACP Applications. Confirm no installer error, version/build `1.0.0-beta.13` / `1000013`, and a visible grid icon near the bottom of the normal compact ACP sidebar. Open **Content Placements → Placement rules**, then **Content Placements → Settings**. The main tab uses the brand in every language; submenus remain localized, such as **Pravidla umístění / Nastavení** in Czech. Confirm the subtitle **for Invision Community 5**. This is a separate application tab, not a submenu of native Advertisements or Pages.
+1. Upload `rqblockplacements-1.0.0-beta.14.tar` through ACP Applications. Confirm no installer error, version/build `1.0.0-beta.14` / `1000014`, and a visible grid icon near the bottom of the normal compact ACP sidebar. Open **Content Placements → Placement rules**, then **Content Placements → Settings**. The main tab uses the brand in every language; submenus remain localized, such as **Pravidla umístění / Nastavení** in Czech. Confirm the subtitle **for Invision Community 5**. This is a separate application tab, not a submenu of native Advertisements or Pages.
 2. Create a public Pages HTML block with the key `my_new_block`, a unique `RQBP TEST` heading and a link. If using an existing block, replace `my_new_block` in the example with its actual key. Confirm its original native display works first.
-3. Create a CSS rule for a category actually on your forum, for example `li[data-categoryID="4"]`, **after**, first match, unrestricted audience. Check it appears between categories and does not appear between topic posts. Inspect the real category ID before choosing the selector.
+3. Create a **CSS selector — JavaScript** rule for a real category, for example `#ipsLayout__main .ipsBlockSpacer > li:nth-child(3)`, **after**, first match, unrestricted audience. Inspect the actual markup and confirm it appears between the intended categories. Create a separate **CSS selector — server** rule for the same target and test it with JavaScript disabled; do not enable both test rules together unless repetition is intended.
 4. Test **before**, **inside-start**, **inside-end** and **after** with a suitable container. Before/after must create siblings; inside-start/end must create the first/last child. Check target/category ordering and absence of duplicated block output.
 5. Create a separate native-hook rule through **application → template → hook → insertion type**. Confirm changing the application updates the template choices and changing the template updates the hook choices. Use safe available hooks in `core/front/global/globalTemplate`: test `main` with suitable positions and `body` with only inside-start/end. A hook missing from your installed version is not a selectable target.
 6. Select the block through the picker, then switch to the manual source and use one exact `{block="my_new_block"}`. A block with that key must exist; otherwise use your block's actual key. Both methods should select the same existing block. Extra HTML, two tags and other template expressions must be rejected.
@@ -18,8 +18,8 @@ Direct navigation fallback: retain the actual ACP directory in your current addr
 
 ## Four positions and HTML contexts
 
-- For both CSS and ordinary native hooks, exercise all four positions with a simple block and the Hello world template source. Use a valid body-content target for this visible output. Check first/nth/all occurrences and ordering when two rules use the same position.
-- Target `body` with CSS and, when available, the native `body` hook. Inside-start/end must stay within the body. Before/after must not insert content outside it. A forged unsafe native-hook position must be rejected on save; CSS placement must skip an unsafe target/position combination.
+- For both CSS modes and ordinary native hooks, exercise all four positions with a simple block and the Hello world template source. Use a valid body-content target for this visible output. Check first/nth/all occurrences and ordering when two rules use the same position.
+- Target `body` with JavaScript CSS mode and, when available, the native `body` hook. Server CSS must stay within its virtual main-controller scope and cannot target body or the global shell. Inside-start/end must stay within the body. Before/after must not insert content outside it. A forged unsafe native-hook position must be rejected on save; CSS placement must skip an unsafe target/position combination.
 - Confirm `title` and unsupported hooks within head remain absent from the application picker even if IPS lists them in its own custom-template editor. Unsupported CSS target/position combinations, including head targets, must not insert content.
 - Reopen and save a hook rule. Its application, template, hook and position must remain selected; changing an upstream selection must not silently retain a hook from another template. Position names must use the installed IPS core translations, not unresolved language keys.
 - Verify inside-start/end values survive save, reload and a later edit without truncation. Keep previously stored before/after rules in place and confirm their placement is unchanged.
@@ -33,6 +33,18 @@ Direct navigation fallback: retain the actual ACP directory in your current addr
 - Save and open ACP diagnostics for output-producing template code without invoking it. Final-fragment validation must happen only on the public request, after audience filters and native block permissions. A denied visitor must receive no output or code execution.
 - Confirm CSS selectors targeting head or its descendants remain unsupported. Recheck ordinary body/CSS placements so head support does not change their wrappers or visibility.
 
+## Server CSS placement (beta.14)
+
+- Confirm the selector modes are separately labeled **CSS selector — JavaScript** and **CSS selector — server**. Existing CSS rules must retain JavaScript mode after upgrade, editing and duplication; there is no automatic conversion or fallback.
+- Inspect normal full HTML category and topic requests. Server placement must operate only on the controller fragment, represented as virtual `div#ipsLayout__main`, via supported `Loader::onFinish`. It must not capture or rewrite the global response. Global header/navigation/footer/head and actual body targets are outside this scope. Check a standalone Pages/direct-output route separately: it may bypass this lifecycle and must not be presented as universally supported.
+- Compare original HTML around the insertion byte for byte: quoting, entities, whitespace, comments, attributes and unrelated script/style text must remain unchanged. Test balanced supported HTML, omitted optional closing tags and malformed nesting. Unsupported input must be skipped without repairing the document or partially rendering content. Check the corresponding diagnostic, including processing-limit failures.
+- Test these starting points against the actual theme: `#ipsLayout__main .ipsBlockSpacer > li:nth-child(3)` and `#ipsLayout__main .ipsEntries--topic .ipsEntry[data-ips-hook="postWrapper"]:nth-of-type(5)`. Their syntax belongs to the documented subset; exact live matches remain a native acceptance test, not a universal theme guarantee.
+- Exercise tags, universal selectors, IDs, classes, attribute presence/equality, descendant/child/adjacent/general-sibling combinators, comma lists and each documented structural pseudo-class with integer, odd/even and `an+b` forms. Reject `:is()`, `:has()`, browser state, escapes, namespaces and unsupported operators on save and runtime; do not switch to JavaScript.
+- With repeated categories and hidden elements, test first/nth/all against one document-order, deduplicated comma union. Reverse the comma branch order and include one target in both branches: ordering and the numbered occurrence must stay global. A missing numbered occurrence must not execute content. Server matching cannot use computed visibility/styles.
+- Use harmless instrumented template code or a test block to verify zero execution for denied groups, failed device/app/URL filters, denied native block permissions, no target and unsafe context. Once eligible with a valid target, verify Pages assets/current request and output ordering. The server rule must add no insertion payload or browser-side mount.
+- Inspect page source with JavaScript disabled, then use a harmless inline/external script counter with JavaScript enabled. The inserted markup must be in the response before browser parsing, and its scripts must run through ordinary browser parsing without a second JavaScript insertion. Do not expect a synchronous head script to see later body markup or promise compatibility with every ad/widget.
+- Request AJAX/dynamic responses: server rules must be skipped with an explicit administrator diagnostic and no execution. A normal full request may insert; subsequent IPS content events must not remount the server rule. Check no-match, missing-occurrence, unsupported HTML/context/selector, not-processed and generic error diagnostics without exposing content to unauthorized viewers.
+
 ## Automatic Czech, Slovak, Polish and German
 
 - Before installation or upgrade, retain existing Czech, Slovak, Polish and German languages plus an English/unsupported locale. Exercise `cs`, `sk`, `pl`, `de` and regional forms such as `cs_CZ`, `sk-SK`, `pl_PL`, `de-DE`, as well as Windows Czech/Slovak/Polish/German locale names. Each supported locale must receive its own application translation without a separate XML import; other locales keep English defaults.
@@ -42,7 +54,7 @@ Direct navigation fallback: retain the actual ACP directory in your current addr
 
 ## Preserving the existing product name
 
-- Upgrade beta.12 to beta.13 through the existing application entry. Confirm the key `rqblockplacements`, rules, settings and administrator permissions remain unchanged; no second application should appear.
+- Upgrade beta.13 to beta.14 through the existing application entry. Confirm the key `rqblockplacements`, rules, settings and administrator permissions remain unchanged; no second application should appear.
 - Keep the standard product and main-tab labels **Content Placements**, the subtitle **for Invision Community 5** and localized submenus. Administrator-customized labels, including intentional empty text, must remain intact.
 
 ## Filtering and occurrences
@@ -66,7 +78,7 @@ Direct navigation fallback: retain the actual ACP directory in your current addr
 ## Upgrade and cleanup
 
 1. Save representative CSS and native-hook rules, ordering and group filters in the installed beta. In beta.2, also retain legacy platform selections (Android, iPhone, iPad, Windows and Unknown); in beta.3, retain canonical device choices. Export a backup of the database.
-2. Test **beta.12 (`1000012`) → beta.13 (`1000013`)** using `rqblockplacements-1.0.0-beta.13.tar` through ACP: this update has no new database changes and must preserve the existing 16-character position field and rules. Also test an older version such as beta.2 (`1000002`) → beta.13, which must apply beta.12's `VARCHAR(8)` → `VARCHAR(16)` widening without changing values or rules. Retry a partial upgrade and an already widened column; no rows may be lost or reset. Re-uploading the same beta does **not** establish upgrade compatibility. Beta.2 editor access is confirmed, while subsequent live acceptance remains pending.
+2. Test **beta.13 (`1000013`) → beta.14 (`1000014`)** using `rqblockplacements-1.0.0-beta.14.tar` through ACP: this update has no new database changes and must preserve the existing 16-character position field, eight-character mode field and rules. Existing `css` rules must remain JavaScript rules; `hook` must remain unchanged. Save and reload a new `server` rule without truncation. Also test an older version such as beta.2 (`1000002`) → beta.14, which must apply beta.12's `VARCHAR(8)` → `VARCHAR(16)` widening without changing values or rules. Retry a partial upgrade and an already widened column; no rows may be lost or reset. Re-uploading the same beta does **not** establish upgrade compatibility. Beta.2 editor access is confirmed, while subsequent live acceptance remains pending.
 3. Confirm rules/settings remain and native hook markers are restored once. Android must become Mobile + Tablet, iPhone Mobile, iPad/Kindle/PlayBook Tablet, and Windows/Unknown Desktop. Opening a rule normalizes old platform values; saving those canonical device values needs no additional schema change. Repeat an edit/reconcile and check no duplicate markers or placements. Normal menu navigation and the direct URL must open the same rule table.
 4. Check all four automatic translations and preservation of custom text as described above, without importing XML. Confirm unsupported locales still use English defaults. A later explicitly requested XML refresh must affect only this application's translations; verify the intended language after native import.
 5. On the disposable test installation, uninstall. Confirm this app's tables/settings/markers are removed and existing Pages blocks still exist.
@@ -77,7 +89,9 @@ Keep stable 1.0.0 pending until installation, assets, permissions, cache isolati
 | --- | --- | --- |
 | Clean ACP install | Pending | |
 | Compact ACP menu icon / rule-editor navigation | Pending | |
-| CSS category placement | Pending | |
+| JavaScript CSS category placement | Pending | |
+| Server CSS scope / selectors / original HTML / lazy rendering | Pending | |
+| Server scripts / AJAX skip / diagnostics | Pending | |
 | Native hook placement | Pending | |
 | Four positions / body restrictions | Pending | |
 | Native head / metadata validation / CSS head rejection | Pending | |
@@ -88,7 +102,7 @@ Keep stable 1.0.0 pending until installation, assets, permissions, cache isolati
 | Native assets / original request | Pending | |
 | Guest CDN isolation | Pending | |
 | Diagnostics / ACP restrictions | Pending | |
-| Earlier beta → beta.13 upgrade / platform conversion | Pending | |
+| Earlier beta → beta.14 upgrade / platform conversion | Pending | |
 | Position column widening / retry / existing-rule preservation | Pending | |
 | Project / issue-reporting metadata | Pending | |
 | Application identity / product name / custom labels | Pending | |
@@ -99,9 +113,9 @@ Keep stable 1.0.0 pending until installation, assets, permissions, cache isolati
 
 ## Template code (introduced in beta.5)
 
-- Upgrade beta.4 → beta.13 and retain existing block rules through the additive template-code migration. Retrying a partial migration must preserve data.
+- Upgrade beta.4 → beta.14 and retain existing block rules through the additive template-code migration. Retrying a partial migration must preserve data.
 - Choose custom IPS template code and use the Hello world example from README. An eligible front-end request must display Hello world without an additional extension. Save and ACP diagnostics must only validate syntax.
-- Exercise both placement modes, device/group/URL filters, excluded guests, all four positions, repetition and absent selectors. Code is prepared server-side before CSS target discovery.
+- Exercise all three placement modes, device/group/URL filters, excluded guests, all four supported positions, repetition and absent selectors. JavaScript CSS prepares code before browser target discovery; server CSS must not execute it until a target and supported context have been found.
 - A restricted administrator without rqbp_manage_code must not read code or submit a forged source, enable, duplicate or edit code rules. Block management remains available.
 - Custom code must work without Pages; Pages block rules must be omitted. Syntax and API failures must not leak output.
 

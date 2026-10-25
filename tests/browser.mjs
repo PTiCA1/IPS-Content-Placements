@@ -51,6 +51,7 @@ let passed = 0;
 
 const rule = (id, overrides = {}) => ({ id, name: `Rule ${id}`, selector: '#target', position: 'after', occurrence: 'first', occurrence_index: 1, sort_order: id, html: `<b data-ad="${id}">Ad ${id}</b>`, ...overrides });
 const encode = (value) => JSON.stringify(value).replaceAll('<', '\\u003c');
+const serverFixture = (input) => JSON.parse(execFileSync(process.env.PHP_BINARY || 'php', [fileURLToPath(new URL('./server-fixture.php', import.meta.url))], { input: JSON.stringify(input), encoding: 'utf8' }));
 function fixtureHtml(body, rules, extra = {}) {
     return `<!doctype html><html><head><title>Placements test</title></head><body>${body}<script type="application/json" data-rqbp-payload>${encode({ page_url: '/fixture', rules, ...extra })}</script><script src="/placements.js"></script></body></html>`;
 }
@@ -79,7 +80,7 @@ function acpFixture(values = {}) {
     const options = (values) => '<option value="">—</option>' + values.map((value) => `<option value="${value}">${value}</option>`).join('');
     const config = { rqbp_mode: 'hook', rqbp_hook_app: '', rqbp_hook_template: '', rqbp_hook: '', rqbp_position: 'after', ...values };
     return `<!doctype html><form data-rqbp-hook-positions='${JSON.stringify(hooks)}'>
-        <select name="rqbp_mode"><option value="hook">Hook</option><option value="css">CSS</option></select>
+        <select name="rqbp_mode"><option value="hook">Hook</option><option value="css">CSS</option><option value="server">Server CSS</option></select>
         <select name="rqbp_hook_app">${options(['forums', 'core'])}</select>
         <select name="rqbp_hook_template"><option value="">—</option><optgroup label="Forums">${options(['forums/front/index/forumRow', 'forums/front/topics/topic']).replace('<option value="">—</option>', '')}</optgroup><optgroup label="Core">${options(['core/front/global/globalTemplate']).replace('<option value="">—</option>', '')}</optgroup></select>
         <select name="rqbp_hook">${options(Object.keys(hooks))}</select>
@@ -504,6 +505,96 @@ try {
             assert.equal(await page.evaluate(() => window.invalidHeadRan), undefined);
             assert.equal(await page.locator('[data-rqbp-placement]').count(), 0);
         }
+    });
+    await test('server selectors agree with browser matching for structural forum selectors and comma unions', async () => {
+        const content = '<ol id="categories" class="ipsBlockSpacer"><li id="category-1"><ol class="ipsData--category"><li id="forum-1" class="row selected" data-label="a,b">A</li><li id="forum-2" class="row">B</li></ol></li><li id="category-2"><ol class="ipsData--category"><li id="forum-3">C</li></ol></li><li id="category-3"><ol class="ipsData--category"><li id="forum-4">D</li></ol></li></ol><ol class="ipsData--topic-list"><li id="topic-1">A</li><li id="topic-2">B</li></ol><div id="entries" class="ipsEntries--topic"><span id="anchor-1"></span><article id="post-1" class="ipsEntry" data-ips-hook="postWrapper">A</article><span id="anchor-2"></span><article id="post-2" class="ipsEntry" data-ips-hook="postWrapper">B</article></div>';
+        const selectors = [
+            '#ipsLayout__main', '#ipsLayout__main .ipsBlockSpacer > li:nth-child(3)',
+            '#ipsLayout__main .ipsData--category > li:nth-child(1)',
+            '#ipsLayout__main .ipsData--topic-list > li:nth-child(2)',
+            '#ipsLayout__main .ipsEntries--topic .ipsEntry[data-ips-hook="postWrapper"]:nth-of-type(1)',
+            '#category-3, #forum-1, #forum-1', '#ipsLayout__main [data-label="a,b"], #topic-2',
+            '#ipsLayout__main .row.selected', '#ipsLayout__main [data-ips-hook]',
+            '#ipsLayout__main #category-1 + li', '#ipsLayout__main #category-1 ~ li',
+            '#ipsLayout__main li:first-child', '#ipsLayout__main li:last-child',
+            '#ipsLayout__main li:only-child', '#ipsLayout__main article:first-of-type',
+            '#ipsLayout__main article:last-of-type', '#ipsLayout__main ol:only-of-type',
+            '#ipsLayout__main li:not(.selected)', '#ipsLayout__main [id^="post-"]',
+            '#ipsLayout__main [class~="row"]', '#ipsLayout__main [id$="-2"]'
+        ];
+        selectors.push(selectors.slice(1, 5).join(','));
+        for (const argument of ['odd', 'even', 'n', '2n+1', '2n + 10', '-n+2', '-2n+3', '0n+2', '0', '-1']) {
+            for (const pseudo of ['nth-child', 'nth-of-type', 'nth-last-child', 'nth-last-of-type']) {
+                selectors.push(`#ipsLayout__main #entries > *:${pseudo}(${argument})`);
+            }
+        }
+        const matched = serverFixture({ operation: 'select', html: content, selectors });
+        fixture = `<!doctype html><html><head><title>Server selectors</title></head><body><div id="ipsLayout__main">${content}</div></body></html>`;
+        await page.goto(`${origin}/server-selectors`);
+        const native = await page.evaluate((selectors) => selectors.map((selector) => Array.from(document.querySelectorAll(selector), (node) => node.id || node.tagName.toLowerCase())), selectors);
+        assert.deepEqual(matched, native);
+    });
+
+    await test('server placement exists in the initial HTML before downstream JavaScript without the insertion runtime', async () => {
+        const original = '<ol class="ipsBlockSpacer"><li>A</li><li>B</li><li id="category-3">C</li></ol><script>window.originalString="<div></head>";</script>';
+        const ad = '<b id="server-ad">Server advertisement</b><script>window.serverRuns=(window.serverRuns||0)+1;window.serverOwnWrapper=document.currentScript.closest("[data-rqbp-placement]").tagName;</script><script type="application/json">{"example":"<div>"}</script>';
+        const result = serverFixture({ html: original, rules: [rule(1, { selector: '#ipsLayout__main .ipsBlockSpacer > li:nth-child(3)', html: ad })] });
+        assert.equal(result.reports[0].inserted, 1);
+        assert.ok(result.html.includes(ad));
+        assert.ok(result.html.includes('<script>window.originalString="<div></head>";</script>'));
+        fixture = `<!doctype html><html><head><title>Server insertion</title></head><body><div id="ipsLayout__main">${result.html}</div><script>window.downstreamFound=Boolean(document.querySelector("#server-ad"));window.downstreamRuns=window.serverRuns;</script></body></html>`;
+        const response = await page.goto(`${origin}/server-placement`);
+        assert.ok((await response.text()).includes('id="server-ad"'));
+        assert.equal(await page.evaluate(() => window.downstreamFound), true);
+        assert.equal(await page.evaluate(() => window.downstreamRuns), 1);
+        assert.equal(await page.evaluate(() => window.serverOwnWrapper), 'LI');
+        assert.equal(await page.evaluate(() => window.originalString), '<div></head>');
+        assert.equal(await page.evaluate(() => window.rqBlockPlacements), undefined);
+        assert.equal(await page.locator('#category-3 + li[data-rqbp-placement="1"]').count(), 1);
+        assert.equal(await page.locator('[data-rqbp-payload]').count(), 0);
+    });
+
+    await test('server and browser rules retain original structural targets without rerunning server scripts', async () => {
+        const original = '<ol id="categories"><li id="category-1">A</li><li id="category-2">B</li><li id="category-3">C</li></ol>';
+        const server = serverFixture({ html: original, rules: [rule(101, { selector: '#category-2', position: 'before', html: '<b>Server</b><script>window.serverRuns=(window.serverRuns||0)+1;</script>' })] });
+        await load(`<div id="ipsLayout__main">${server.html}</div>`, [rule(201, { selector: '#categories > li:nth-child(3)' })]);
+        await changed('#categories');
+        await changed('#categories');
+        assert.equal(await page.locator('#category-3 + [data-rqbp-placement="201"]').count(), 1);
+        assert.equal(await page.locator('[data-rqbp-placement="101"] + #category-2').count(), 1);
+        assert.equal(await page.locator('[data-rqbp-placement]').count(), 2);
+        assert.equal(await page.evaluate(() => window.serverRuns), 1);
+    });
+
+    await test('server insertion preserves all four positions, context wrappers and sorted rule order', async () => {
+        const original = '<ol><li id="target"><span id="original">Original</span></li></ol>';
+        const rules = ['before', 'inside-start', 'inside-end', 'after'].flatMap((position, index) => [
+            rule(index * 2 + 1, { position }), rule(index * 2 + 2, { position })
+        ]).reverse();
+        const result = serverFixture({ html: original, rules });
+        assert.equal(result.reports.reduce((sum, report) => sum + report.inserted, 0), 8);
+        fixture = `<!doctype html><html><head><title>Server order</title></head><body><div id="ipsLayout__main">${result.html}</div></body></html>`;
+        await page.goto(`${origin}/server-order`);
+        assert.deepEqual(await page.locator('ol > *').evaluateAll((nodes) => nodes.map((node) => node.dataset.rqbpPlacement || node.id)), ['1', '2', 'target', '7', '8']);
+        assert.deepEqual(await page.locator('#target > *').evaluateAll((nodes) => nodes.map((node) => node.dataset.rqbpPlacement || node.id)), ['3', '4', 'original', '5', '6']);
+        assert.equal(await page.locator('ol > [data-rqbp-placement]:not(li)').count(), 0);
+        assert.equal(await page.locator('#target > [data-rqbp-placement]:not(div)').count(), 0);
+    });
+
+    await test('ACP server CSS retains all positions and browser syntax validation independently of native hooks', async () => {
+        fixture = acpFixture({ rqbp_mode: 'server', rqbp_hook_app: 'core', rqbp_hook_template: 'core/front/global/globalTemplate', rqbp_hook: 'core/front/global/globalTemplate|head', rqbp_position: 'after' });
+        await page.goto(`${origin}/admin`);
+        assert.equal(await page.locator('[name=rqbp_position]').inputValue(), 'after');
+        assert.equal(await page.locator('[name=rqbp_position] option:not(:disabled)').count(), 4);
+        await page.locator('[name=rqbp_selector]').fill('[');
+        assert.equal(await page.locator('[name=rqbp_selector]').evaluate((node) => node.checkValidity()), false);
+        await page.locator('[name=rqbp_mode]').selectOption('hook');
+        assert.equal(await page.locator('[name=rqbp_selector]').evaluate((node) => node.checkValidity()), true);
+        assert.equal(await page.locator('[name=rqbp_position] option:not(:disabled)').count(), 2);
+        await page.locator('[name=rqbp_mode]').selectOption('server');
+        assert.equal(await page.locator('[name=rqbp_selector]').evaluate((node) => node.checkValidity()), false);
+        await page.locator('[name=rqbp_selector]').fill('#ipsLayout__main li:nth-child(3), article[data-ips-hook="postWrapper"]:nth-of-type(1)');
+        assert.equal(await page.locator('[name=rqbp_selector]').evaluate((node) => node.checkValidity()), true);
     });
 } finally {
     await browser.close();

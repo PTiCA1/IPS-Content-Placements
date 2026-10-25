@@ -34,6 +34,7 @@ use IPS\rqblockplacements\HookCatalog;
 use IPS\rqblockplacements\Policy;
 use IPS\rqblockplacements\Rule;
 use IPS\rqblockplacements\RuleAccess;
+use IPS\rqblockplacements\ServerSelector;
 use IPS\rqblockplacements\TemplateContent;
 use IPS\Session;
 use IPS\Settings;
@@ -69,7 +70,7 @@ class rules extends Controller
             'rqbp_filter_enabled' => ['rule_enabled=?', 1],
             'rqbp_filter_disabled' => ['rule_enabled=?', 0],
             'rqbp_filter_hook' => ['rule_mode=?', 'hook'],
-            'rqbp_filter_css' => ['rule_mode=?', 'css'],
+            'rqbp_filter_css' => ['rule_mode IN (?,?)', 'css', 'server'],
         ];
         $table->parsers = [
             'rule_name' => static fn ($value): string => self::escape($value),
@@ -77,7 +78,7 @@ class rules extends Controller
                 return self::escape(self::word($value ? 'rqbp_status_enabled' : 'rqbp_status_disabled'));
             },
             'rule_mode' => static function ($value): string {
-                return self::escape(self::word($value === 'css' ? 'rqbp_mode_css' : 'rqbp_mode_hook'));
+                return self::escape(self::word(Policy::modeOptions()[$value] ?? 'rqbp_error_content_save'));
             },
             'rule_content' => static function ($value, array $row): string {
                 if (($row['rule_content_type'] ?? 'block') === 'template') {
@@ -94,7 +95,7 @@ class rules extends Controller
                 return self::escape(self::word('rqbp_block_unavailable') . ' #' . (int) $value);
             },
             'rule_target' => static function ($value, array $row): string {
-                $target = $row['rule_mode'] === 'css'
+                $target = in_array($row['rule_mode'], ['css', 'server'], true)
                     ? $row['rule_selector']
                     : $row['rule_hook_path'] . ' · ' . $row['rule_hook_name'];
                 return self::escape(self::word(Policy::positionOptions()[$row['rule_position']] ?? 'rqbp_error_position'))
@@ -224,10 +225,12 @@ class rules extends Controller
         }
 
         $form->addHeader('rqbp_section_placement');
-        $form->add(new Radio('rqbp_mode', $config['mode'], true, [
-            'options' => ['hook' => 'rqbp_mode_hook', 'css' => 'rqbp_mode_css'],
-            'toggles' => ['hook' => ['rqbp_hook_app', 'rqbp_hook_template', 'rqbp_hook'], 'css' => ['rqbp_selector']],
-        ]));
+        $modeField = new Radio('rqbp_mode', $config['mode'], true, [
+            'options' => Policy::modeOptions(),
+            'toggles' => ['hook' => ['rqbp_hook_app', 'rqbp_hook_template', 'rqbp_hook'], 'css' => ['rqbp_selector'], 'server' => ['rqbp_selector']],
+        ]);
+        $modeField->description = self::word('rqbp_server_scope');
+        $form->add($modeField);
         $hookOptions = ['' => self::word('rqbp_choose_hook')];
         $appOptions = ['' => '—'];
         $templateOptions = ['' => '—'];
@@ -269,11 +272,14 @@ class rules extends Controller
         $hookField->label = self::word('template_hookpoint');
         $hookField->description = self::word('rqbp_hook_help_v13');
         $form->add($hookField);
-        $form->add(new Text('rqbp_selector', $config['selector'], false, ['maxLength' => 1000], static function ($value) use ($mode): void {
-            if ($mode === 'css' && (trim((string) $value) === '' || str_contains((string) $value, "\0"))) {
+        $selectorField = new Text('rqbp_selector', $config['selector'], false, ['maxLength' => 1000], static function ($value) use ($mode): void {
+            if (in_array($mode, ['css', 'server'], true) && (trim((string) $value) === '' || str_contains((string) $value, "\0"))) {
                 throw new DomainException('rqbp_error_selector');
             }
-        }, null, null, 'rqbp_selector'));
+            if ($mode === 'server') { ServerSelector::parse((string) $value); }
+        }, null, null, 'rqbp_selector');
+        $selectorField->description = self::word('rqbp_selector_help_v14');
+        $form->add($selectorField);
         $positionField = new Select('rqbp_position', $config['position'], true,
             ['options' => Policy::positionOptions(), 'noDefault' => true], static function ($value) use ($mode, $hookValue): void {
                 if (!is_string($value) || !isset(Policy::positionOptions()[$value])) {
@@ -287,10 +293,12 @@ class rules extends Controller
         $positionField->label = self::word('template_hookpoint_type');
         $positionField->description = self::word('rqbp_position_help_v13');
         $form->add($positionField);
-        $form->add(new Radio('rqbp_occurrence', $config['occurrence'], true, [
+        $occurrenceField = new Radio('rqbp_occurrence', $config['occurrence'], true, [
             'options' => ['first' => 'rqbp_first', 'nth' => 'rqbp_nth', 'all' => 'rqbp_all_occurrences'],
             'toggles' => ['nth' => ['rqbp_occurrence_index']],
-        ]));
+        ]);
+        $occurrenceField->description = self::word('rqbp_occurrence_help_v14');
+        $form->add($occurrenceField);
         $form->add(new Number('rqbp_occurrence_index', (int) $config['occurrence_index'], false, ['min' => 1, 'max' => 10000, 'decimals' => 0], static function ($value) use ($occurrence): void {
             if ($occurrence === 'nth' && (int) $value < 1) {
                 throw new DomainException('rqbp_error_occurrence');
@@ -342,6 +350,8 @@ class rules extends Controller
                     }
                 }
                 if (!isset(Policy::positionOptions()[$values['rqbp_position']])) { throw new DomainException('rqbp_error_position'); }
+                if (!isset(Policy::modeOptions()[$values['rqbp_mode']])) { throw new DomainException('rqbp_error_content_save'); }
+                if ($values['rqbp_mode'] === 'server') { ServerSelector::parse((string) $values['rqbp_selector']); }
                 [$hookPath, $hookName] = $values['rqbp_mode'] === 'hook' ? self::splitHook((string) $values['rqbp_hook']) : ['', ''];
                 if ($values['rqbp_mode'] === 'hook') {
                     if (!HookCatalog::has($hookPath, $hookName, $values['rqbp_position'])
@@ -359,7 +369,7 @@ class rules extends Controller
                 $record->mode = $values['rqbp_mode'];
                 $record->hook_path = $hookPath;
                 $record->hook_name = $hookName;
-                $record->selector = $values['rqbp_mode'] === 'css' ? trim((string) $values['rqbp_selector']) : '';
+                $record->selector = in_array($values['rqbp_mode'], ['css', 'server'], true) ? trim((string) $values['rqbp_selector']) : '';
                 $record->position = $values['rqbp_position'];
                 $record->occurrence = $values['rqbp_occurrence'];
                 $record->occurrence_index = $values['rqbp_occurrence'] === 'nth' ? (int) $values['rqbp_occurrence_index'] : 1;
@@ -494,7 +504,12 @@ class rules extends Controller
             }
             $checks[] = [self::word('rqbp_diag_hook'), $valid];
         } else {
-            $checks[] = [self::word('rqbp_diag_selector'), trim((string) $record->selector) !== ''];
+            $valid = trim((string) $record->selector) !== '';
+            if ($valid && $record->mode === 'server') {
+                try { ServerSelector::parse((string) $record->selector); }
+                catch (InvalidArgumentException) { $valid = false; }
+            }
+            $checks[] = [self::word('rqbp_diag_selector'), $valid];
         }
         $html = '<ul class="ipsList ipsList--reset i-padding_3">';
         foreach ($checks as [$label, $passed]) {
@@ -503,6 +518,9 @@ class rules extends Controller
         }
         $html .= '</ul>';
         $html .= Theme::i()->getTemplate('global', 'core', 'admin')->message('rqbp_diag_content_scope', 'info');
+        if ($record->mode === 'server') {
+            $html .= Theme::i()->getTemplate('global', 'core', 'admin')->message('rqbp_server_scope', 'info');
+        }
         $html .= '<pre class="i-padding_3">' . self::escape(json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)) . '</pre>';
 
         $target = Url::external(rtrim((string) Settings::i()->base_url, '/') . '/');

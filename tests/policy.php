@@ -111,4 +111,8 @@ same(true, Policy::selectedOccurrence('nth', 3, 3), 'Nth matches target');
 same(false, Policy::selectedOccurrence('nth', 3, 4), 'Nth skips after target');
 same(true, Policy::selectedOccurrence('all', 1, 40), 'All allows later occurrence');
 same(false, Policy::selectedOccurrence('all', 1, 0), 'Zero is not an occurrence');
+same(['hook', 'css', 'server'], array_keys(Policy::modeOptions()), 'Server insertion is a distinct opt-in mode without renaming legacy modes');
+same('css', Policy::normalize([])['mode'], 'Legacy CSS mode remains the default when normalizing an old record');
+same('mode_invalid', Policy::evaluate(array_replace($rule, ['mode' => 'unknown']), $context), 'Unknown modes fail closed before rendering or cache eligibility');
+same(null, Policy::evaluate(array_replace($rule, ['mode' => 'server']), $context), 'Server mode uses the existing audience and route policy');
 echo "Policy: {$checks} assertions passed.\n";

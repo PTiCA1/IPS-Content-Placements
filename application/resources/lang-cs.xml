@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Čeština" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.13" long_version="1000013" update_check="">
- <app key="rqblockplacements" version="1000013">
+<language name="Čeština" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.14" long_version="1000014" update_check="">
+ <app key="rqblockplacements" version="1000014">
   <word key="__app_rqblockplacements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Pravidla umístění</word>
@@ -70,6 +70,7 @@
   <word key="rqbp_error_selector" js="0">Zadejte neprázdný CSS selektor bez nulových znaků.</word>
   <word key="rqbp_error_selector_browser" js="0">CSS selektor není platný. Před uložením zkontrolujte jeho syntaxi.</word>
   <word key="rqbp_error_selector_too_long" js="0">CSS selektor může mít nejvýše 1 000 znaků.</word>
+  <word key="rqbp_error_server_selector" js="0">Tento selektor není v serverovém CSS režimu podporovaný. Použijte dokumentovanou podmnožinu nebo zvolte JavaScriptový režim.</word>
   <word key="rqbp_error_template_empty" js="0">Zadejte kód šablony IPS.</word>
   <word key="rqbp_error_template_invalid" js="0">Kód šablony IPS nelze zkompilovat. Zkontrolujte syntaxi šablony a výrazů.</word>
   <word key="rqbp_error_template_php_tags" js="0">Použijte nativní syntaxi šablon IPS místo otevíracích nebo uzavíracích značek PHP.</word>
@@ -104,14 +105,17 @@
   <word key="rqbp_log_toggled" js="0">Změněno zapnutí pravidla umístění %s</word>
   <word key="rqbp_mode" js="0">Způsob umístění</word>
   <word key="rqbp_mode_css" js="0">CSS selektor</word>
+  <word key="rqbp_mode_css_v14" js="0">CSS selektor — JavaScript</word>
   <word key="rqbp_mode_desc" js="0">Každé pravidlo používá jeden způsob umístění. Nativní hook vloží blok na serveru. CSS pravidlo vloží vykreslený blok, až je odpovídající prvek dostupný v prohlížeči.</word>
   <word key="rqbp_mode_hook" js="0">Nativní hook šablony</word>
+  <word key="rqbp_mode_server" js="0">CSS selektor — server</word>
   <word key="rqbp_move_down" js="0">Posunout později</word>
   <word key="rqbp_move_up" js="0">Posunout dříve</word>
   <word key="rqbp_name" js="0">Název pravidla</word>
   <word key="rqbp_nth" js="0">Výskyt podle čísla</word>
   <word key="rqbp_occurrence" js="0">Odpovídající výskyty</word>
   <word key="rqbp_occurrence_desc" js="0">Nativní hooky počítají volání při vykreslování v rámci každého požadavku. CSS selektory počítají prvky v pořadí dokumentu. Při opakování musí HTML bloku i reklamní kód podporovat více instancí.</word>
+  <word key="rqbp_occurrence_help_v14" js="0">Nativní hooky počítají vykreslovací volání v rámci požadavku. CSS režimy počítají odpovídající elementy v pořadí dokumentu, včetně skrytých kategorií. Selektory oddělené čárkou tvoří jeden seznam bez duplicit: první a číslovaný výskyt platí pro celý seznam, nikoli pro každý selektor zvlášť. Opakovaný obsah musí podporovat více instancí.</word>
   <word key="rqbp_occurrence_index" js="0">Číslo výskytu</word>
   <word key="rqbp_occurrence_index_desc" js="0">Číslování začíná hodnotou 1.</word>
   <word key="rqbp_open_diagnostics" js="0">Otevřít veřejnou diagnostiku</word>
@@ -138,6 +142,18 @@
   <word key="rqbp_section_rule" js="0">Pravidlo</word>
   <word key="rqbp_selector" js="0">CSS selektor</word>
   <word key="rqbp_selector_desc" js="0">Použijte běžný CSS selektor, například &lt;code&gt;#forum-category_12 &amp;gt; .ipsData__item:nth-child(2)&lt;/code&gt;. Upřednostněte stabilní ID a datové atributy. Pokud cíl chybí, blok se nevloží. Syntaxi kontroluje prohlížeč.</word>
+  <word key="rqbp_selector_help_v14" js="0">Například &lt;code&gt;#ipsLayout__main .ipsBlockSpacer &amp;gt; li:nth-child(3)&lt;/code&gt;. JavaScriptový režim využívá selektory podporované prohlížečem. Serverový režim přijímá pouze dokumentovanou podmnožinu CSS v hlavním HTML obsahu kontroleru; nepodporovanou syntaxi odmítne bez přechodu na JavaScript. Server nezná vypočtené CSS styly.</word>
+  <word key="rqbp_server_ajax_unsupported" js="0">Serverové CSS vložení není dostupné pro AJAX požadavky.</word>
+  <word key="rqbp_server_content_unsupported" js="0">Vykreslený obsah obsahuje nepodporované HTML, koncovou značku bez odpovídající počáteční značky nebo vnořený formulář; serverové vložení bylo přeskočeno.</word>
+  <word key="rqbp_server_context_unsupported" js="0">Vybraný cíl nebo pozice má nepodporovaný HTML kontext.</word>
+  <word key="rqbp_server_error" js="0">Serverové vložení se nepodařilo zpracovat.</word>
+  <word key="rqbp_server_fragment_too_large" js="0">HTML kontroleru překračuje limit serverového zpracování.</word>
+  <word key="rqbp_server_html_unsupported" js="0">HTML kontroleru nelze bezpečně zpracovat; serverové vložení bylo přeskočeno.</word>
+  <word key="rqbp_server_no_match" js="0">V hlavním HTML obsahu kontroleru nebyl nalezen odpovídající cíl.</word>
+  <word key="rqbp_server_not_processed" js="0">Podporovaný průběh zpracování HTML kontroleru toto serverové pravidlo nezpracoval.</word>
+  <word key="rqbp_server_occurrence_missing" js="0">Požadovaný výskyt ve společném seznamu shod neexistuje.</word>
+  <word key="rqbp_server_scope" js="0">Každé pravidlo používá jeden režim. Serverové CSS vložení funguje jen u podporovaných úplných HTML požadavků, v hlavním obsahu kontroleru reprezentovaném jako &lt;code&gt;div#ipsLayout__main&lt;/code&gt;. Nemůže cílit na globální hlavičku, navigaci, patičku ani head a přeskakuje AJAX požadavky. Existující CSS pravidla si zachovávají JavaScriptový režim. Serverová pravidla nemají JavaScriptové vkládání ani záložní přechod; obsah se vykreslí až po ověření podmínek, odpovídajícího cíle a podporovaného HTML kontextu.</word>
+  <word key="rqbp_server_selector_invalid" js="0">Selektor je v serverovém režimu neplatný nebo nepodporovaný.</word>
   <word key="rqbp_settings" js="0">Nastavení umístění obsahu</word>
   <word key="rqbp_settings_intro" js="0">Hlavní přepínač ovládá všechna pravidla umístění. U odpovídajících stránek se vypíná sdílená mezipaměť celé stránky, aby správně fungovalo cílení na platformy a skupiny. Po změně umístění vyprázdněte také případnou externí CDN nebo reverzní proxy cache. Obsah a oprávnění se spravují v Pages.</word>
   <word key="rqbp_sort_order" js="0">Pořadí</word>

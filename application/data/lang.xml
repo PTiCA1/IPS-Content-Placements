@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <language>
- <app key="rqblockplacements" version="1000013">
+ <app key="rqblockplacements" version="1000014">
   <word key="__app_rqblockplacements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Placement rules</word>
@@ -70,6 +70,7 @@
   <word key="rqbp_error_selector" js="0">Enter a nonempty CSS selector without null characters.</word>
   <word key="rqbp_error_selector_browser" js="0">The CSS selector is invalid. Check its syntax before saving.</word>
   <word key="rqbp_error_selector_too_long" js="0">The CSS selector must be at most 1,000 characters long.</word>
+  <word key="rqbp_error_server_selector" js="0">This selector is not supported by the server CSS mode. Use the documented subset or choose JavaScript mode.</word>
   <word key="rqbp_error_template_empty" js="0">Enter IPS template code.</word>
   <word key="rqbp_error_template_invalid" js="0">The IPS template code could not be compiled. Check its template and expression syntax.</word>
   <word key="rqbp_error_template_php_tags" js="0">Use native IPS template syntax rather than PHP opening or closing tags.</word>
@@ -104,14 +105,17 @@
   <word key="rqbp_log_toggled" js="0">Changed activation of placement rule %s</word>
   <word key="rqbp_mode" js="0">Placement mode</word>
   <word key="rqbp_mode_css" js="0">CSS selector</word>
+  <word key="rqbp_mode_css_v14" js="0">CSS selector — JavaScript</word>
   <word key="rqbp_mode_desc" js="0">Each rule uses one placement mode. Native hooks render on the server. CSS rules insert the rendered block after the matching element is present in the browser.</word>
   <word key="rqbp_mode_hook" js="0">Native template hook</word>
+  <word key="rqbp_mode_server" js="0">CSS selector — server</word>
   <word key="rqbp_move_down" js="0">Move later</word>
   <word key="rqbp_move_up" js="0">Move earlier</word>
   <word key="rqbp_name" js="0">Rule name</word>
   <word key="rqbp_nth" js="0">Occurrence number</word>
   <word key="rqbp_occurrence" js="0">Matching occurrences</word>
   <word key="rqbp_occurrence_desc" js="0">Native hooks count render calls within each request. CSS selectors count matching elements in document order. When repeating a block, its HTML and advertising tag must support multiple instances.</word>
+  <word key="rqbp_occurrence_help_v14" js="0">Native hooks count render calls within each request. CSS modes count matching elements in document order, including hidden categories. Comma-separated selectors form one deduplicated list: first and numbered occurrences apply to the whole list, not separately to each selector. Repeated content must support multiple instances.</word>
   <word key="rqbp_occurrence_index" js="0">Occurrence number</word>
   <word key="rqbp_occurrence_index_desc" js="0">Numbering starts at 1.</word>
   <word key="rqbp_open_diagnostics" js="0">Open front-end diagnostics</word>
@@ -138,6 +142,18 @@
   <word key="rqbp_section_rule" js="0">Rule</word>
   <word key="rqbp_selector" js="0">CSS selector</word>
   <word key="rqbp_selector_desc" js="0">Use a standard CSS selector, for example &lt;code&gt;#forum-category_12 &amp;gt; .ipsData__item:nth-child(2)&lt;/code&gt;. Prefer stable IDs and data attributes. A missing target leaves the block unplaced. The browser checks selector syntax.</word>
+  <word key="rqbp_selector_help_v14" js="0">For example, &lt;code&gt;#ipsLayout__main .ipsBlockSpacer &amp;gt; li:nth-child(3)&lt;/code&gt;. JavaScript mode uses browser selector support. Server mode accepts only its documented CSS subset within the main controller HTML; unsupported syntax is rejected without falling back to JavaScript. No computed CSS styles are available on the server.</word>
+  <word key="rqbp_server_ajax_unsupported" js="0">Server CSS placement is unavailable for AJAX requests.</word>
+  <word key="rqbp_server_content_unsupported" js="0">The rendered content contains unsupported HTML, an unmatched closing tag or a nested form; the server placement was skipped.</word>
+  <word key="rqbp_server_context_unsupported" js="0">The selected target or position has an unsupported HTML context.</word>
+  <word key="rqbp_server_error" js="0">The server placement could not be processed.</word>
+  <word key="rqbp_server_fragment_too_large" js="0">The controller HTML exceeds the server processing limit.</word>
+  <word key="rqbp_server_html_unsupported" js="0">The controller HTML cannot be processed safely; the server placement was skipped.</word>
+  <word key="rqbp_server_no_match" js="0">No target matches in the main controller HTML.</word>
+  <word key="rqbp_server_not_processed" js="0">The supported controller HTML lifecycle did not process this server rule.</word>
+  <word key="rqbp_server_occurrence_missing" js="0">The requested occurrence does not exist in the combined match list.</word>
+  <word key="rqbp_server_scope" js="0">Each rule uses one mode. Server CSS placement runs only on supported full HTML requests, within the main controller content represented by &lt;code&gt;div#ipsLayout__main&lt;/code&gt;. It cannot target the global header, navigation, footer or head, and skips AJAX requests. Existing CSS rules keep their JavaScript mode. Server rules have no JavaScript insertion or fallback; content renders only after eligibility, a matching target and a supported HTML context are confirmed.</word>
+  <word key="rqbp_server_selector_invalid" js="0">The selector is invalid or unsupported in server mode.</word>
   <word key="rqbp_settings" js="0">Content placement settings</word>
   <word key="rqbp_settings_intro" js="0">The master switch controls every placement rule. Eligible pages bypass shared page caching so platform and group targeting remain correct. Purge any external CDN or reverse-proxy page cache after changing placements. Content and permissions are managed in Pages.</word>
   <word key="rqbp_sort_order" js="0">Order</word>

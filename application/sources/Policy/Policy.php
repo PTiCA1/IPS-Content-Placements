@@ -48,6 +48,7 @@ final class Policy
     {
         $rule = self::normalize($rule);
         if (!$rule['enabled']) { return 'disabled'; }
+        if (!isset(self::modeOptions()[$rule['mode']])) { return 'mode_invalid'; }
         if (!isset(self::positionOptions()[$rule['position']])) { return 'position_invalid'; }
         if ($rule['apps'] && !in_array((string) ($context['app'] ?? ''), $rule['apps'], true)) { return 'application'; }
         $url = (string) ($context['url'] ?? '/');
@@ -90,6 +91,12 @@ final class Policy
     public static function platformOptions(): array
     {
         return ['mobile' => 'rqbp_platform_mobile', 'tablet' => 'rqbp_platform_tablet', 'desktop' => 'rqbp_platform_desktop'];
+    }
+
+    /** Preserve the existing CSS mode as JavaScript; server insertion is opt-in. */
+    public static function modeOptions(): array
+    {
+        return ['hook' => 'rqbp_mode_hook', 'css' => 'rqbp_mode_css_v14', 'server' => 'rqbp_mode_server'];
     }
 
     /** Native IPS hook types, also used for CSS insertion positions. */

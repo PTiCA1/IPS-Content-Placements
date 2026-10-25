@@ -37,6 +37,9 @@
   "sources/Rule/Rule.php",
   "sources/RuleAccess/RuleAccess.php",
   "sources/Runtime/Runtime.php",
+  "sources/ServerDocument/ServerDocument.php",
+  "sources/ServerPlacement/ServerPlacement.php",
+  "sources/ServerSelector/ServerSelector.php",
   "sources/TemplateContent/TemplateContent.php",
   "sources/Translation/Translation.php"
 ]

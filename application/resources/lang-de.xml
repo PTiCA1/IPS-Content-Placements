@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Deutsch" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.13" long_version="1000013" update_check="">
- <app key="rqblockplacements" version="1000013">
+<language name="Deutsch" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.14" long_version="1000014" update_check="">
+ <app key="rqblockplacements" version="1000014">
   <word key="__app_rqblockplacements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Platzierungsregeln</word>
@@ -70,6 +70,7 @@
   <word key="rqbp_error_selector" js="0">Geben Sie einen nicht leeren CSS-Selektor ohne Nullzeichen ein.</word>
   <word key="rqbp_error_selector_browser" js="0">Der CSS-Selektor ist ungültig. Prüfen Sie die Syntax vor dem Speichern.</word>
   <word key="rqbp_error_selector_too_long" js="0">Der CSS-Selektor darf höchstens 1.000 Zeichen lang sein.</word>
+  <word key="rqbp_error_server_selector" js="0">Dieser Selektor wird im CSS-Servermodus nicht unterstützt. Verwenden Sie die dokumentierte Teilmenge oder wählen Sie den JavaScript-Modus.</word>
   <word key="rqbp_error_template_empty" js="0">Geben Sie IPS-Vorlagencode ein.</word>
   <word key="rqbp_error_template_invalid" js="0">Der IPS-Vorlagencode konnte nicht kompiliert werden. Prüfen Sie die Vorlagen- und Ausdruckssyntax.</word>
   <word key="rqbp_error_template_php_tags" js="0">Verwenden Sie die native IPS-Vorlagensyntax anstelle von PHP-Start- oder End-Tags.</word>
@@ -104,14 +105,17 @@
   <word key="rqbp_log_toggled" js="0">Aktivierung der Platzierungsregel %s geändert</word>
   <word key="rqbp_mode" js="0">Platzierungsart</word>
   <word key="rqbp_mode_css" js="0">CSS-Selektor</word>
+  <word key="rqbp_mode_css_v14" js="0">CSS-Selektor — JavaScript</word>
   <word key="rqbp_mode_desc" js="0">Jede Regel verwendet genau eine Platzierungsart. Native Hooks werden auf dem Server gerendert. CSS-Regeln fügen den gerenderten Block ein, sobald das passende Element im Browser vorhanden ist.</word>
   <word key="rqbp_mode_hook" js="0">Nativer Vorlagen-Hook</word>
+  <word key="rqbp_mode_server" js="0">CSS-Selektor — Server</word>
   <word key="rqbp_move_down" js="0">Nach hinten verschieben</word>
   <word key="rqbp_move_up" js="0">Nach vorne verschieben</word>
   <word key="rqbp_name" js="0">Name der Regel</word>
   <word key="rqbp_nth" js="0">Nummer des Vorkommens</word>
   <word key="rqbp_occurrence" js="0">Passende Vorkommen</word>
   <word key="rqbp_occurrence_desc" js="0">Bei nativen Hooks werden die Renderaufrufe innerhalb jeder Anfrage gezählt. Bei CSS-Selektoren werden die passenden Elemente in Dokumentreihenfolge gezählt. Bei wiederholter Einfügung müssen das HTML und der Werbetag des Blocks mehrere Instanzen unterstützen.</word>
+  <word key="rqbp_occurrence_help_v14" js="0">Native Hooks zählen Renderaufrufe innerhalb einer Anfrage. Die CSS-Modi zählen passende Elemente in Dokumentreihenfolge, einschließlich ausgeblendeter Kategorien. Durch Kommas getrennte Selektoren bilden eine gemeinsame Liste ohne Duplikate: das erste und das nummerierte Vorkommen beziehen sich auf die gesamte Liste, nicht auf jeden Selektor einzeln. Wiederholte Inhalte müssen mehrere Instanzen unterstützen.</word>
   <word key="rqbp_occurrence_index" js="0">Nummer des Vorkommens</word>
   <word key="rqbp_occurrence_index_desc" js="0">Die Nummerierung beginnt bei 1.</word>
   <word key="rqbp_open_diagnostics" js="0">Frontend-Diagnose öffnen</word>
@@ -138,6 +142,18 @@
   <word key="rqbp_section_rule" js="0">Regel</word>
   <word key="rqbp_selector" js="0">CSS-Selektor</word>
   <word key="rqbp_selector_desc" js="0">Verwenden Sie einen standardkonformen CSS-Selektor, zum Beispiel &lt;code&gt;#forum-category_12 &amp;gt; .ipsData__item:nth-child(2)&lt;/code&gt;. Bevorzugen Sie stabile IDs und data-Attribute. Wird kein Ziel gefunden, wird der Block nicht eingefügt. Der Browser prüft die Syntax des Selektors.</word>
+  <word key="rqbp_selector_help_v14" js="0">Zum Beispiel &lt;code&gt;#ipsLayout__main .ipsBlockSpacer &amp;gt; li:nth-child(3)&lt;/code&gt;. Der JavaScript-Modus verwendet die Selektorunterstützung des Browsers. Der Servermodus akzeptiert nur die dokumentierte CSS-Teilmenge im Haupt-HTML-Inhalt des Controllers; nicht unterstützte Syntax wird ohne Rückgriff auf JavaScript abgelehnt. Berechnete CSS-Stile sind auf dem Server nicht verfügbar.</word>
+  <word key="rqbp_server_ajax_unsupported" js="0">Die serverseitige CSS-Platzierung ist für AJAX-Anfragen nicht verfügbar.</word>
+  <word key="rqbp_server_content_unsupported" js="0">Der gerenderte Inhalt enthält nicht unterstütztes HTML, ein schließendes Tag ohne passendes öffnendes Tag oder ein verschachteltes Formular; die Serverplatzierung wurde übersprungen.</word>
+  <word key="rqbp_server_context_unsupported" js="0">Das ausgewählte Ziel oder die Position hat einen nicht unterstützten HTML-Kontext.</word>
+  <word key="rqbp_server_error" js="0">Die Serverplatzierung konnte nicht verarbeitet werden.</word>
+  <word key="rqbp_server_fragment_too_large" js="0">Das Controller-HTML überschreitet die Grenze für die serverseitige Verarbeitung.</word>
+  <word key="rqbp_server_html_unsupported" js="0">Das Controller-HTML kann nicht sicher verarbeitet werden; die Serverplatzierung wurde übersprungen.</word>
+  <word key="rqbp_server_no_match" js="0">Im Haupt-HTML-Inhalt des Controllers wurde kein passendes Ziel gefunden.</word>
+  <word key="rqbp_server_not_processed" js="0">Der unterstützte Verarbeitungsablauf des Controller-HTML hat diese Serverregel nicht verarbeitet.</word>
+  <word key="rqbp_server_occurrence_missing" js="0">Das angeforderte Vorkommen ist in der gemeinsamen Trefferliste nicht vorhanden.</word>
+  <word key="rqbp_server_scope" js="0">Jede Regel verwendet einen Modus. Die serverseitige CSS-Platzierung funktioniert nur bei unterstützten vollständigen HTML-Anfragen im Hauptinhalt des Controllers, der als &lt;code&gt;div#ipsLayout__main&lt;/code&gt; dargestellt wird. Sie kann weder den globalen Kopfbereich noch Navigation, Fußbereich oder head ansteuern und überspringt AJAX-Anfragen. Bestehende CSS-Regeln behalten ihren JavaScript-Modus. Serverregeln verwenden weder JavaScript zum Einfügen noch als Ausweichlösung; der Inhalt wird erst gerendert, nachdem Bedingungen, ein passendes Ziel und ein unterstützter HTML-Kontext bestätigt wurden.</word>
+  <word key="rqbp_server_selector_invalid" js="0">Der Selektor ist im Servermodus ungültig oder wird nicht unterstützt.</word>
   <word key="rqbp_settings" js="0">Einstellungen für Inhaltsplatzierungen</word>
   <word key="rqbp_settings_intro" js="0">Der Hauptschalter steuert alle Platzierungsregeln. Für relevante Seiten wird der gemeinsam genutzte Seitencache umgangen, damit die Ausrichtung auf Plattformen und Gruppen korrekt bleibt. Leeren Sie nach Änderungen an den Platzierungen alle externen CDN- oder Reverse-Proxy-Seitencaches. Inhalte und Berechtigungen werden in Pages verwaltet.</word>
   <word key="rqbp_sort_order" js="0">Reihenfolge</word>
