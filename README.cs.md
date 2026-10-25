@@ -4,6 +4,10 @@ for Invision Community 5
 
 [Projekt na GitHubu](https://github.com/PTiCA1/IPS-Content-Placements) · [Hlášení chyb](https://github.com/PTiCA1/IPS-Content-Placements/issues)
 
+**[Testovací vydání beta.11](https://github.com/PTiCA1/IPS-Content-Placements/releases/tag/v1.0.0-beta.11)** · **[Stáhnout TAR](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.11/rqblockplacements-1.0.0-beta.11.tar)** · [SHA256SUMS](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.11/SHA256SUMS)
+
+Volitelná XML: [CS](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.11/rqblockplacements-1.0.0-beta.11-cs.xml) · [SK](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.11/rqblockplacements-1.0.0-beta.11-sk.xml) · [PL](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.11/rqblockplacements-1.0.0-beta.11-pl.xml) · [DE](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.11/rqblockplacements-1.0.0-beta.11-de.xml). TAR už obsahuje všechny čtyři překlady; samostatné stahování XML je volitelné.
+
 Samostatná aplikace pro vkládání Pages bloků nebo vlastního kódu šablony IPS před či za CSS selektor nebo nativní hook. Má vlastní pravidla pro zařízení, skupiny, aplikace a URL. Vlastní kód doplňku je pod licencí MIT. [English](README.md).
 
 **1.0.0-beta.11 — sestavení 1000011.** Přidává oficiální odkaz na projekt GitHub a hlášení chyb. Funkce ani schéma se nemění. Obsahuje úplnou češtinu, slovenštinu, polštinu a němčinu. Připraveno pro IPS **5.0.20**; skutečná instalace a aktualizace ještě čekají na ověření před stabilním vydáním. [Výsledky datovaného auditu a jeho meze](docs/SECURITY-AUDIT-2026-10-25.md). Po aktualizaci vyprázdněte existující CDN/reverzní proxy cache dotčených URL.
@@ -38,7 +42,7 @@ Potřebujete licencované IPS 5.0.20, povolené vlastní aplikace a oprávnění
 
 Aktualizujte existující aplikaci, neinstalujte druhou kopii. Interní klíč `rqblockplacements` i předpona názvu balíčku zůstávají stejné. Aktualizace obnoví standardní názvy aplikace a zachová vlastní úpravy textů, pravidla i nastavení.
 
-1. Připravte `rqblockplacements-1.0.0-beta.11.tar` z adresáře `dist/` nebo z [vydání na GitHubu](https://github.com/PTiCA1/IPS-Content-Placements/releases), pokud je dostupné. Pro ověření příkazem `shasum -a 256 -c SHA256SUMS` mějte ve stejném adresáři také `SHA256SUMS` a všechna čtyři překladová XML. Pro samotnou instalaci stačí TAR.
+1. Stáhněte [rqblockplacements-1.0.0-beta.11.tar](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.11/rqblockplacements-1.0.0-beta.11.tar) z [testovacího vydání beta.11](https://github.com/PTiCA1/IPS-Content-Placements/releases/tag/v1.0.0-beta.11), případně použijte soubor z `dist/`. Pro ověření příkazem `shasum -a 256 -c SHA256SUMS` mějte ve stejném adresáři také `SHA256SUMS` a všechna čtyři překladová XML. Pro samotnou instalaci stačí TAR.
 2. V **ACP → System → Applications** zvolte nahrání/instalaci aplikace a nahrajte **TAR**. ZIP zdrojového repozitáře se neinstaluje.
 3. Otevřete **ACP → Content Placements → Pravidla umístění** (anglicky **Placement rules**). Standardní název hlavní záložky je ve všech jazycích **Content Placements**, podnabídky zůstávají přeložené. Jde o vlastní záložku aplikace poblíž spodního konce postranního menu, nikoli položku uvnitř nativních reklam nebo Pages. Dalším administrátorům případně přidělte oprávnění `rqbp_manage`.
 4. V Pages vytvořte jednoduchý HTML blok a přidejte pravidlo pro jeden známý CSS selektor nebo hook. Začněte prvním výskytem, všemi platformami a bez omezení skupin či URL.

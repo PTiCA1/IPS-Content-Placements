@@ -4,6 +4,10 @@ for Invision Community 5
 
 [GitHub project](https://github.com/PTiCA1/IPS-Content-Placements) · [Issues](https://github.com/PTiCA1/IPS-Content-Placements/issues)
 
+**[Beta.11 pre-release](https://github.com/PTiCA1/IPS-Content-Placements/releases/tag/v1.0.0-beta.11)** · **[Download TAR](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.11/rqblockplacements-1.0.0-beta.11.tar)** · [SHA256SUMS](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.11/SHA256SUMS)
+
+Optional XML: [CS](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.11/rqblockplacements-1.0.0-beta.11-cs.xml) · [SK](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.11/rqblockplacements-1.0.0-beta.11-sk.xml) · [PL](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.11/rqblockplacements-1.0.0-beta.11-pl.xml) · [DE](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.11/rqblockplacements-1.0.0-beta.11-de.xml). The TAR already contains all four translations; separate XML downloads are optional.
+
 Place an existing Invision Community Pages block or custom IPS template code before or after a CSS selector or a native theme hook, with rules for platforms, groups, applications and URLs. Original standalone application, MIT licensed. [Česky](README.cs.md).
 
 **1.0.0-beta.11 — build 1000011.** Adds the canonical GitHub project and issue-reporting links. No feature or schema changes. Includes complete Czech, Slovak, Polish and German translations. Prepared for IPS **5.0.20**; native installation and upgrade acceptance remain pending before a stable release. See [security boundaries](SECURITY.md) and the [dated audit report](docs/SECURITY-AUDIT-2026-10-25.md). Purge existing CDN/reverse-proxy cache for affected URLs after upgrading.
@@ -38,7 +42,7 @@ Requirements: licensed IPS 5.0.20, custom applications permitted, and ACP applic
 
 Upgrade the existing application rather than installing a second copy. The internal key `rqblockplacements` and release filename prefix remain unchanged. The upgrade refreshes the application's standard names while preserving administrator-customized text, rules and settings.
 
-1. Obtain `rqblockplacements-1.0.0-beta.11.tar` from `dist/` or a [GitHub release](https://github.com/PTiCA1/IPS-Content-Placements/releases), when available. To verify with `shasum -a 256 -c SHA256SUMS`, keep `SHA256SUMS` and all four translation XML files in the same directory as the TAR. Installation itself requires only the TAR.
+1. Download [rqblockplacements-1.0.0-beta.11.tar](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.11/rqblockplacements-1.0.0-beta.11.tar) from the [beta.11 pre-release](https://github.com/PTiCA1/IPS-Content-Placements/releases/tag/v1.0.0-beta.11), or use the file in `dist/`. To verify with `shasum -a 256 -c SHA256SUMS`, keep `SHA256SUMS` and all four translation XML files in the same directory as the TAR. Installation itself requires only the TAR.
 2. Open **ACP → System → Applications**, choose the upload/install action and upload the **TAR**. The GitHub source ZIP is not the installable application.
 3. Open **ACP → Content Placements → Placement rules**. This is the application's own tab near the bottom of the sidebar, not an entry under native Advertisements or Pages. The standard main tab name is **Content Placements** in every language; for example, the Czech submenu is **Pravidla umístění**. Allow access to the `rqbp_manage` permission for other administrators who need it.
 4. Create a simple existing Pages HTML block, then add a placement rule. Start with one known CSS selector or native hook, the first occurrence, all platforms and no audience/URL restriction.
