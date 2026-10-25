@@ -12,6 +12,7 @@ namespace IPS\Dispatcher {
 }
 
 namespace IPS {
+    class AcpPermissionDenied extends \RuntimeException {}
     class Application {
         public static bool $pages = true;
         public static function appIsEnabled(string $key): bool { return $key !== 'cms' || self::$pages; }
@@ -23,12 +24,18 @@ namespace IPS {
         public array $permissions = [];
         public function __construct() { $this->application = (object) ['directory' => 'rqblockplacements']; }
         public static function i(): self { static $instance; return $instance ??= new self; }
-        public function checkAcpPermission(string $permission): void { $this->permissions[] = $permission; }
+        public function checkAcpPermission(string $permission): void {
+            $this->permissions[] = $permission;
+            if ($permission === 'rqbp_manage_code' && !Member::$codePermission) {
+                throw new AcpPermissionDenied('403: rqbp_manage_code');
+            }
+        }
     }
     #[\AllowDynamicProperties]
     class Request {
         public static function i(): self { static $instance; return $instance ??= new self; }
         public function url(): \IPS\Http\Url { return \IPS\Http\Url::internal('app=rqblockplacements&module=placements&controller=rules'); }
+        public function confirmedDelete(): void { Session::i()->csrfCheck(); }
     }
     class Settings {
         public bool $rqbp_enabled = true;
@@ -36,7 +43,14 @@ namespace IPS {
         public static function i(): self { static $instance; return $instance ??= new self; }
     }
     class Member {
+        public static bool $codePermission = false;
         public static function loggedIn(): self { static $instance; return $instance ??= new self; }
+        public function hasAcpRestriction(string $app, string $module, string $key): bool {
+            if ([$app, $module, $key] !== ['rqblockplacements', 'placements', 'rqbp_manage_code']) {
+                throw new \RuntimeException('Unexpected code permission context');
+            }
+            return self::$codePermission;
+        }
         public function language(): object { return new class {
             public function addToStack(string $key, ...$args): string {
                 return match ($key) {
@@ -57,6 +71,12 @@ namespace IPS {
         public array $jsFiles = [];
         public static function i(): self { static $instance; return $instance ??= new self; }
         public function error(...$args): never { throw new \RuntimeException('Unexpected ACP error: ' . $args[0]); }
+        public function redirect(...$args): void {}
+    }
+    class Session {
+        public static function i(): self { static $instance; return $instance ??= new self; }
+        public function csrfCheck(): void {}
+        public function log(...$args): void {}
     }
     class Theme {
         public static array $calls = [];
@@ -102,11 +122,14 @@ namespace IPS\Member { class Group { public static function groups(): array { re
 namespace IPS\cms\Blocks {
     class Container {}
     class Block {
+        public static int $loads = 0;
         public int $id = 9;
         public string $key = 'test_banner';
         public string $_title = 'Test <banner>';
         public bool $active = true;
         public static function load($id, $field = null): self {
+            self::$loads++;
+            if (!\IPS\Application::$pages) { throw new \RuntimeException('Pages APIs accessed while unavailable'); }
             if (!$id) { throw new \OutOfRangeException; }
             return new self;
         }
@@ -117,6 +140,8 @@ namespace IPS\cms\Blocks {
 namespace IPS\Helpers {
     class Form {
         public static ?self $last = null;
+        public static array|false $submitted = false;
+        public ?string $error = null;
         public array $fields = [];
         public function __construct(public string $id = 'form', ...$args) {
             self::$last = $this;
@@ -125,7 +150,23 @@ namespace IPS\Helpers {
         public function addMessage(...$args): void { \IPS\Theme::i()->getTemplate('forms', 'core', 'global'); }
         public function addHeader(...$args): void { \IPS\Theme::i()->getTemplate('forms', 'core', 'admin'); }
         public function add($field): void { $this->fields[$field->name] = $field; }
-        public function values(): false { return false; }
+        public function values(): array|false {
+            if (self::$submitted === false) { return false; }
+            $submitted = self::$submitted;
+            self::$submitted = false;
+            $values = [];
+            foreach ($this->fields as $field) {
+                $value = $submitted[$field->name] ?? $field->value;
+                try {
+                    if ($field->validation) { ($field->validation)($value); }
+                } catch (\LogicException $exception) {
+                    $this->error = $exception->getMessage();
+                    return false;
+                }
+                $values[$field->name] = $value;
+            }
+            return $values;
+        }
         public function __toString(): string {
             \IPS\Theme::i()->getTemplate('forms', 'core', 'admin');
             return '<form data-native-form="' . $this->id . '"></form>';
@@ -135,13 +176,15 @@ namespace IPS\Helpers {
 
 namespace IPS\Helpers\Form {
     class Field {
+        public ?string $label = null;
+        public mixed $validation;
         public function __construct(
             public string $name,
             public mixed $value = null,
             public bool $required = false,
             public array $options = [],
             ...$args
-        ) {}
+        ) { $this->validation = $args[0] ?? null; }
     }
     class Text extends Field {} class TextArea extends Field {} class Number extends Field {}
     class Radio extends Field {} class Select extends Field {} class CheckboxSet extends Field {}
@@ -151,19 +194,25 @@ namespace IPS\Helpers\Form {
 namespace IPS\Helpers\Table {
     #[\AllowDynamicProperties]
     class Db {
+        public static ?self $last = null;
         public ?string $sortBy = null;
         public ?string $sortDirection = null;
-        public function __construct(...$args) { \IPS\Theme::i()->getTemplate('tables', 'core', 'admin'); }
+        public function __construct(...$args) { self::$last = $this; \IPS\Theme::i()->getTemplate('tables', 'core', 'admin'); }
         public function __toString(): string { return '<table data-native-table></table>'; }
     }
 }
 
 namespace IPS\rqblockplacements {
     class Rule {
+        public static array $records = [];
+        public static array $saved = [];
+        public static array $deleted = [];
         public int $id = 1;
         public string $name = 'Test rule';
         public int $enabled = 1;
         public int $block_id = 9;
+        public string $content_type = 'block';
+        public string $template_code = '';
         public string $mode = 'hook';
         public string $hook_path = 'forums/front/index/forumRow';
         public string $hook_name = 'rowItem';
@@ -172,15 +221,26 @@ namespace IPS\rqblockplacements {
         public string $position = 'before';
         public string $occurrence = 'nth';
         public int $occurrence_index = 2;
-        public array $platforms = ['Android', 'Windows'];
-        public array $allow_groups = ['4'];
-        public array $exclude_groups = ['2'];
-        public array $apps = ['forums'];
-        public array $include_urls = ['/forums/*'];
-        public array $exclude_urls = ['/forums/private/*'];
-        public static function all(): array { return []; }
-        public static function load($id): self { return new self; }
+        public array|string $platforms = ['Android', 'Windows'];
+        public array|string $allow_groups = ['4'];
+        public array|string $exclude_groups = ['2'];
+        public array|string $apps = ['forums'];
+        public array|string $include_urls = ['/forums/*'];
+        public array|string $exclude_urls = ['/forums/private/*'];
+        public static function all(): array { return array_values(self::$records); }
+        public static function load($id): self { return self::$records[$id] ?? new self; }
         public function toConfig(): array { return Policy::normalize(get_object_vars($this)); }
+        public function save(): void { self::$saved[] = clone $this; }
+        public function delete(): void { self::$deleted[] = $this->id; }
+    }
+    class TemplateContent {
+        public static array $validated = [];
+        public static function validate(string $code): void {
+            self::$validated[] = $code;
+            if (trim($code) === '') { throw new \InvalidArgumentException('rqbp_error_template_empty'); }
+            if (strlen($code) > 65535) { throw new \InvalidArgumentException('rqbp_error_template_too_long'); }
+            if ($code === 'invalid-template') { throw new \InvalidArgumentException('rqbp_error_template_invalid'); }
+        }
     }
     class HookCatalog {
         public static function options(): array { return ['forums/front/index/forumRow' => ['rowItem' => 'rowItem (li)']]; }
@@ -218,9 +278,9 @@ namespace {
     \IPS\Theme::$calls = [];
 
     $html = runAcp('rules');
-    check(str_contains($html, 'data-native-table') && str_contains($html, 'rqbp_rules_intro'), 'The rule list renders its core notice and table');
+    check(str_contains($html, 'data-native-table') && str_contains($html, 'rqbp_rules_intro_v5'), 'The rule list renders its core notice and table');
     \IPS\Application::$pages = false;
-    check(str_contains(runAcp('rules', 'form'), 'rqbp_pages_required'), 'Missing Pages renders a core admin warning');
+    check(str_contains(runAcp('rules', 'form'), 'rqbp_pages_unavailable'), 'Missing Pages renders a core admin warning for a block-only administrator');
     \IPS\Application::$pages = true;
     check(str_contains(runAcp('rules', 'form'), 'rqbp_rule_form'), 'The add-rule form renders in our application context');
     $fields = \IPS\Helpers\Form::$last->fields;
@@ -260,9 +320,116 @@ namespace {
         check($existingFields[$name]->value === $value, "Device normalization preserves {$name}");
     }
     check($existingFields['rqbp_block_picker']->value instanceof \IPS\cms\Blocks\Block && $existingFields['rqbp_block_picker']->value->id === 9, 'Device normalization preserves the selected Pages block');
-    check(str_contains(runAcp('rules', 'diagnostics', 1), 'rqbp_diag_scope'), 'Diagnostics renders its core scope notice');
+    check(str_contains(runAcp('rules', 'diagnostics', 1), 'rqbp_diag_content_scope'), 'Diagnostics renders its core scope notice');
     check(str_contains(runAcp('settings'), 'rqbp_settings_form'), 'The settings form renders');
     check(count(\IPS\Dispatcher::i()->permissions) === 6 && array_unique(\IPS\Dispatcher::i()->permissions) === ['rqbp_manage'], 'Every ACP route checks its management permission');
+
+    // Template editing is a separate capability; rendering and executing code are out of scope here.
+    check(array_keys($existingFields['rqbp_block_source']->options['options']) === ['picker', 'manual'], 'A block-only administrator sees the two existing block sources');
+    check(!isset($existingFields['rqbp_template_code']), 'A block-only administrator never receives the code input');
+    check($existingFields['rqbp_block_source']->label === 'rqbp_content_source', 'The source field uses the new generic content label without changing its POST name');
+    runAcp('rules');
+    $table = \IPS\Helpers\Table\Db::$last;
+    check(in_array('rule_content', $table->include, true) && !in_array('rule_template_code', $table->include, true), 'The table displays a content summary and never a template-code column');
+    $template = new \IPS\rqblockplacements\Rule;
+    $template->id = 2;
+    $template->content_type = 'template';
+    $template->block_id = 0;
+    $template->template_code = '{expression="(new \\IPS\\MafraApi())->getMafraApiId(\'28\')" raw="true"}';
+    \IPS\rqblockplacements\Rule::$records[2] = $template;
+    $row = ['rule_id' => 2, 'rule_content_type' => 'template', 'rule_template_code' => $template->template_code];
+    check(($table->parsers['rule_content'])(null, $row) === 'rqbp_source_template', 'The table identifies template contents without exposing its source code');
+    check(($table->rowButtons)($row) === [], 'An administrator without code permission receives no template-rule action links');
+    $validations = count(\IPS\rqblockplacements\TemplateContent::$validated);
+    foreach (['form', 'toggle', 'duplicate', 'delete', 'diagnostics', 'move'] as $action) {
+        $denied = false;
+        try { runAcp('rules', $action, 2); }
+        catch (\IPS\AcpPermissionDenied $exception) { $denied = str_contains($exception->getMessage(), '403'); }
+        check($denied, "The {$action} endpoint requires code permission for existing template rules");
+    }
+    check(count(\IPS\rqblockplacements\TemplateContent::$validated) === $validations, 'Denied template routes do not invoke the compiler');
+    check(\IPS\rqblockplacements\Rule::$saved === [] && \IPS\rqblockplacements\Rule::$deleted === [], 'Denied template routes do not mutate rules');
+    foreach ([null, 1] as $id) {
+        \IPS\Request::i()->rqbp_block_source = 'template';
+        $denied = false;
+        try { runAcp('rules', 'form', $id); }
+        catch (\IPS\AcpPermissionDenied) { $denied = true; }
+        check($denied, 'Forging the template source is denied before form validation for new and existing block rules');
+    }
+    unset(\IPS\Request::i()->rqbp_block_source);
+    check(count(\IPS\rqblockplacements\TemplateContent::$validated) === $validations, 'Forged template source does not reach compilation');
+
+    \IPS\Member::$codePermission = true;
+    runAcp('rules', 'form');
+    $codeFields = \IPS\Helpers\Form::$last->fields;
+    check(array_keys($codeFields['rqbp_block_source']->options['options']) === ['picker', 'manual', 'template'], 'A code administrator sees all three sources when Pages is enabled');
+    check($codeFields['rqbp_template_code']->options === ['rows' => 8, 'maxLength' => 65535, 'codeMode' => false], 'Template code uses a plain eight-row text area with the native length cap');
+    runAcp('rules', 'form', 2);
+    $codeFields = \IPS\Helpers\Form::$last->fields;
+    check($codeFields['rqbp_block_source']->value === 'template', 'Editing a template rule selects the template source');
+    check($codeFields['rqbp_template_code']->value === $template->template_code, 'Editing preserves the original IPS template source exactly');
+    $loads = \IPS\cms\Blocks\Block::$loads;
+    \IPS\Application::$pages = false;
+    check(str_contains(runAcp('rules', 'form'), 'rqbp_rule_form'), 'A code administrator can open the full rule form without Pages');
+    $codeFields = \IPS\Helpers\Form::$last->fields;
+    check($codeFields['rqbp_block_source']->options['options'] === ['template' => 'rqbp_source_template'], 'Only the template source is offered while Pages is unavailable');
+    check(!isset($codeFields['rqbp_block_picker'], $codeFields['rqbp_block_reference']), 'The form does not initialize unavailable Pages helpers');
+    check($codeFields['rqbp_block_source']->value === 'template', 'A new rule without Pages defaults to its available template source');
+    $html = runAcp('rules', 'diagnostics', 2);
+    check(str_contains($html, 'rqbp_diag_template') && !str_contains($html, 'rqbp_diag_pages'), 'Template diagnostics validate syntax and omit Pages requirements');
+    check(\IPS\cms\Blocks\Block::$loads === $loads, 'Code forms and diagnostics do not access Pages when it is unavailable');
+    check(end(\IPS\rqblockplacements\TemplateContent::$validated) === $template->template_code, 'Diagnostics pass the original template source to syntax validation only');
+
+    \IPS\Request::i()->rqbp_block_source = 'template';
+    \IPS\Helpers\Form::$submitted = ['rqbp_name' => 'Code without Pages', 'rqbp_template_code' => $template->template_code];
+    runAcp('rules', 'form');
+    $saved = end(\IPS\rqblockplacements\Rule::$saved);
+    check($saved->content_type === 'template' && $saved->block_id === 0, 'Saving custom code persists its discriminator and clears the block ID');
+    check($saved->template_code === $template->template_code && $saved->enabled === 0, 'Saving custom code preserves exact source and the disabled default');
+    $savedCount = count(\IPS\rqblockplacements\Rule::$saved);
+    foreach (['' => 'rqbp_error_template_empty', 'invalid-template' => 'rqbp_error_template_invalid', str_repeat('ě', 32768) => 'rqbp_error_template_too_long'] as $code => $error) {
+        \IPS\Helpers\Form::$submitted = ['rqbp_name' => 'Invalid code', 'rqbp_template_code' => $code];
+        runAcp('rules', 'form');
+        check(\IPS\Helpers\Form::$last->error === $error, 'Template validation maps its known failure to a field language key');
+    }
+    check(count(\IPS\rqblockplacements\Rule::$saved) === $savedCount, 'Empty, invalid, and oversized UTF-8 code is rejected without saving');
+    runAcp('rules', 'duplicate', 2);
+    $copy = end(\IPS\rqblockplacements\Rule::$saved);
+    check($copy->content_type === 'template' && $copy->template_code === $template->template_code && $copy->enabled === 0, 'Duplicating a code rule preserves its contents but always disables the copy');
+
+    \IPS\Application::$pages = true;
+    \IPS\Request::i()->rqbp_block_source = 'picker';
+    \IPS\Helpers\Form::$submitted = ['rqbp_block_picker' => new \IPS\cms\Blocks\Block];
+    runAcp('rules', 'form', 2);
+    $saved = end(\IPS\rqblockplacements\Rule::$saved);
+    check($saved->content_type === 'block' && $saved->block_id === 9 && $saved->template_code === '', 'Switching from code to a block clears stored code');
+    \IPS\Member::$codePermission = false;
+    $validations = count(\IPS\rqblockplacements\TemplateContent::$validated);
+    \IPS\Helpers\Form::$submitted = ['rqbp_block_picker' => new \IPS\cms\Blocks\Block, 'rqbp_template_code' => 'forged hidden code'];
+    runAcp('rules', 'form', 1);
+    $saved = end(\IPS\rqblockplacements\Rule::$saved);
+    check($saved->content_type === 'block' && $saved->template_code === '', 'An ordinary block editor can save a block and cannot retain a forged code field');
+    check(count(\IPS\rqblockplacements\TemplateContent::$validated) === $validations, 'Ordinary block saving never invokes template compilation');
+    unset(\IPS\Request::i()->rqbp_block_source);
+
+    $firstBlock = new \IPS\rqblockplacements\Rule;
+    $firstBlock->id = 1;
+    $firstBlock->sort_order = 10;
+    $codeNeighbor = new \IPS\rqblockplacements\Rule;
+    $codeNeighbor->id = 2;
+    $codeNeighbor->content_type = 'template';
+    $codeNeighbor->sort_order = 20;
+    \IPS\rqblockplacements\Rule::$records = [1 => $firstBlock, 2 => $codeNeighbor];
+    $savedCount = count(\IPS\rqblockplacements\Rule::$saved);
+    \IPS\Request::i()->direction = 'down';
+    $denied = false;
+    try { runAcp('rules', 'move', 1); }
+    catch (\IPS\AcpPermissionDenied) { $denied = true; }
+    check($denied, 'Moving an ordinary block across a template rule also requires code permission');
+    check(count(\IPS\rqblockplacements\Rule::$saved) === $savedCount, 'A denied reorder does not save an earlier row before discovering the protected code rule');
+    check($firstBlock->sort_order === 10 && $codeNeighbor->sort_order === 20, 'A denied reorder leaves every in-memory order unchanged');
+    unset(\IPS\Request::i()->direction);
+
     foreach (\IPS\Theme::$calls as [$group, $app, $location]) {
         check($app === 'core' && ($group !== 'global' || $location === 'admin'), 'Every shared template uses its explicit core context');
     }

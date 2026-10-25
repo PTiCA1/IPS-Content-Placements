@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Čeština" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.4" long_version="1000004" update_check="">
- <app key="rqblockplacements" version="1000004">
+<language name="Čeština" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.5" long_version="1000005" update_check="">
+ <app key="rqblockplacements" version="1000005">
   <word key="__app_rqblockplacements" js="0">Pages Block Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Umístění bloků</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Pravidla umístění</word>
@@ -10,6 +10,7 @@
   <word key="r__placements" js="0">Umístění bloků</word>
   <word key="r__rqblockplacements" js="0">Pages Block Placements</word>
   <word key="r__rqbp_manage" js="0">Spravovat umístění bloků Pages</word>
+  <word key="r__rqbp_manage_code" js="0">Spravovat vlastní kód šablon IPS (umožňuje spouštět PHP na serveru)</word>
   <word key="rqbp_add_rule" js="0">Přidat pravidlo umístění</word>
   <word key="rqbp_after" js="0">Za cílový prvek</word>
   <word key="rqbp_all_occurrences" js="0">Každý výskyt</word>
@@ -25,12 +26,16 @@
   <word key="rqbp_block_source" js="0">Výběr bloku</word>
   <word key="rqbp_block_unavailable" js="0">Blok není dostupný</word>
   <word key="rqbp_choose_hook" js="0">Vyberte nativní hook</word>
+  <word key="rqbp_content_intro" js="0">Vyberte existující blok Pages nebo vlastní kód šablony IPS a nastavte jeho umístění i cílové skupiny. Vypnuté pravidlo nejprve zkontrolujte v diagnostice. Obsah a oprávnění existujícího bloku se nadále spravují v Pages → Blocks.</word>
+  <word key="rqbp_content_section" js="0">Obsah</word>
+  <word key="rqbp_content_source" js="0">Zdroj obsahu</word>
   <word key="rqbp_copy_suffix" js="0">kopie</word>
   <word key="rqbp_delete_rule" js="0">Smazat pravidlo</word>
   <word key="rqbp_diag_application" js="0">Hlavní přepínač zapnutý</word>
   <word key="rqbp_diag_block" js="0">Odkazovaný blok existuje</word>
   <word key="rqbp_diag_block_active" js="0">Blok je v Pages zapnutý</word>
   <word key="rqbp_diag_block_permission" js="0">Aktuální administrátor smí zobrazit blok</word>
+  <word key="rqbp_diag_content_scope" js="0">Tyto kontroly nevykreslují obsah ani v ACP nespouštějí jeho PHP výrazy nebo reklamní skripty. Kód šablony se pouze zkompiluje a zkontroluje se jeho syntaxe. Výsledek oprávnění Pages se týká aktuálního administrátora. Otevřete níže skutečnou veřejnou URL a zkontrolujte shody hooků nebo počty prvků selektoru; cílové skupiny a platformy ověřte samostatně. Vložení přes CSS nezajistí funkčnost starých značek s document.write ani každého widgetu třetí strany po načtení stránky.</word>
   <word key="rqbp_diag_fail" js="0">Ne</word>
   <word key="rqbp_diag_hook" js="0">Nativní hook a HTML kontext dostupné</word>
   <word key="rqbp_diag_pages" js="0">Pages nainstalované a zapnuté</word>
@@ -38,6 +43,7 @@
   <word key="rqbp_diag_rule" js="0">Pravidlo zapnuté</word>
   <word key="rqbp_diag_scope" js="0">Tyto kontroly nevykreslují blok ani nespouštějí reklamní skripty v ACP. Výsledek oprávnění se týká aktuálního účtu administrátora. Otevřete níže skutečnou veřejnou URL a zkontrolujte shody hooků nebo počty prvků selektoru; cílové skupiny a platformy ověřte samostatně. Podporované jsou připravené HTML reklamní bloky; vložení přes CSS nezajistí funkčnost starých značek s document.write ani každého widgetu třetí strany po načtení stránky.</word>
   <word key="rqbp_diag_selector" js="0">CSS selektor vyplněný</word>
+  <word key="rqbp_diag_template" js="0">Kód šablony IPS lze zkompilovat bez spuštění</word>
   <word key="rqbp_diagnostic_url" js="0">Testovací veřejná URL</word>
   <word key="rqbp_diagnostic_url_desc" js="0">Zadejte úplnou URL této komunity. Použijte stránku, kde očekáváte vložení pravidla. Veřejnou diagnostiku mohou otevřít pouze administrátoři s oprávněním spravovat umístění.</word>
   <word key="rqbp_diagnostics" js="0">Diagnostika</word>
@@ -50,6 +56,8 @@
   <word key="rqbp_enabled_desc" js="0">Vypnutím zastavíte všechna umístění bez smazání pravidel.</word>
   <word key="rqbp_error_block" js="0">Vyberte existující blok Pages.</word>
   <word key="rqbp_error_block_reference" js="0">Zadejte existující klíč bloku nebo platný odkaz {block="key"}.</word>
+  <word key="rqbp_error_content_save" js="0">Konfiguraci se nepodařilo uložit. Zkontrolujte zdroj obsahu a nastavení umístění.</word>
+  <word key="rqbp_error_content_source" js="0">Vyberte dostupný zdroj obsahu.</word>
   <word key="rqbp_error_diagnostic_url" js="0">Zadejte URL této komunity s jejím nastaveným protokolem, doménou a základní cestou.</word>
   <word key="rqbp_error_hook" js="0">Vyberte dostupný nativní hook veřejné části webu.</word>
   <word key="rqbp_error_hook_context" js="0">Do této pozice hooku nelze bezpečně vložit blok. Vyberte jiný hook.</word>
@@ -60,6 +68,10 @@
   <word key="rqbp_error_selector" js="0">Zadejte neprázdný CSS selektor bez nulových znaků.</word>
   <word key="rqbp_error_selector_browser" js="0">CSS selektor není platný. Před uložením zkontrolujte jeho syntaxi.</word>
   <word key="rqbp_error_selector_too_long" js="0">CSS selektor může mít nejvýše 1 000 znaků.</word>
+  <word key="rqbp_error_template_empty" js="0">Zadejte kód šablony IPS.</word>
+  <word key="rqbp_error_template_invalid" js="0">Kód šablony IPS nelze zkompilovat. Zkontrolujte syntaxi šablony a výrazů.</word>
+  <word key="rqbp_error_template_php_tags" js="0">Použijte nativní syntaxi šablon IPS místo otevíracích nebo uzavíracích značek PHP.</word>
+  <word key="rqbp_error_template_too_long" js="0">Kód šablony IPS může mít nejvýše 65 535 bajtů.</word>
   <word key="rqbp_error_url_pattern" js="0">Vzory URL musí začínat jediným /, nesmí obsahovat doménu ani #fragment a mohou mít nejvýše 2 000 znaků.</word>
   <word key="rqbp_exclude_groups" js="0">Vyloučené skupiny členů</word>
   <word key="rqbp_exclude_groups_desc" js="0">Prázdný výběr nikoho nevylučuje. Jakákoli shodná vyloučená hlavní nebo vedlejší skupina má přednost před povolenými skupinami.</word>
@@ -98,6 +110,7 @@
   <word key="rqbp_occurrence_index_desc" js="0">Číslování začíná hodnotou 1.</word>
   <word key="rqbp_open_diagnostics" js="0">Otevřít veřejnou diagnostiku</word>
   <word key="rqbp_pages_required" js="0">Před vytvářením nebo úpravou umístění nainstalujte a zapněte aplikaci Pages. Existující pravidla se obnoví, jakmile budou Pages dostupné.</word>
+  <word key="rqbp_pages_unavailable" js="0">Pages nejsou dostupné. Pro výběr bloku musí být aplikace Pages nainstalovaná a zapnutá. Administrátoři s oprávněním spravovat kód šablon mohou nadále vytvářet a upravovat umístění vlastního kódu IPS.</word>
   <word key="rqbp_platform_desktop" js="0">Desktop</word>
   <word key="rqbp_platform_mobile" js="0">Mobil</word>
   <word key="rqbp_platform_tablet" js="0">Tablet</word>
@@ -109,6 +122,7 @@
   <word key="rqbp_rule_enabled_desc" js="0">Nová pravidla jsou vypnutá. Před zapnutím můžete konfiguraci zkontrolovat v diagnostice.</word>
   <word key="rqbp_rules" js="0">Pravidla umístění</word>
   <word key="rqbp_rules_intro" js="0">Umístěte existující bloky Pages pomocí nativního hooku šablony nebo CSS selektoru. Nová a zkopírovaná pravidla jsou vypnutá. Nižší pořadí se zpracuje dříve; šipky mění celkové pořadí pravidel.</word>
+  <word key="rqbp_rules_intro_v5" js="0">Umístěte existující blok Pages nebo vlastní kód šablony IPS pomocí nativního hooku či CSS selektoru. Nová a zkopírovaná pravidla jsou vypnutá. Nižší pořadí se zpracuje dříve; šipky mění celkové pořadí pravidel.</word>
   <word key="rqbp_section_audience" js="0">Komu se blok zobrazí</word>
   <word key="rqbp_section_block" js="0">Existující blok Pages</word>
   <word key="rqbp_section_pages" js="0">Stránky a aplikace</word>
@@ -122,14 +136,18 @@
   <word key="rqbp_sort_order_desc" js="0">Nižší hodnota se zpracuje dříve. Při shodném pořadí rozhoduje ID pravidla.</word>
   <word key="rqbp_source_manual" js="0">Zadat odkaz na blok</word>
   <word key="rqbp_source_picker" js="0">Vybrat existující blok</word>
+  <word key="rqbp_source_template" js="0">Vlastní kód šablony IPS</word>
   <word key="rqbp_status_disabled" js="0">Vypnuto</word>
   <word key="rqbp_status_enabled" js="0">Zapnuto</word>
   <word key="rqbp_table_rule_block_id" js="0">Blok Pages</word>
+  <word key="rqbp_table_rule_content" js="0">Obsah</word>
   <word key="rqbp_table_rule_enabled" js="0">Stav</word>
   <word key="rqbp_table_rule_mode" js="0">Způsob umístění</word>
   <word key="rqbp_table_rule_name" js="0">Pravidlo</word>
   <word key="rqbp_table_rule_sort_order" js="0">Pořadí</word>
   <word key="rqbp_table_rule_target" js="0">Cíl</word>
+  <word key="rqbp_template_code" js="0">Kód šablony IPS</word>
+  <word key="rqbp_template_code_desc" js="0">Použijte HTML a nativní syntaxi šablon IPS, například &lt;code&gt;&amp;#123;expression=&amp;quot;(new \IPS\MafraApi())-&amp;gt;getMafraApiId(&amp;#039;28&amp;#039;)&amp;quot; raw=&amp;quot;true&amp;quot;&amp;#125;&lt;/code&gt;. Kód může spouštět PHP na serveru s oprávněními aplikace; úpravy povolujte pouze důvěryhodným administrátorům. Otevírací a uzavírací značky PHP nejsou povolené. Limit je 65 535 bajtů. Na vlastní kód se nevztahují oprávnění bloků Pages: viditelnost určují skupiny tohoto pravidla a samotný kód.</word>
   <word key="rqbp_unavailable_hook" js="0">Dříve vybraný hook není dostupný</word>
  </app>
 </language>

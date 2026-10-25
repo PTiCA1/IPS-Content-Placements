@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <language>
- <app key="rqblockplacements" version="1000004">
+ <app key="rqblockplacements" version="1000005">
   <word key="__app_rqblockplacements" js="0">Pages Block Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Block placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Placement rules</word>
@@ -10,6 +10,7 @@
   <word key="r__placements" js="0">Block placements</word>
   <word key="r__rqblockplacements" js="0">Pages Block Placements</word>
   <word key="r__rqbp_manage" js="0">Manage Pages block placements</word>
+  <word key="r__rqbp_manage_code" js="0">Manage custom IPS template code (allows server-side PHP execution)</word>
   <word key="rqbp_add_rule" js="0">Add placement rule</word>
   <word key="rqbp_after" js="0">After the target</word>
   <word key="rqbp_all_occurrences" js="0">Every occurrence</word>
@@ -25,12 +26,16 @@
   <word key="rqbp_block_source" js="0">Choose the block</word>
   <word key="rqbp_block_unavailable" js="0">Block unavailable</word>
   <word key="rqbp_choose_hook" js="0">Choose a native hook</word>
+  <word key="rqbp_content_intro" js="0">Choose an existing Pages block or custom IPS template code, then set its placement and audience. Test a disabled rule in diagnostics before enabling it. Existing block content and permissions remain in Pages → Blocks.</word>
+  <word key="rqbp_content_section" js="0">Contents</word>
+  <word key="rqbp_content_source" js="0">Content source</word>
   <word key="rqbp_copy_suffix" js="0">copy</word>
   <word key="rqbp_delete_rule" js="0">Delete rule</word>
   <word key="rqbp_diag_application" js="0">Master switch enabled</word>
   <word key="rqbp_diag_block" js="0">Referenced block exists</word>
   <word key="rqbp_diag_block_active" js="0">Block enabled in Pages</word>
   <word key="rqbp_diag_block_permission" js="0">Current administrator can view the block</word>
+  <word key="rqbp_diag_content_scope" js="0">These checks do not render content or execute its PHP expressions or advertising scripts in the ACP. Template code is compiled and checked for syntax only. The Pages permission result concerns your current administrator account. Open an actual front-end URL below to inspect matching hooks or selector counts; test the intended member groups and platforms separately. CSS placement cannot make legacy document.write tags or every third-party widget work after page load.</word>
   <word key="rqbp_diag_fail" js="0">No</word>
   <word key="rqbp_diag_hook" js="0">Native hook and HTML context available</word>
   <word key="rqbp_diag_pages" js="0">Pages installed and enabled</word>
@@ -38,6 +43,7 @@
   <word key="rqbp_diag_rule" js="0">Rule enabled</word>
   <word key="rqbp_diag_scope" js="0">These checks do not render the block or execute advertising scripts in the ACP. The permission result concerns your current administrator account. Open an actual front-end URL below to inspect matching hooks or selector counts; test the intended member groups and platforms separately. Prepared HTML advertising blocks are supported; CSS placement cannot make legacy document.write tags or every third-party widget work after page load.</word>
   <word key="rqbp_diag_selector" js="0">CSS selector configured</word>
+  <word key="rqbp_diag_template" js="0">IPS template code compiles without executing it</word>
   <word key="rqbp_diagnostic_url" js="0">Front-end test URL</word>
   <word key="rqbp_diagnostic_url_desc" js="0">Enter a full URL on this community. Use the page on which you expect this rule to appear. Diagnostics on the front end are available only to administrators permitted to manage placements.</word>
   <word key="rqbp_diagnostics" js="0">Diagnostics</word>
@@ -50,6 +56,8 @@
   <word key="rqbp_enabled_desc" js="0">Switch off to stop all placements without deleting their rules.</word>
   <word key="rqbp_error_block" js="0">Select an existing Pages block.</word>
   <word key="rqbp_error_block_reference" js="0">Enter an existing block key or a valid {block="key"} reference.</word>
+  <word key="rqbp_error_content_save" js="0">The configuration could not be saved. Check the content source and placement fields.</word>
+  <word key="rqbp_error_content_source" js="0">Select an available content source.</word>
   <word key="rqbp_error_diagnostic_url" js="0">Enter a URL within this community using its configured scheme, host, and base path.</word>
   <word key="rqbp_error_hook" js="0">Select an available native front-end hook.</word>
   <word key="rqbp_error_hook_context" js="0">This hook position cannot safely contain a block. Choose another hook.</word>
@@ -60,6 +68,10 @@
   <word key="rqbp_error_selector" js="0">Enter a nonempty CSS selector without null characters.</word>
   <word key="rqbp_error_selector_browser" js="0">The CSS selector is invalid. Check its syntax before saving.</word>
   <word key="rqbp_error_selector_too_long" js="0">The CSS selector must be at most 1,000 characters long.</word>
+  <word key="rqbp_error_template_empty" js="0">Enter IPS template code.</word>
+  <word key="rqbp_error_template_invalid" js="0">The IPS template code could not be compiled. Check its template and expression syntax.</word>
+  <word key="rqbp_error_template_php_tags" js="0">Use native IPS template syntax rather than PHP opening or closing tags.</word>
+  <word key="rqbp_error_template_too_long" js="0">The IPS template code must be at most 65,535 bytes long.</word>
   <word key="rqbp_error_url_pattern" js="0">URL patterns must begin with a single /, contain no domain or #fragment, and be at most 2,000 characters long.</word>
   <word key="rqbp_exclude_groups" js="0">Excluded member groups</word>
   <word key="rqbp_exclude_groups_desc" js="0">Leave empty to exclude nobody. Any matching excluded primary or secondary group takes precedence over the allowed groups.</word>
@@ -98,6 +110,7 @@
   <word key="rqbp_occurrence_index_desc" js="0">Numbering starts at 1.</word>
   <word key="rqbp_open_diagnostics" js="0">Open front-end diagnostics</word>
   <word key="rqbp_pages_required" js="0">Install and enable the Pages application before creating or editing block placements. Existing rules will resume when Pages is available.</word>
+  <word key="rqbp_pages_unavailable" js="0">Pages is unavailable. Pages block sources require Pages to be installed and enabled. Administrators with permission to manage template code can still create and edit custom IPS template placements.</word>
   <word key="rqbp_platform_desktop" js="0">Desktop</word>
   <word key="rqbp_platform_mobile" js="0">Mobile</word>
   <word key="rqbp_platform_tablet" js="0">Tablet</word>
@@ -109,6 +122,7 @@
   <word key="rqbp_rule_enabled_desc" js="0">New rules start disabled. Diagnostics can help you check the configuration before enabling the placement.</word>
   <word key="rqbp_rules" js="0">Placement rules</word>
   <word key="rqbp_rules_intro" js="0">Place existing Pages blocks using a native template hook or a CSS selector. New and duplicated rules start disabled. Lower order values run first; the arrow controls change the global rule order.</word>
+  <word key="rqbp_rules_intro_v5" js="0">Place an existing Pages block or custom IPS template code using a native template hook or a CSS selector. New and duplicated rules start disabled. Lower order values run first; the arrow controls change the global rule order.</word>
   <word key="rqbp_section_audience" js="0">Audience</word>
   <word key="rqbp_section_block" js="0">Existing Pages block</word>
   <word key="rqbp_section_pages" js="0">Pages and applications</word>
@@ -122,14 +136,18 @@
   <word key="rqbp_sort_order_desc" js="0">Lower values run first. Rules with the same order use their ID as a tie breaker.</word>
   <word key="rqbp_source_manual" js="0">Enter a block reference</word>
   <word key="rqbp_source_picker" js="0">Select an existing block</word>
+  <word key="rqbp_source_template" js="0">Custom IPS template code</word>
   <word key="rqbp_status_disabled" js="0">Disabled</word>
   <word key="rqbp_status_enabled" js="0">Enabled</word>
   <word key="rqbp_table_rule_block_id" js="0">Pages block</word>
+  <word key="rqbp_table_rule_content" js="0">Contents</word>
   <word key="rqbp_table_rule_enabled" js="0">Status</word>
   <word key="rqbp_table_rule_mode" js="0">Placement mode</word>
   <word key="rqbp_table_rule_name" js="0">Rule</word>
   <word key="rqbp_table_rule_sort_order" js="0">Order</word>
   <word key="rqbp_table_rule_target" js="0">Target</word>
+  <word key="rqbp_template_code" js="0">IPS template code</word>
+  <word key="rqbp_template_code_desc" js="0">Use HTML and native IPS template syntax, for example &lt;code&gt;&amp;#123;expression=&amp;quot;(new \IPS\MafraApi())-&amp;gt;getMafraApiId(&amp;#039;28&amp;#039;)&amp;quot; raw=&amp;quot;true&amp;quot;&amp;#125;&lt;/code&gt;. This code can execute PHP on the server with the application’s permissions; grant editing access only to trusted administrators. Raw PHP opening and closing tags are not accepted. The limit is 65,535 bytes. Pages block permissions do not apply to custom code: visibility is controlled by this rule’s member groups and by the code itself.</word>
   <word key="rqbp_unavailable_hook" js="0">Previously selected hook is unavailable</word>
  </app>
 </language>

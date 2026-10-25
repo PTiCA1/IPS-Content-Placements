@@ -1,6 +1,6 @@
 {
   "placements": {
-    "rules": { "rqbp_manage": "rqbp_manage" },
+    "rules": { "rqbp_manage": "rqbp_manage", "rqbp_manage_code": "rqbp_manage_code" },
     "settings": { "rqbp_manage": "rqbp_manage" }
   }
 }

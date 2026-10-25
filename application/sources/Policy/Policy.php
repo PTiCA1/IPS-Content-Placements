@@ -35,7 +35,8 @@ final class Policy
         foreach (['id', 'enabled', 'block_id', 'occurrence_index', 'sort_order'] as $key) { $rule[$key] = (int) ($rule[$key] ?? ($key === 'occurrence_index' ? 1 : 0)); }
         foreach (['platforms', 'allow_groups', 'exclude_groups', 'apps', 'include_urls', 'exclude_urls'] as $key) { $rule[$key] = self::lines($rule[$key] ?? []); }
         $rule['platforms'] = self::platforms($rule['platforms']);
-        foreach (['name', 'hook_path', 'hook_name', 'selector'] as $key) { $rule[$key] = (string) ($rule[$key] ?? ''); }
+        foreach (['name', 'hook_path', 'hook_name', 'selector', 'template_code'] as $key) { $rule[$key] = (string) ($rule[$key] ?? ''); }
+        $rule['content_type'] = (string) ($rule['content_type'] ?? 'block');
         $rule['mode'] = $rule['mode'] ?? 'css';
         $rule['position'] = $rule['position'] ?? 'after';
         $rule['occurrence'] = $rule['occurrence'] ?? 'first';

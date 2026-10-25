@@ -34,6 +34,10 @@ same([], Policy::lines('[]'), 'Empty JSON list stays unrestricted');
 same(['a', 'b'], Policy::lines(" a\r\nb\na\n"), 'URL lines normalized once');
 same(['2', '7'], Policy::lines('[2,7]'), 'Serialized group IDs accepted');
 same(['0'], Policy::lines([0, '0', '']), 'Zero must not disappear as an empty group value');
+same('block', Policy::normalize(['rule_block_id' => 9])['content_type'], 'Older records retain Pages as their content source');
+same('', Policy::normalize(['rule_block_id' => 9])['template_code'], 'Older records have no custom template');
+$custom = '{expression="(new \\IPS\\MafraApi())->getMafraApiId(\'28\')" raw="true"}';
+same($custom, Policy::normalize(['rule_content_type' => 'template', 'rule_template_code' => $custom])['template_code'], 'Preserve native template code without evaluation');
 
 $rule = ['enabled' => 1, 'mode' => 'hook', 'platforms' => [], 'allow_groups' => [], 'exclude_groups' => [], 'apps' => [], 'include_urls' => [], 'exclude_urls' => []];
 $context = ['app' => 'forums', 'url' => '/topic/42/?page=2', 'platform' => 'Windows', 'groups' => [3, 7]];

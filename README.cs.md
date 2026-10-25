@@ -1,8 +1,8 @@
 # Pages Block Placements
 
-Samostatná aplikace pro vkládání existujících Pages bloků před nebo za CSS selektor či nativní hook Invision Community. Má vlastní pravidla pro platformy, skupiny, aplikace a URL. Zdrojový kód doplňku je pod licencí MIT. [English](README.md).
+Samostatná aplikace pro vkládání Pages bloků nebo vlastního kódu šablony IPS před či za CSS selektor nebo nativní hook. Má vlastní pravidla pro zařízení, skupiny, aplikace a URL. Vlastní kód doplňku je pod licencí MIT. [English](README.md).
 
-**1.0.0-beta.4 — sestavení 1000004.** Připraveno podle Invision Community **5.0.20**. Při instalaci a aktualizaci se nyní automaticky doplní české texty aplikace do existujících českých jazyků. Platformy nabízejí pouze **Mobil, Tablet a Desktop**. Majitel potvrdil funkční editor pravidel v beta.2; cílení na zařízení, automatická čeština a aktualizace na běžícím fóru **ještě čekají na ověření**. Zveřejnění na GitHubu a stabilní 1.0.0 následují po dokončení testu.
+**1.0.0-beta.5 — sestavení 1000005.** Připraveno podle Invision Community **5.0.20**. Vedle Pages bloků lze nyní vkládat vlastní kód šablony IPS. Majitel potvrdil funkční editor v beta.2; novější funkce a aktualizace na běžícím fóru ještě čekají na ověření. Zveřejnění na GitHubu a stabilní 1.0.0 následují po dokončení testu.
 
 ## Funkce první verze
 
@@ -16,11 +16,23 @@ Samostatná aplikace pro vkládání existujících Pages bloků před nebo za C
 
 Doplněk nerozšiřuje nativní reklamní systém. Hook musí v instalované šabloně existovat. V režimu CSS lze cílit i na kategorii bez vlastního hooku, například `li[data-categoryID="4"]`; číslo `4` nahraďte ID skutečně přítomným na svém fóru. CSS selektor závisí na HTML motivu a po aktualizaci motivu či platformy jej ověřte.
 
+## Vlastní kód šablony IPS
+
+Ve zdroji obsahu zvolte **Vlastní kód šablony IPS** a vložte například:
+
+```html
+{expression="(new \IPS\MafraApi())->getMafraApiId('28')" raw="true"}
+```
+
+Příklad vyžaduje vlastní třídu `IPS\MafraApi` nainstalovanou na fóru. Editor kódu má samostatné oprávnění `rqbp_manage_code`, které přidělujte jen důvěryhodným administrátorům: šablonové výrazy spouštějí serverový PHP kód. Superadministrátor má přístup automaticky. Pages blokům zůstává původní výběr a oprávnění.
+
+Při uložení a diagnostice se ověří syntaxe bez volání vloženého výrazu. Vyhodnocení proběhne na veřejné stránce po kontrole pravidla. Nastavte stejné skupiny, zařízení, URL a selektor/hook jako u bloku. Vlastní kód nemá implicitní oprávnění Pages bloku. Sdílená cache se pro odpovídající stránky vypne. Používejte syntaxi šablon IPS, nikoli značky `<?php ?>`.
+
 ## Instalace bety přes ACP
 
-Potřebujete licencované IPS 5.0.20 se zapnutými **Pages**, povolené vlastní aplikace a oprávnění instalovat je v ACP. Použijte testovací instalaci a před instalací nebo aktualizací zálohujte databázi i soubory.
+Potřebujete licencované IPS 5.0.20, povolené vlastní aplikace a oprávnění instalovat je v ACP. Pages jsou potřeba pro pravidla s bloky; vlastní kód může fungovat i bez Pages. Použijte testovací instalaci a zálohu databáze i souborů.
 
-1. Připravte `rqblockplacements-1.0.0-beta.4.tar` a `SHA256SUMS` z adresáře `dist/`. Ve společném adresáři souborů vydání je můžete ověřit příkazem `shasum -a 256 -c SHA256SUMS`. Samostatný český XML je volitelný.
+1. Připravte `rqblockplacements-1.0.0-beta.5.tar` a `SHA256SUMS` z adresáře `dist/`. Ve společném adresáři souborů vydání je můžete ověřit příkazem `shasum -a 256 -c SHA256SUMS`. Samostatný český XML je volitelný.
 2. V **ACP → System → Applications** zvolte nahrání/instalaci aplikace a nahrajte **TAR**. ZIP zdrojového repozitáře se neinstaluje.
 3. Otevřete **ACP → Block placements → Placement rules**. Při použití existujícího českého jazyka je cesta **Umístění bloků → Pravidla umístění**, bez samostatného importu XML. Jde o vlastní záložku aplikace poblíž spodního konce postranního menu, nikoli položku uvnitř nativních reklam nebo Pages. Dalším administrátorům případně přidělte oprávnění `rqbp_manage`.
 4. V Pages vytvořte jednoduchý HTML blok a přidejte pravidlo pro jeden známý CSS selektor nebo hook. Začněte prvním výskytem, všemi platformami a bez omezení skupin či URL.
@@ -36,7 +48,7 @@ Nativní hook nezaručuje, že je do jeho místa vhodné vložit celý blok. Nev
 
 TAR obsahuje české texty aplikace a při instalaci i aktualizaci je automaticky doplní do existujících jazyků s českým locale, například `cs_CZ`, `cs-CZ` nebo `Czech_…`. Samostatný import XML není potřeba. Vlastní úpravy textů včetně záměrně prázdné hodnoty zůstanou zachované. Aktualizace doplní nové klíče; změnu existujícího přeloženého textu provedete volitelným importem XML. Ostatní jazyky používají anglické výchozí texty; aplikace nepřepíná výchozí jazyk webu ani nemění metadata jazyků.
 
-Samostatný `rqblockplacements-1.0.0-beta.4-cs.xml` (uvnitř TAR jako `resources/lang-cs.xml`) zůstává pro výslovné obnovení překladu nebo český jazyk přidaný až po instalaci aplikace. Přes správu jazyků v ACP jej importujte do zamýšleného jazyka. Soubor překládá jen tento doplněk. Před volitelným nativním importem XML jazyk zálohujte; jeho zacházení s metadaty řídí IPS.
+Samostatný `rqblockplacements-1.0.0-beta.5-cs.xml` (uvnitř TAR jako `resources/lang-cs.xml`) zůstává pro výslovné obnovení překladu nebo český jazyk přidaný až po instalaci aplikace. Přes správu jazyků v ACP jej importujte do zamýšleného jazyka. Soubor překládá jen tento doplněk. Před volitelným nativním importem XML jazyk zálohujte; jeho zacházení s metadaty řídí IPS.
 
 ## Pravidla a diagnostika
 
@@ -57,7 +69,7 @@ npm run test:build
 npx playwright install chromium
 npm run test:browser
 python3 tools/build.py --check-reproducible
-python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.4.tar
+python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.5.tar
 ```
 
 Potřebujete PHP (ověřeno s 8.3), Python 3.10+ a pro test prohlížeče Node 20+. `PHP_BINARY` může určit jinou binárku PHP; `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` vlastní Chrome/Chromium. Překlady se generují z vlastních PHP polí `application/resources/lang/{en,cs}.php`.

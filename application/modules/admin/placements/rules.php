@@ -33,6 +33,7 @@ use IPS\rqblockplacements\Application as PlacementApplication;
 use IPS\rqblockplacements\HookCatalog;
 use IPS\rqblockplacements\Policy;
 use IPS\rqblockplacements\Rule;
+use IPS\rqblockplacements\TemplateContent;
 use IPS\Session;
 use IPS\Settings;
 use IPS\Theme;
@@ -57,12 +58,12 @@ class rules extends Controller
     {
         $table = new Table('rqbp_rules', $this->url());
         $table->langPrefix = 'rqbp_table_';
-        $table->include = ['rule_name', 'rule_enabled', 'rule_block_id', 'rule_mode', 'rule_target', 'rule_sort_order'];
+        $table->include = ['rule_name', 'rule_enabled', 'rule_content', 'rule_mode', 'rule_target', 'rule_sort_order'];
         $table->mainColumn = 'rule_name';
         $table->quickSearch = 'rule_name';
         $table->sortBy = $table->sortBy ?: 'rule_sort_order';
         $table->sortDirection = $table->sortDirection ?: 'asc';
-        $table->noSort = ['rule_block_id', 'rule_target'];
+        $table->noSort = ['rule_content', 'rule_target'];
         $table->filters = [
             'rqbp_filter_enabled' => ['rule_enabled=?', 1],
             'rqbp_filter_disabled' => ['rule_enabled=?', 0],
@@ -77,7 +78,11 @@ class rules extends Controller
             'rule_mode' => static function ($value): string {
                 return self::escape(self::word($value === 'css' ? 'rqbp_mode_css' : 'rqbp_mode_hook'));
             },
-            'rule_block_id' => static function ($value): string {
+            'rule_content' => static function ($value, array $row): string {
+                if (($row['rule_content_type'] ?? 'block') === 'template') {
+                    return self::escape(self::word('rqbp_source_template'));
+                }
+                $value = $row['rule_block_id'] ?? 0;
                 if (IPSApplication::appIsEnabled('cms')) {
                     try {
                         $block = Block::load((int) $value);
@@ -99,6 +104,9 @@ class rules extends Controller
             'add' => ['icon' => 'plus', 'title' => 'rqbp_add_rule', 'link' => $this->url('form')],
         ];
         $table->rowButtons = function (array $row): array {
+            if (($row['rule_content_type'] ?? 'block') === 'template' && !self::canManageCode()) {
+                return [];
+            }
             $id = (int) $row['rule_id'];
             return [
                 'edit' => ['icon' => 'pencil', 'title' => 'rqbp_edit_rule', 'link' => $this->url('form', $id)],
@@ -120,28 +128,36 @@ class rules extends Controller
             'title' => 'rqbp_settings', 'icon' => 'cog',
             'link' => Url::internal('app=rqblockplacements&module=placements&controller=settings'),
         ];
-        $notice = !IPSApplication::appIsEnabled('cms') ? 'rqbp_pages_required' : 'rqbp_rules_intro';
+        $notice = !IPSApplication::appIsEnabled('cms') ? 'rqbp_pages_unavailable' : 'rqbp_rules_intro_v5';
         Output::i()->output = Theme::i()->getTemplate('global', 'core', 'admin')->message($notice, 'info') . (string) $table;
     }
 
     protected function form(): void
     {
-        if (!IPSApplication::appIsEnabled('cms')) {
-            Output::i()->title = self::word('rqbp_rules');
-            Output::i()->output = Theme::i()->getTemplate('global', 'core', 'admin')->message('rqbp_pages_required', 'warning');
-            return;
-        }
-
         $record = isset(Request::i()->id) ? $this->record() : new Rule;
         $isNew = !isset(Request::i()->id);
         $config = $isNew ? $this->defaults() : $record->toConfig();
+        $pagesEnabled = IPSApplication::appIsEnabled('cms');
+        $canManageCode = self::canManageCode();
+        $source = (string) (Request::i()->rqbp_block_source
+            ?? ($config['content_type'] === 'template' || (!$pagesEnabled && $canManageCode) ? 'template' : 'picker'));
+        // This must precede form construction: native fields validate submitted values immediately.
+        if ($source === 'template') {
+            Dispatcher::i()->checkAcpPermission('rqbp_manage_code');
+        }
+        if (!$pagesEnabled && !$canManageCode) {
+            Output::i()->title = self::word('rqbp_rules');
+            Output::i()->output = Theme::i()->getTemplate('global', 'core', 'admin')->message('rqbp_pages_unavailable', 'warning');
+            return;
+        }
         $block = null;
-        try {
-            $block = Block::load((int) ($config['block_id'] ?? 0));
-        } catch (OutOfRangeException) {
+        if ($pagesEnabled && $config['content_type'] === 'block') {
+            try {
+                $block = Block::load((int) ($config['block_id'] ?? 0));
+            } catch (OutOfRangeException) {
+            }
         }
         $mode = (string) (Request::i()->rqbp_mode ?? $config['mode']);
-        $source = (string) (Request::i()->rqbp_block_source ?? 'picker');
         $occurrence = (string) (Request::i()->rqbp_occurrence ?? $config['occurrence']);
 
         $form = new Form('rqbp_rule_form', 'save', null, [
@@ -149,7 +165,10 @@ class rules extends Controller
             'data-rqbp-too-long' => self::word('rqbp_error_selector_too_long'),
             'data-rqbp-invalid' => self::word('rqbp_error_selector_browser'),
         ]);
-        $form->addMessage('rqbp_form_intro');
+        $form->addMessage('rqbp_content_intro');
+        if (!$pagesEnabled) {
+            $form->addMessage('rqbp_pages_unavailable', 'ipsMessage ipsMessage--warning');
+        }
         $form->addHeader('rqbp_section_rule');
         $form->add(new Text('rqbp_name', $config['name'], true, ['maxLength' => 255], static function ($value): void {
             if (trim((string) $value) === '') {
@@ -159,29 +178,45 @@ class rules extends Controller
         $form->add(new YesNo('rqbp_rule_enabled', (bool) $config['enabled']));
         $form->add(new Number('rqbp_sort_order', (int) $config['sort_order'], true, ['min' => 0, 'max' => 2147483647, 'decimals' => 0]));
 
-        $form->addHeader('rqbp_section_block');
-        $form->add(new Radio('rqbp_block_source', $source, true, [
-            'options' => ['picker' => 'rqbp_source_picker', 'manual' => 'rqbp_source_manual'],
-            'toggles' => ['picker' => ['rqbp_block_picker'], 'manual' => ['rqbp_block_reference']],
-        ]));
-        $form->add(new Node('rqbp_block_picker', $block, false, [
-            'class' => Container::class, 'showAllNodes' => true,
-            'permissionCheck' => static fn ($node): bool => $node instanceof Block,
-        ], static function ($value) use ($source): void {
-            if ($source === 'picker' && !$value instanceof Block) {
-                throw new DomainException('rqbp_error_block');
-            }
-        }, null, null, 'rqbp_block_picker'));
-        $form->add(new Text('rqbp_block_reference', $block ? '{block="' . $block->key . '"}' : '', false, ['maxLength' => 255], static function ($value) use ($source): void {
-            if ($source !== 'manual') {
-                return;
-            }
-            try {
-                Block::load(Policy::parseBlockReference((string) $value), 'block_key');
-            } catch (InvalidArgumentException | OutOfRangeException) {
-                throw new DomainException('rqbp_error_block_reference');
-            }
-        }, null, null, 'rqbp_block_reference'));
+        $form->addHeader('rqbp_content_section');
+        $sources = $pagesEnabled ? ['picker' => 'rqbp_source_picker', 'manual' => 'rqbp_source_manual'] : [];
+        $sourceToggles = $pagesEnabled ? ['picker' => ['rqbp_block_picker'], 'manual' => ['rqbp_block_reference']] : [];
+        if ($canManageCode) {
+            $sources['template'] = 'rqbp_source_template';
+            $sourceToggles['template'] = ['rqbp_template_code'];
+        }
+        $sourceField = new Radio('rqbp_block_source', $source, true, ['options' => $sources, 'toggles' => $sourceToggles]);
+        $sourceField->label = self::word('rqbp_content_source');
+        $form->add($sourceField);
+        if ($pagesEnabled) {
+            $form->add(new Node('rqbp_block_picker', $block, false, [
+                'class' => Container::class, 'showAllNodes' => true,
+                'permissionCheck' => static fn ($node): bool => $node instanceof Block,
+            ], static function ($value) use ($source): void {
+                if ($source === 'picker' && !$value instanceof Block) {
+                    throw new DomainException('rqbp_error_block');
+                }
+            }, null, null, 'rqbp_block_picker'));
+            $form->add(new Text('rqbp_block_reference', $block ? '{block="' . $block->key . '"}' : '', false, ['maxLength' => 255], static function ($value) use ($source): void {
+                if ($source !== 'manual') {
+                    return;
+                }
+                try {
+                    Block::load(Policy::parseBlockReference((string) $value), 'block_key');
+                } catch (InvalidArgumentException | OutOfRangeException) {
+                    throw new DomainException('rqbp_error_block_reference');
+                }
+            }, null, null, 'rqbp_block_reference'));
+        }
+        if ($canManageCode) {
+            $form->add(new TextArea('rqbp_template_code', $config['template_code'], false,
+                ['rows' => 8, 'maxLength' => 65535, 'codeMode' => false],
+                static function ($value) use ($source): void {
+                    if ($source === 'template') {
+                        self::validateTemplate((string) $value);
+                    }
+                }, null, null, 'rqbp_template_code'));
+        }
 
         $form->addHeader('rqbp_section_placement');
         $form->add(new Radio('rqbp_mode', $config['mode'], true, [
@@ -257,17 +292,29 @@ class rules extends Controller
         $form->add(new TextArea('rqbp_exclude_urls', implode("\n", $this->arrayValue($config['exclude_urls'])), false, ['rows' => 4], $validateUrls));
 
         if ($values = $form->values()) {
+            if (($values['rqbp_block_source'] ?? '') === 'template') {
+                Dispatcher::i()->checkAcpPermission('rqbp_manage_code');
+            }
             try {
-                $selectedBlock = $values['rqbp_block_source'] === 'manual'
-                    ? Block::load(Policy::parseBlockReference((string) $values['rqbp_block_reference']), 'block_key')
-                    : $values['rqbp_block_picker'];
-                if (!$selectedBlock instanceof Block) {
-                    throw new DomainException('rqbp_error_block');
+                $selectedSource = (string) ($values['rqbp_block_source'] ?? '');
+                if (!array_key_exists($selectedSource, $sources)) {
+                    throw new DomainException('rqbp_error_content_source');
+                }
+                $selectedBlock = null;
+                if ($selectedSource !== 'template') {
+                    $selectedBlock = $selectedSource === 'manual'
+                        ? Block::load(Policy::parseBlockReference((string) $values['rqbp_block_reference']), 'block_key')
+                        : $values['rqbp_block_picker'];
+                    if (!$selectedBlock instanceof Block) {
+                        throw new DomainException('rqbp_error_block');
+                    }
                 }
                 [$hookPath, $hookName] = $values['rqbp_mode'] === 'hook' ? self::splitHook((string) $values['rqbp_hook']) : ['', ''];
                 $record->name = trim((string) $values['rqbp_name']);
                 $record->enabled = (int) $values['rqbp_rule_enabled'];
-                $record->block_id = (int) $selectedBlock->id;
+                $record->content_type = $selectedSource === 'template' ? 'template' : 'block';
+                $record->template_code = $selectedSource === 'template' ? (string) $values['rqbp_template_code'] : '';
+                $record->block_id = $selectedBlock ? (int) $selectedBlock->id : 0;
                 $record->sort_order = (int) $values['rqbp_sort_order'];
                 $record->mode = $values['rqbp_mode'];
                 $record->hook_path = $hookPath;
@@ -287,7 +334,7 @@ class rules extends Controller
                 Session::i()->log('rqbp_log_saved', [$record->name => false]);
                 Output::i()->redirect($this->url(), 'saved');
             } catch (DomainException | InvalidArgumentException | OutOfRangeException $exception) {
-                $form->error = self::word('rqbp_error_save');
+                $form->error = self::word('rqbp_error_content_save');
             }
         }
 
@@ -324,8 +371,8 @@ class rules extends Controller
 
     protected function delete(): void
     {
-        Request::i()->confirmedDelete();
         $record = $this->record();
+        Request::i()->confirmedDelete();
         $name = $record->name;
         $record->delete();
         Session::i()->log('rqbp_log_deleted', [$name => false]);
@@ -351,6 +398,13 @@ class rules extends Controller
         $other = $index === null ? -1 : $index + ($direction === 'up' ? -1 : 1);
         if ($index !== null && isset($records[$other])) {
             [$records[$index], $records[$other]] = [$records[$other], $records[$index]];
+            // Reordering a block can move a code rule too. Authorize the complete change before saving any row.
+            foreach ($records as $position => $candidate) {
+                if ((int) $candidate->sort_order !== ($position + 1) * 10
+                    && ($candidate->content_type ?? 'block') === 'template') {
+                    Dispatcher::i()->checkAcpPermission('rqbp_manage_code');
+                }
+            }
             foreach ($records as $position => $candidate) {
                 $order = ($position + 1) * 10;
                 if ((int) $candidate->sort_order !== $order) {
@@ -371,19 +425,29 @@ class rules extends Controller
         $checks = [];
         $checks[] = [self::word('rqbp_diag_application'), (bool) Settings::i()->rqbp_enabled];
         $checks[] = [self::word('rqbp_diag_rule'), (bool) $record->enabled];
-        $pagesEnabled = IPSApplication::appIsEnabled('cms');
-        $checks[] = [self::word('rqbp_diag_pages'), $pagesEnabled];
-        $block = null;
-        if ($pagesEnabled) {
+        if ($config['content_type'] === 'template') {
+            $valid = true;
             try {
-                $block = Block::load((int) $record->block_id);
-            } catch (OutOfRangeException) {
+                TemplateContent::validate($config['template_code']);
+            } catch (InvalidArgumentException) {
+                $valid = false;
             }
-        }
-        $checks[] = [self::word('rqbp_diag_block'), $block !== null];
-        if ($block) {
-            $checks[] = [self::word('rqbp_diag_block_active'), (bool) $block->active];
-            $checks[] = [self::word('rqbp_diag_block_permission'), (bool) $block->can('view')];
+            $checks[] = [self::word('rqbp_diag_template'), $valid];
+        } else {
+            $pagesEnabled = IPSApplication::appIsEnabled('cms');
+            $checks[] = [self::word('rqbp_diag_pages'), $pagesEnabled];
+            $block = null;
+            if ($pagesEnabled) {
+                try {
+                    $block = Block::load((int) $record->block_id);
+                } catch (OutOfRangeException) {
+                }
+            }
+            $checks[] = [self::word('rqbp_diag_block'), $block !== null];
+            if ($block) {
+                $checks[] = [self::word('rqbp_diag_block_active'), (bool) $block->active];
+                $checks[] = [self::word('rqbp_diag_block_permission'), (bool) $block->can('view')];
+            }
         }
         if ($record->mode === 'hook') {
             $valid = HookCatalog::has($record->hook_path, $record->hook_name);
@@ -404,7 +468,7 @@ class rules extends Controller
                 . self::escape(self::word($passed ? 'rqbp_diag_pass' : 'rqbp_diag_fail')) . '</li>';
         }
         $html .= '</ul>';
-        $html .= Theme::i()->getTemplate('global', 'core', 'admin')->message('rqbp_diag_scope', 'info');
+        $html .= Theme::i()->getTemplate('global', 'core', 'admin')->message('rqbp_diag_content_scope', 'info');
         $html .= '<pre class="i-padding_3">' . self::escape(json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)) . '</pre>';
 
         $target = Url::external(rtrim((string) Settings::i()->base_url, '/') . '/');
@@ -436,7 +500,11 @@ class rules extends Controller
     protected function record(): Rule
     {
         try {
-            return Rule::load((int) Request::i()->id);
+            $record = Rule::load((int) Request::i()->id);
+            if (($record->content_type ?? 'block') === 'template') {
+                Dispatcher::i()->checkAcpPermission('rqbp_manage_code');
+            }
+            return $record;
         } catch (OutOfRangeException) {
             Output::i()->error('rqbp_error_missing_rule', '2RQBP/1', 404, '');
         }
@@ -455,7 +523,7 @@ class rules extends Controller
     protected function defaults(): array
     {
         return [
-            'name' => '', 'enabled' => 0, 'block_id' => 0, 'mode' => 'hook',
+            'name' => '', 'enabled' => 0, 'block_id' => 0, 'content_type' => 'block', 'template_code' => '', 'mode' => 'hook',
             'hook_path' => '', 'hook_name' => '', 'selector' => '', 'position' => 'after',
             'occurrence' => 'first', 'occurrence_index' => 1, 'platforms' => [],
             'allow_groups' => [], 'exclude_groups' => [], 'apps' => [],
@@ -485,6 +553,24 @@ class rules extends Controller
     {
         $separator = strrpos($value, '|');
         return $separator === false ? ['', ''] : [substr($value, 0, $separator), substr($value, $separator + 1)];
+    }
+
+    protected static function canManageCode(): bool
+    {
+        return Member::loggedIn()->hasAcpRestriction('rqblockplacements', 'placements', 'rqbp_manage_code');
+    }
+
+    protected static function validateTemplate(string $value): void
+    {
+        try {
+            TemplateContent::validate($value);
+        } catch (InvalidArgumentException $exception) {
+            $key = $exception->getMessage();
+            throw new DomainException(in_array($key, [
+                'rqbp_error_template_empty', 'rqbp_error_template_invalid',
+                'rqbp_error_template_too_long', 'rqbp_error_template_php_tags',
+            ], true) ? $key : 'rqbp_error_template_invalid');
+        }
     }
 
     protected static function word(string $key): string

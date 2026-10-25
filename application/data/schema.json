@@ -50,6 +50,30 @@
                 "unsigned": true,
                 "auto_increment": false
             },
+            "rule_content_type": {
+                "name": "rule_content_type",
+                "type": "VARCHAR",
+                "length": 16,
+                "decimals": null,
+                "values": [],
+                "allow_null": false,
+                "default": "block",
+                "comment": "",
+                "unsigned": false,
+                "auto_increment": false
+            },
+            "rule_template_code": {
+                "name": "rule_template_code",
+                "type": "MEDIUMTEXT",
+                "length": 0,
+                "decimals": null,
+                "values": [],
+                "allow_null": true,
+                "default": null,
+                "comment": "",
+                "unsigned": false,
+                "auto_increment": false
+            },
             "rule_mode": {
                 "name": "rule_mode",
                 "type": "VARCHAR",

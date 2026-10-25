@@ -10,7 +10,32 @@ namespace IPS\Patterns {
     }
 }
 namespace IPS {
-    class Application { public static function appIsEnabled($key): bool { return true; } }
+    class Application { public static bool $pages = true; public static function appIsEnabled($key): bool { return $key !== 'cms' || self::$pages; } }
+    class MafraApi {
+        public static int $calls = 0;
+        public function getMafraApiId(string $id): string { self::$calls++; return '<strong>Mafra ' . $id . '</strong>'; }
+    }
+    class Theme {
+        public static int $compiles = 0;
+        public static int $executions = 0;
+        public static $callback = null;
+        public static function compileTemplate(string $code, string $functionName): string {
+            self::$compiles++;
+            if ($code === '__INVALID__') { return 'function ' . $functionName . '( {'; }
+            return 'function ' . $functionName . '() { return \\IPS\\Theme::execute(' . var_export($code, true) . '); }';
+        }
+        public static function runProcessFunction(string $compiled, string $functionName): void {
+            if (!function_exists('IPS\\Theme\\' . $functionName)) { eval('namespace IPS\\Theme;' . $compiled); }
+        }
+        public static function execute(string $code): string {
+            self::$executions++;
+            if (self::$callback) { (self::$callback)(); }
+            if (str_contains($code, 'MafraApi')) { return (new MafraApi)->getMafraApiId('28'); }
+            if ($code === '__THROW_AFTER_ECHO__') { echo 'SECRET_PARTIAL'; ob_start(); echo 'NESTED_SECRET'; throw new \RuntimeException('Template API failed'); }
+            if ($code === '__EMPTY__') { return ''; }
+            return $code;
+        }
+    }
     class Dispatcher { public string $controllerLocation = 'front'; public object $application; public function __construct() { $this->application = (object) ['directory' => 'forums']; } public static function hasInstance(): bool { return true; } public static function i(): self { static $s; return $s ??= new self; } }
     class Settings { public bool $rqbp_enabled = true; public static function i(): self { static $s; return $s ??= new self; } }
     class Session { public object $userAgent; public function __construct() { $this->userAgent = (object) ['platform' => 'Windows', 'useragent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0']; } public static function i(): self { static $s; return $s ??= new self; } }
@@ -27,8 +52,8 @@ namespace IPS {
 namespace IPS\Http { class Url { public static function baseUrl(): string { return 'https://forum.example/community/'; } } }
 namespace IPS\cms\Blocks {
     class Block {
-        public bool $active = true; public static bool $allowed = true; public static bool $exists = true; public static int $renders = 0; public static $callback = null;
-        public static function load($id): self { if (!self::$exists) { throw new \OutOfRangeException; } return new self; }
+        public bool $active = true; public static bool $allowed = true; public static bool $exists = true; public static int $renders = 0; public static int $loads = 0; public static $callback = null;
+        public static function load($id): self { self::$loads++; if (!self::$exists) { throw new \OutOfRangeException; } return new self; }
         public function can($action): bool { return self::$allowed; }
         public static function display($block): string { self::$renders++; if (self::$callback) { (self::$callback)(); } return '<span>secret <lang> <fileStore.test></span>'; }
     }
@@ -40,6 +65,7 @@ namespace {
     require __DIR__ . '/../application/sources/Policy/Policy.php';
     require __DIR__ . '/../application/sources/Rule/Rule.php';
     require __DIR__ . '/../application/Application.php';
+    require __DIR__ . '/../application/sources/TemplateContent/TemplateContent.php';
     require __DIR__ . '/../application/sources/Runtime/Runtime.php';
     use IPS\rqblockplacements\Runtime;
     use IPS\cms\Blocks\Block;
@@ -47,7 +73,11 @@ namespace {
     function check(bool $condition, string $message): void { global $checks; $checks++; if (!$condition) { throw new \RuntimeException($message); } }
     function fixture(array $overrides = []): void {
         Runtime::reset();
-        Block::$renders = 0; Block::$allowed = Block::$exists = true; Block::$callback = null;
+        Block::$renders = Block::$loads = 0; Block::$allowed = Block::$exists = true; Block::$callback = null;
+        \IPS\Theme::$compiles = \IPS\Theme::$executions = \IPS\MafraApi::$calls = 0;
+        \IPS\Theme::$callback = null;
+        \IPS\Application::$pages = true;
+        \IPS\Log::$errors = [];
         \IPS\Output::$cacheable = true;
         \IPS\Session::i()->userAgent->platform = 'Windows';
         \IPS\Session::i()->userAgent->useragent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0';
@@ -132,6 +162,79 @@ namespace {
     check(count($decoded['rules']) === 1, 'Diagnostic control parameters do not alter rule URL eligibility');
     check(str_contains($decoded['strings']['diagnostics'], '"quotes" </script>'), 'Translated labels finalized before JSON escaping');
     check(!str_contains($matched[1], '</script>'), 'Localized labels cannot close JSON script element');
+    check(\IPS\Log::$errors === [], 'No swallowed runtime errors in successful block boundary tests');
+
+    $example = <<<'IPS'
+{expression="(new \IPS\MafraApi())->getMafraApiId('28')" raw="true"}
+IPS;
+    $templateRule = ['rule_content_type' => 'template', 'rule_template_code' => $example];
+    fixture($templateRule);
+    Runtime::prepare();
+    $templatePayload = Runtime::payload();
+    check(\IPS\MafraApi::$calls === 1 && \IPS\Theme::$executions === 1, 'The exact Mafra expression executes once during the original frontend request');
+    check(Block::$loads === 0 && Block::$renders === 0 && str_contains($templatePayload, 'Mafra 28'), 'Template content never loads or checks a Pages block');
+    check(!\IPS\Output::$cacheable, 'Arbitrary template output disables shared page caching even without device filters');
+    check(!str_contains($templatePayload, '<strong>'), 'Template output is inert and JSON hex escaped in CSS mode');
+    check(!str_contains($templatePayload, 'getMafraApiId') && !str_contains($templatePayload, 'template_code'), 'CSS payload contains rendered HTML without exposing its server template source');
+    check(Runtime::payload() === '' && \IPS\MafraApi::$calls === 1, 'Repeated payload access does not reexecute the template');
+
+    foreach ([
+        ['rule_platforms' => '["mobile"]'],
+        ['rule_allow_groups' => '["4"]'],
+        ['rule_exclude_groups' => '["2"]'],
+        ['rule_include_urls' => '["/private/*"]'],
+        ['rule_exclude_urls' => '["/forums/*"]'],
+        ['rule_apps' => '["cms"]'],
+        ['rule_enabled' => 0],
+    ] as $filter) {
+        fixture(array_replace($templateRule, $filter));
+        Runtime::prepare();
+        check(\IPS\Theme::$compiles === 0 && \IPS\MafraApi::$calls === 0 && Runtime::payload() === '', 'Audience and route restrictions run before template compilation and execution');
+    }
+    fixture(array_replace($templateRule, ['rule_allow_groups' => '["4"]']));
+    Runtime::prepare();
+    check(!\IPS\Output::$cacheable && \IPS\Theme::$executions === 0, 'A denied audience variant of a template route also disables shared caching');
+    fixture($templateRule);
+    \IPS\Application::$pages = false;
+    check(str_contains(Runtime::payload(), 'Mafra 28') && \IPS\MafraApi::$calls === 1 && Block::$loads === 0, 'Standalone templates render with Pages disabled');
+    fixture();
+    \IPS\Application::$pages = false;
+    check(Runtime::payload() === '' && Block::$loads === 0, 'Pages block content fails closed before loading when Pages is disabled');
+
+    fixture(array_replace($templateRule, ['rule_mode' => 'hook', 'rule_occurrence' => 'all']));
+    $nested = null;
+    \IPS\Theme::$callback = static function () use (&$nested) { $nested = Runtime::hook(1); };
+    check(str_contains(Runtime::hook(1), 'Mafra 28') && $nested === '', 'Templates cannot recursively invoke their own hook');
+    check(str_contains(Runtime::hook(1), 'Mafra 28') && \IPS\MafraApi::$calls === 1, 'All hook occurrences reuse request-local template output without API reexecution');
+    fixture($templateRule);
+    $model = \IPS\rqblockplacements\Rule::all()[0];
+    check(Runtime::diagnose($model)['status'] === 'eligible' && \IPS\Theme::$compiles === 0 && \IPS\MafraApi::$calls === 0, 'ACP diagnostics check eligibility without executing submitted template code');
+    check(\IPS\Log::$errors === [], 'Successful template boundary tests do not log runtime errors');
+
+    foreach ([
+        ['rule_content_type' => 'not-a-source', 'content_type_invalid'],
+        ['rule_content_type' => 'block', 'pages_missing'],
+        ['rule_template_code' => '   ', 'template_empty'],
+        ['rule_template_code' => '__EMPTY__', 'template_empty'],
+        ['rule_template_code' => '__INVALID__', 'template_error'],
+        ['rule_template_code' => '__THROW_AFTER_ECHO__', 'template_error'],
+    ] as $case) {
+        $expected = array_pop($case);
+        fixture(array_replace($templateRule, $case));
+        if ($expected === 'pages_missing') { \IPS\Application::$pages = false; }
+        \IPS\Request::i()->rqbp_diagnostics = true;
+        \IPS\Member::loggedIn()->member_id = 1;
+        $level = ob_get_level();
+        ob_start();
+        $result = Runtime::payload();
+        $unexpected = ob_get_clean();
+        check(ob_get_level() === $level && $unexpected === '' && !str_contains($result, 'SECRET'), 'Failed templates discard all partial output and restore the caller buffer');
+        preg_match('~<script type="application/json" data-rqbp-payload>(.*?)</script>~s', $result, $match);
+        $debug = json_decode($match[1], true, 512, JSON_THROW_ON_ERROR);
+        check($debug['diagnostics'][0]['status'] === $expected, 'Template/source failure has the expected safe administrator status');
+        check(!array_filter($debug['rules'], static fn ($row) => $row['html'] !== ''), 'Failed templates never serialize partial HTML');
+        check(count(\IPS\Log::$errors) === ($expected === 'template_error' ? 1 : 0), 'Template exceptions are logged once and ordinary omissions are not errors');
+    }
     fixture(); \IPS\Settings::i()->rqbp_enabled = false;
     check(Runtime::hook(1) === '' && Runtime::payload() === '', 'Global switch gates all output');
     check(\IPS\Log::$errors === [], 'No swallowed runtime errors in successful boundary tests');

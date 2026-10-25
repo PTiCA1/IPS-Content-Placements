@@ -1,8 +1,8 @@
 # Pages Block Placements
 
-Place an existing Invision Community Pages block before or after a CSS selector or a native theme hook, with rules for platforms, groups, applications and URLs. Original standalone application, MIT licensed. [Česky](README.cs.md).
+Place an existing Invision Community Pages block or custom IPS template code before or after a CSS selector or a native theme hook, with rules for platforms, groups, applications and URLs. Original standalone application, MIT licensed. [Česky](README.cs.md).
 
-**1.0.0-beta.4 — build 1000004.** Prepared against Invision Community **5.0.20**. Czech application text is now applied automatically to existing Czech languages during installation or upgrade. Platforms offers exactly **Mobile, Tablet and Desktop**. The owner confirmed that the beta.2 rule editor works; device targeting, automatic Czech and upgrade acceptance on a live forum are **pending**. GitHub publication and a stable 1.0.0 release follow the acceptance test.
+**1.0.0-beta.5 — build 1000005.** Prepared against Invision Community **5.0.20**. Custom IPS template code is now a content source alongside Pages blocks. The owner confirmed that the beta.2 editor works; later features and a live version upgrade still await acceptance testing. GitHub publication and stable 1.0.0 follow that test.
 
 ## What this release does
 
@@ -16,11 +16,23 @@ Place an existing Invision Community Pages block before or after a CSS selector 
 
 The application does not add or extend the native advertising system. Native hooks must exist in the installed template. CSS mode can target a category without its own hook, for example `li[data-categoryID="4"]`; replace `4` with the ID actually present on your forum. Selector placements follow the theme's HTML structure and must be checked after theme/platform updates.
 
+## Custom IPS template code
+
+Choose **Custom IPS template code** as the content source, for example:
+
+```html
+{expression="(new \IPS\MafraApi())->getMafraApiId('28')" raw="true"}
+```
+
+This example requires your own `IPS\MafraApi` class on the forum. The separate `rqbp_manage_code` permission belongs only to trusted administrators: template expressions execute server-side PHP. Superadministrators have access automatically. Pages block selection and native block permissions remain available.
+
+Saving and ACP diagnostics validate syntax without invoking the expression. Rendering happens on the front end after rule filters pass. Use the same device, group, URL and selector/hook settings as for blocks. Custom code has no implicit Pages block permissions. Matching routes bypass shared page caching. Enter IPS template syntax rather than `<?php ?>` tags.
+
 ## Install and try the beta
 
-Requirements: a licensed Invision Community 5.0.20 installation with **Pages** enabled, custom applications permitted, and ACP application-management access. Use a test installation and take a database/file backup before installation or upgrade.
+Requirements: licensed IPS 5.0.20, custom applications permitted, and ACP application-management access. Pages is required for block rules; custom template rules can run without it. Use a test installation and a database/file backup.
 
-1. Obtain `rqblockplacements-1.0.0-beta.4.tar` and `SHA256SUMS` from `dist/` or a future GitHub release. Verify the checksum, for example `shasum -a 256 -c SHA256SUMS` from the download directory containing both release files.
+1. Obtain `rqblockplacements-1.0.0-beta.5.tar` and `SHA256SUMS` from `dist/` or a future GitHub release. Verify the checksum, for example `shasum -a 256 -c SHA256SUMS` from the download directory containing both release files.
 2. Open **ACP → System → Applications**, choose the upload/install action and upload the **TAR**. The GitHub source ZIP is not the installable application.
 3. Open **ACP → Block placements → Placement rules**. This is the application's own tab near the bottom of the sidebar, not an entry under native Advertisements or Pages. When using an existing Czech language the path is **Umístění bloků → Pravidla umístění**, without a separate XML import. Allow access to the `rqbp_manage` permission for other administrators who need it.
 4. Create a simple existing Pages HTML block, then add a placement rule. Start with one known CSS selector or native hook, the first occurrence, all platforms and no audience/URL restriction.
@@ -36,7 +48,7 @@ Native hooks are insertion points, not a guarantee that arbitrary block markup i
 
 The TAR includes Czech application text and applies it automatically on installation and upgrade to existing languages with Czech locale codes such as `cs_CZ`, `cs-CZ` or `Czech_…`. No separate XML import is required. Existing custom text, including an intentional empty value, is preserved. Upgrades fill new keys; changing an existing translated value requires the optional XML refresh. Other languages keep the English defaults; the application does not switch the site's default language or change language metadata.
 
-The release also includes `rqblockplacements-1.0.0-beta.4-cs.xml` (inside the TAR as `resources/lang-cs.xml`) for an explicit translation refresh or a Czech language added after the application was installed. Use ACP Languages to import it into the intended language. This file translates only this application. Back up the language before an optional native XML import, whose metadata behavior belongs to IPS.
+The release also includes `rqblockplacements-1.0.0-beta.5-cs.xml` (inside the TAR as `resources/lang-cs.xml`) for an explicit translation refresh or a Czech language added after the application was installed. Use ACP Languages to import it into the intended language. This file translates only this application. Back up the language before an optional native XML import, whose metadata behavior belongs to IPS.
 
 ## Rules and troubleshooting
 
@@ -59,7 +71,7 @@ npm run test:build
 npx playwright install chromium
 npm run test:browser
 python3 tools/build.py --check-reproducible
-python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.4.tar
+python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.5.tar
 ```
 
 Tools require PHP (tested with 8.3), Python 3.10+ and Node 20+ for browser tests. `PHP_BINARY` can point to a specific PHP executable. Browser tests can use `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` instead of a downloaded Chromium. The builder reads the original `application/resources/lang/{en,cs}.php` arrays and generates native `data/lang.xml`, `data/installLang.json` and the Czech import XML.

@@ -5,7 +5,7 @@ The repository is the standalone application, not an IPS installation. Applicati
 ## Build contract
 
 - `data/application.json` fixes the installed key `rqblockplacements`; it must not change after release.
-- `data/versions.json` maps strictly increasing integer build IDs to human versions. The current beta is `1000004 → 1.0.0-beta.4`; earlier IDs remain in the map. Use new IDs for every update; never overwrite an existing published build.
+- `data/versions.json` maps strictly increasing integer build IDs to human versions. The current beta is `1000005 → 1.0.0-beta.5`; earlier IDs remain in the map. Use new IDs for every update; never overwrite an existing published build.
 - Keep the package version, asset version, application constants, language build and release filename consistent. Run the builder after a language change.
 - `data/schema.json` is the clean-install schema. Later persisted-data changes need corresponding versioned `setup/upg_<build>/` migrations, not just an edited install schema.
 - Beta.3 uses canonical `mobile`, `tablet`, `desktop` platform values. `Policy::platforms()` normalizes legacy OS selections on read and save, so this change needs no schema migration. An empty array permits all three classes.
@@ -28,7 +28,11 @@ The offline builder does not invoke or distribute the IPS application builder. T
 
 CI runs the public layers only. Keep any licensed IPS integration environment private, and upload only test reports generated without proprietary source or forum content. Public CI never downloads IPS or calls a user's forum.
 
+`php tests/template-content.php` checks the template execution boundary. Optionally set `RQBP_IPS_THEME_SOURCE=/local/private/ips_v5.0.20` for this test to compile the sample with the actual local IPS compiler and an original integration stub; no platform files are copied. `php tests/migration.php` covers additive schema changes and interrupted-upgrade retries. These fixtures do not test the owner's live Mafra API.
+
 ## Runtime review points
+
+Beta.5 adds `content_type` and `template_code` via the retryable `upg_1000005` migration; old rows default to `block`. Template code is trusted administrator code behind `rqbp_manage_code`, not a sandbox. Syntax validation compiles native IPS syntax and parses the resulting PHP without calling it. Front-end rendering uses the native template runner only after eligibility checks, with output-buffer cleanup on failure. Cache compiled code only; never share rendered HTML. Template routes bypass shared page caching even when audience filters omit their output. The actual MafraApi extension is not included in this repository or package.
 
 Native `Block::display()` runs in the original request so Pages owns its permissions, parsing and asset behavior. The application must not share rendered block HTML between users. Both omitted and displayed platform variants need compatible guest cache behavior. Group exclusions win even when a different group allows access. URL exclusions win over includes. Hook template generation uses fixed code and integer rule IDs, never arbitrary user template code. Native hook output and CSS insertion must be re-entry-safe and must not target their own placement wrappers.
 
@@ -42,7 +46,7 @@ Before release, test assets from real Pages widget/feed blocks, deferred script 
 2. Run `npm ci`, `npm test`, `npm run build`, and validate the resulting TAR. Check the archive listing contains only this application and the original MIT license.
 3. Check the generated files are committed and inspect `git diff`. A repeat build from the same checkout/epoch must have the same SHA256.
 4. Give the beta TAR, Czech XML, SHA256SUMS and acceptance checklist to the owner. Do not publish while the native acceptance test is pending.
-5. After acceptance, tag the tested commit (for example `v1.0.0-beta.4`) and attach exactly those tested artifacts to a GitHub release. The workflow deliberately does not publish releases automatically.
+5. After acceptance, tag the tested commit (for example `v1.0.0-beta.5`) and attach exactly those tested artifacts to a GitHub release. The workflow deliberately does not publish releases automatically.
 6. Call a release stable only after the native requirements and real version-to-version upgrade have passed. Record the exact IPS/PHP/theme versions tested rather than assuming compatibility with every IPS 5 version.
 
 MIT covers this add-on's original code only. The [Invision Community software EULA](https://invisioncommunity.com/legal/license/) applies separately to the platform; no IPS code or license keys belong in this repository or its downloadable artifacts.

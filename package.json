@@ -1,11 +1,11 @@
 {
   "name": "ips-pages-block-placements",
-  "version": "1.0.0-beta.4",
+  "version": "1.0.0-beta.5",
   "private": true,
   "description": "Original CSS selector and native-hook Pages block placements for Invision Community 5.0.20",
   "license": "MIT",
   "scripts": {
-    "test:php": "php tests/policy.php && php tests/runtime.php && php tests/acp-context.php && php tests/translations.php",
+    "test:php": "php tests/policy.php && php tests/runtime.php && php tests/template-content.php && php tests/acp-context.php && php tests/translations.php && php tests/migration.php",
     "test:build": "python3 -m unittest discover -s tests -p 'test_*.py'",
     "test:browser": "node tests/browser.mjs",
     "test": "npm run test:php && npm run test:build && npm run test:browser",

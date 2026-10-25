@@ -27,7 +27,6 @@ final class Runtime
     {
         return \IPS\Dispatcher::hasInstance()
             && \IPS\Dispatcher::i()->controllerLocation === 'front'
-            && \IPS\Application::appIsEnabled('cms')
             && \IPS\Application::appIsEnabled('rqblockplacements')
             && (bool) \IPS\Settings::i()->rqbp_enabled;
     }
@@ -74,7 +73,7 @@ final class Runtime
         self::$cacheChecked = true;
         $context = self::context();
         foreach (self::rules() as $rule) {
-            if ($rule['platforms'] && Policy::evaluate($rule, $context, false) === null) {
+            if (($rule['platforms'] || $rule['content_type'] === 'template') && Policy::evaluate($rule, $context, false) === null) {
                 \IPS\Output::setCacheTime(false);
                 break;
             }
@@ -123,6 +122,9 @@ final class Runtime
     {
         $reason = Policy::evaluate($rule, $context);
         if ($reason !== null) { return $reason; }
+        if (!in_array($rule['content_type'], ['block', 'template'], true)) { return 'content_type_invalid'; }
+        if ($rule['content_type'] === 'block' && !\IPS\Application::appIsEnabled('cms')) { return 'pages_missing'; }
+        if ($rule['content_type'] === 'template' && trim($rule['template_code']) === '') { return 'template_empty'; }
         if ($rule['mode'] === 'hook' && !HookCatalog::has($rule['hook_path'], $rule['hook_name'])) { return 'hook_missing'; }
         if ($rule['mode'] === 'css' && trim($rule['selector']) === '') { return 'selector_empty'; }
         return null;
@@ -135,6 +137,11 @@ final class Runtime
         if (isset(self::$rendering[$id])) { return ''; }
         self::$rendering[$id] = true;
         try {
+            if ($rule['content_type'] === 'template') {
+                $html = TemplateContent::render($rule['template_code']);
+                self::note($rule, $html === '' ? 'template_empty' : 'ready');
+                return self::$rendered[$id] = $html;
+            }
             try { $block = \IPS\cms\Blocks\Block::load($rule['block_id']); }
             catch (\OutOfRangeException $error) { self::note($rule, 'block_missing'); return self::$rendered[$id] = ''; }
             if (!$block->active) { self::note($rule, 'block_inactive'); return self::$rendered[$id] = ''; }
@@ -143,7 +150,7 @@ final class Runtime
             self::note($rule, $html === '' ? 'block_empty' : 'ready');
             return self::$rendered[$id] = $html;
         } catch (\Throwable $error) {
-            self::note($rule, 'block_error');
+            self::note($rule, $rule['content_type'] === 'template' ? 'template_error' : 'block_error');
             self::log($error);
             return self::$rendered[$id] = '';
         } finally { unset(self::$rendering[$id]); }

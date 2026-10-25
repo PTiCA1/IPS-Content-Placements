@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.0-beta.5 — 2026-10-25
+
+Build `1000005`; additive, retryable migration from previous betas.
+
+- Add custom IPS template code as a content source, including native `{expression="…" raw="true"}` calls to installed integrations.
+- Restrict code management with the separate `rqbp_manage_code` ACP permission. Validate compiled syntax without invoking the expression during save or ACP diagnostics.
+- Apply the same device/group/URL and placement filters before execution. Template rules run without Pages and bypass shared page caching; block rules retain Pages permissions.
+- Preserve existing block rules through an additive schema migration. Add tests for native rendering boundaries, permissions, failures and partial-upgrade retries.
+- Native installation and the owner's actual MafraApi integration remain pending live acceptance.
+
 ## 1.0.0-beta.4 — 2026-10-24
 
 Build `1000004`, updateable from earlier betas without schema changes.
