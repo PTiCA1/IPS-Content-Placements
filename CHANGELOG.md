@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0-beta.7 — 2026-10-25
+
+Build `1000007`; documentation and ACP help update, without schema changes.
+
+- Replace the integration-specific README and template-help sample with the universal `{expression="'Hello world'"}` example in English and Czech.
+- Use a new help language key so existing installations receive the updated example without overwriting their custom translations.
+
 ## 1.0.0-beta.6 — 2026-10-25
 
 Build `1000006`; security and refactoring release, without new schema changes.

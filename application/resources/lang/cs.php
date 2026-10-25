@@ -64,7 +64,7 @@ return [
     'rqbp_source_manual' => 'Zadat odkaz na blok',
     'rqbp_source_template' => 'Vlastní kód šablony IPS',
     'rqbp_template_code' => 'Kód šablony IPS',
-    'rqbp_template_code_desc' => 'Použijte HTML a nativní syntaxi šablon IPS, například <code>&#123;expression=&quot;(new \\IPS\\MafraApi())-&gt;getMafraApiId(&#039;28&#039;)&quot; raw=&quot;true&quot;&#125;</code>. Kód může spouštět PHP na serveru s oprávněními aplikace; úpravy povolujte pouze důvěryhodným administrátorům. Otevírací a uzavírací značky PHP nejsou povolené. Limit je 65 535 bajtů. Na vlastní kód se nevztahují oprávnění bloků Pages: viditelnost určují skupiny tohoto pravidla a samotný kód.',
+    'rqbp_template_code_help_v7' => 'Použijte HTML a nativní syntaxi šablon IPS, například <code>&#123;expression=&quot;&#039;Hello world&#039;&quot;&#125;</code>. Ukázka vypíše Hello world a nevyžaduje žádné další rozšíření. Kód může spouštět PHP na serveru s oprávněními aplikace; úpravy povolujte pouze důvěryhodným administrátorům. Otevírací a uzavírací značky PHP nejsou povolené. Limit je 65 535 bajtů. Na vlastní kód se nevztahují oprávnění bloků Pages: viditelnost určují skupiny tohoto pravidla a samotný kód.',
     'rqbp_block_picker' => 'Blok Pages',
     'rqbp_block_picker_desc' => 'Vyberte blok, nikoli složku. Nadále platí jeho stávající oprávnění v Pages.',
     'rqbp_block_reference' => 'Odkaz na blok',

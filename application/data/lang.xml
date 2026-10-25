@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <language>
- <app key="rqblockplacements" version="1000006">
+ <app key="rqblockplacements" version="1000007">
   <word key="__app_rqblockplacements" js="0">Pages Block Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Block placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Placement rules</word>
@@ -147,7 +147,7 @@
   <word key="rqbp_table_rule_sort_order" js="0">Order</word>
   <word key="rqbp_table_rule_target" js="0">Target</word>
   <word key="rqbp_template_code" js="0">IPS template code</word>
-  <word key="rqbp_template_code_desc" js="0">Use HTML and native IPS template syntax, for example &lt;code&gt;&amp;#123;expression=&amp;quot;(new \IPS\MafraApi())-&amp;gt;getMafraApiId(&amp;#039;28&amp;#039;)&amp;quot; raw=&amp;quot;true&amp;quot;&amp;#125;&lt;/code&gt;. This code can execute PHP on the server with the application’s permissions; grant editing access only to trusted administrators. Raw PHP opening and closing tags are not accepted. The limit is 65,535 bytes. Pages block permissions do not apply to custom code: visibility is controlled by this rule’s member groups and by the code itself.</word>
+  <word key="rqbp_template_code_help_v7" js="0">Use HTML and native IPS template syntax, for example &lt;code&gt;&amp;#123;expression=&amp;quot;&amp;#039;Hello world&amp;#039;&amp;quot;&amp;#125;&lt;/code&gt;. This example displays Hello world without any extra extension. This code can execute PHP on the server with the application’s permissions; grant editing access only to trusted administrators. Raw PHP opening and closing tags are not accepted. The limit is 65,535 bytes. Pages block permissions do not apply to custom code: visibility is controlled by this rule’s member groups and by the code itself.</word>
   <word key="rqbp_unavailable_hook" js="0">Previously selected hook is unavailable</word>
  </app>
 </language>

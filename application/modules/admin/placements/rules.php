@@ -210,13 +210,15 @@ class rules extends Controller
             }, null, null, 'rqbp_block_reference'));
         }
         if ($canManageCode) {
-            $form->add(new TextArea('rqbp_template_code', $config['template_code'], false,
+            $codeField = new TextArea('rqbp_template_code', $config['template_code'], false,
                 ['rows' => 8, 'maxLength' => 65535, 'codeMode' => false],
                 static function ($value) use ($source): void {
                     if ($source === 'template') {
                         self::validateTemplate((string) $value);
                     }
-                }, null, null, 'rqbp_template_code'));
+                }, null, null, 'rqbp_template_code');
+            $codeField->description = self::word('rqbp_template_code_help_v7');
+            $form->add($codeField);
         }
 
         $form->addHeader('rqbp_section_placement');

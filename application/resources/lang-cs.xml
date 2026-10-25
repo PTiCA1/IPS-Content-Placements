@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Čeština" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.6" long_version="1000006" update_check="">
- <app key="rqblockplacements" version="1000006">
+<language name="Čeština" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.7" long_version="1000007" update_check="">
+ <app key="rqblockplacements" version="1000007">
   <word key="__app_rqblockplacements" js="0">Pages Block Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Umístění bloků</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Pravidla umístění</word>
@@ -147,7 +147,7 @@
   <word key="rqbp_table_rule_sort_order" js="0">Pořadí</word>
   <word key="rqbp_table_rule_target" js="0">Cíl</word>
   <word key="rqbp_template_code" js="0">Kód šablony IPS</word>
-  <word key="rqbp_template_code_desc" js="0">Použijte HTML a nativní syntaxi šablon IPS, například &lt;code&gt;&amp;#123;expression=&amp;quot;(new \IPS\MafraApi())-&amp;gt;getMafraApiId(&amp;#039;28&amp;#039;)&amp;quot; raw=&amp;quot;true&amp;quot;&amp;#125;&lt;/code&gt;. Kód může spouštět PHP na serveru s oprávněními aplikace; úpravy povolujte pouze důvěryhodným administrátorům. Otevírací a uzavírací značky PHP nejsou povolené. Limit je 65 535 bajtů. Na vlastní kód se nevztahují oprávnění bloků Pages: viditelnost určují skupiny tohoto pravidla a samotný kód.</word>
+  <word key="rqbp_template_code_help_v7" js="0">Použijte HTML a nativní syntaxi šablon IPS, například &lt;code&gt;&amp;#123;expression=&amp;quot;&amp;#039;Hello world&amp;#039;&amp;quot;&amp;#125;&lt;/code&gt;. Ukázka vypíše Hello world a nevyžaduje žádné další rozšíření. Kód může spouštět PHP na serveru s oprávněními aplikace; úpravy povolujte pouze důvěryhodným administrátorům. Otevírací a uzavírací značky PHP nejsou povolené. Limit je 65 535 bajtů. Na vlastní kód se nevztahují oprávnění bloků Pages: viditelnost určují skupiny tohoto pravidla a samotný kód.</word>
   <word key="rqbp_unavailable_hook" js="0">Dříve vybraný hook není dostupný</word>
  </app>
 </language>

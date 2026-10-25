@@ -3,14 +3,14 @@
         "hookpoint": "core/front/global/globalTemplate:head",
         "type": "inside-start",
         "key": "",
-        "version": "1000006",
+        "version": "1000007",
         "content": "{expression=\"\\IPS\\rqblockplacements\\Runtime::prepare()\" raw=\"true\"}"
     },
     "rqbp_payload": {
         "hookpoint": "core/front/global/globalTemplate:body",
         "type": "inside-end",
         "key": "",
-        "version": "1000006",
+        "version": "1000007",
         "content": "{expression=\"\\IPS\\rqblockplacements\\Runtime::payload()\" raw=\"true\"}"
     }
 }

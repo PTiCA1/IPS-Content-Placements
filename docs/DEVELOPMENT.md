@@ -5,7 +5,7 @@ The repository is the standalone application, not an IPS installation. Applicati
 ## Build contract
 
 - `data/application.json` fixes the installed key `rqblockplacements`; it must not change after release.
-- `data/versions.json` maps strictly increasing integer build IDs to human versions. The current beta is `1000006 → 1.0.0-beta.6`; earlier IDs remain in the map. Use new IDs for every update; never overwrite an existing published build.
+- `data/versions.json` maps strictly increasing integer build IDs to human versions. The current beta is `1000007 → 1.0.0-beta.7`; earlier IDs remain in the map. Use new IDs for every update; never overwrite an existing published build.
 - Keep the package version, asset version, application constants, language build and release filename consistent. Run the builder after a language change.
 - `data/schema.json` is the clean-install schema. Later persisted-data changes need corresponding versioned `setup/upg_<build>/` migrations, not just an edited install schema.
 - Beta.3 uses canonical `mobile`, `tablet`, `desktop` platform values. `Policy::platforms()` normalizes legacy OS selections on read and save, so this change needs no schema migration. An empty array permits all three classes.
@@ -46,7 +46,7 @@ Before release, test assets from real Pages widget/feed blocks, deferred script 
 2. Run `npm ci`, `npm test`, `npm run build`, and validate the resulting TAR. Check the archive listing contains only this application and the original MIT license.
 3. Check the generated files are committed and inspect `git diff`. A repeat build from the same checkout/epoch must have the same SHA256.
 4. Give the beta TAR, Czech XML, SHA256SUMS and acceptance checklist to the owner. Do not publish while the native acceptance test is pending.
-5. After acceptance, tag the tested commit (for example `v1.0.0-beta.6`) and attach exactly those tested artifacts to a GitHub release. The workflow deliberately does not publish releases automatically.
+5. After acceptance, tag the tested commit (for example `v1.0.0-beta.7`) and attach exactly those tested artifacts to a GitHub release. The workflow deliberately does not publish releases automatically.
 6. Call a release stable only after the native requirements and real version-to-version upgrade have passed. Record the exact IPS/PHP/theme versions tested rather than assuming compatibility with every IPS 5 version.
 
 MIT covers this add-on's original code only. The [Invision Community software EULA](https://invisioncommunity.com/legal/license/) applies separately to the platform; no IPS code or license keys belong in this repository or its downloadable artifacts.

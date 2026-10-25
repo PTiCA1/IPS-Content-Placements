@@ -185,6 +185,7 @@ namespace IPS\Helpers {
 namespace IPS\Helpers\Form {
     class Field {
         public ?string $label = null;
+        public ?string $description = null;
         public mixed $validation;
         public function __construct(
             public string $name,

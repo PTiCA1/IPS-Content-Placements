@@ -64,7 +64,7 @@ return [
     'rqbp_source_manual' => 'Enter a block reference',
     'rqbp_source_template' => 'Custom IPS template code',
     'rqbp_template_code' => 'IPS template code',
-    'rqbp_template_code_desc' => 'Use HTML and native IPS template syntax, for example <code>&#123;expression=&quot;(new \\IPS\\MafraApi())-&gt;getMafraApiId(&#039;28&#039;)&quot; raw=&quot;true&quot;&#125;</code>. This code can execute PHP on the server with the application’s permissions; grant editing access only to trusted administrators. Raw PHP opening and closing tags are not accepted. The limit is 65,535 bytes. Pages block permissions do not apply to custom code: visibility is controlled by this rule’s member groups and by the code itself.',
+    'rqbp_template_code_help_v7' => 'Use HTML and native IPS template syntax, for example <code>&#123;expression=&quot;&#039;Hello world&#039;&quot;&#125;</code>. This example displays Hello world without any extra extension. This code can execute PHP on the server with the application’s permissions; grant editing access only to trusted administrators. Raw PHP opening and closing tags are not accepted. The limit is 65,535 bytes. Pages block permissions do not apply to custom code: visibility is controlled by this rule’s member groups and by the code itself.',
     'rqbp_block_picker' => 'Pages block',
     'rqbp_block_picker_desc' => 'Select a block, not its containing folder. The block keeps its existing Pages permissions.',
     'rqbp_block_reference' => 'Block reference',
