@@ -581,6 +581,23 @@ try {
         assert.equal(await page.locator('#target > [data-rqbp-placement]:not(div)').count(), 0);
     });
 
+    await test('native-style pagination controls do not prevent server placement beside topic posts', async () => {
+        const pagination = '<ul class="pagination"><li><a href="#page-1">1</a></li><input type="number" name="page" value="1"><button type="button">Go</button></ul>';
+        const content = `${pagination}<form data-role="moderationTools"><span id="anchor"></span><article id="post-1" data-ips-hook="postWrapper">First</article><article id="post-2" data-ips-hook="postWrapper">Second</article></form>${pagination}`;
+        const selector = '#ipsLayout__main form > article[data-ips-hook="postWrapper"]:nth-of-type(1)';
+        const result = serverFixture({ html: content, rules: [rule(1, { selector })] });
+        assert.equal(result.reports[0].matches, 1);
+        assert.equal(result.reports[0].inserted, 1);
+        assert.equal(result.html.split(pagination).length, 3, 'Both original pagination fragments remain byte-identical');
+        fixture = `<!doctype html><html><head><title>Topic pagination</title></head><body><div id="ipsLayout__main">${result.html}</div></body></html>`;
+        await page.goto(`${origin}/server-topic-pagination`);
+        assert.equal(await page.locator(selector).count(), 1);
+        assert.equal(await page.locator('#post-1 + [data-rqbp-placement="1"]').count(), 1);
+        assert.equal(await page.locator('ul.pagination > input[name="page"]').count(), 2);
+        assert.equal(await page.locator('ul.pagination > button').count(), 2);
+        assert.equal(await page.locator('[data-rqbp-placement]').count(), 1);
+    });
+
     await test('ACP server CSS retains all positions and browser syntax validation independently of native hooks', async () => {
         fixture = acpFixture({ rqbp_mode: 'server', rqbp_hook_app: 'core', rqbp_hook_template: 'core/front/global/globalTemplate', rqbp_hook: 'core/front/global/globalTemplate|head', rqbp_position: 'after' });
         await page.goto(`${origin}/admin`);

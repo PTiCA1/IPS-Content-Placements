@@ -4,13 +4,13 @@ for Invision Community 5
 
 [GitHub project](https://github.com/PTiCA1/IPS-Content-Placements) · [Issues](https://github.com/PTiCA1/IPS-Content-Placements/issues)
 
-**[Beta.14 pre-release](https://github.com/PTiCA1/IPS-Content-Placements/releases/tag/v1.0.0-beta.14)** · **[Download TAR](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.14/rqblockplacements-1.0.0-beta.14.tar)** · [SHA256SUMS](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.14/SHA256SUMS)
+**[Beta.15 pre-release](https://github.com/PTiCA1/IPS-Content-Placements/releases/tag/v1.0.0-beta.15)** · **[Download TAR](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.15/rqblockplacements-1.0.0-beta.15.tar)** · [SHA256SUMS](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.15/SHA256SUMS)
 
-Optional XML: [CS](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.14/rqblockplacements-1.0.0-beta.14-cs.xml) · [SK](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.14/rqblockplacements-1.0.0-beta.14-sk.xml) · [PL](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.14/rqblockplacements-1.0.0-beta.14-pl.xml) · [DE](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.14/rqblockplacements-1.0.0-beta.14-de.xml). The TAR already contains all four translations; separate XML downloads are optional.
+Optional XML: [CS](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.15/rqblockplacements-1.0.0-beta.15-cs.xml) · [SK](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.15/rqblockplacements-1.0.0-beta.15-sk.xml) · [PL](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.15/rqblockplacements-1.0.0-beta.15-pl.xml) · [DE](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.15/rqblockplacements-1.0.0-beta.15-de.xml). The TAR already contains all four translations; separate XML downloads are optional.
 
 Place an existing Invision Community Pages block or custom IPS template code before, inside at the start, inside at the end or after a CSS target or native theme hook, with rules for platforms, groups, applications and URLs. Original standalone application, MIT licensed. [Česky](README.cs.md).
 
-**1.0.0-beta.14 — build 1000014.** Adds an opt-in server CSS-selector mode alongside the existing JavaScript mode and native hooks. Server placement is limited to supported main-controller HTML; it does not process the complete page shell. Existing rules keep their modes, and no database schema change is required. Includes complete Czech, Slovak, Polish and German translations. Targets **Invision Community 5.0.20+**, with API and template-compiler checks against the **5.0.20** source code. Native installation, server-selector placement, head placement and upgrade acceptance remain pending before a stable release. See [security boundaries](SECURITY.md) and the [dated audit report](docs/SECURITY-AUDIT-2026-10-25.md). Purge existing CDN/reverse-proxy cache for affected URLs after upgrading.
+**1.0.0-beta.15 — build 1000015.** Fixes server HTML parsing of native IPS pagination containing direct `input` and `button` children of a `ul`. In beta.14, those controls could reject the controller fragment even when the CSS selector matched correctly in the browser. Server placement is limited to supported main-controller HTML; it does not process the complete page shell. Existing rules keep their modes, and no database schema change is required. Includes complete Czech, Slovak, Polish and German translations. Targets **Invision Community 5.0.20+**, with API and template-compiler checks against the **5.0.20** source code. Native installation, server-selector placement, head placement and upgrade acceptance remain pending before a stable release. See [security boundaries](SECURITY.md) and the [dated audit report](docs/SECURITY-AUDIT-2026-10-25.md). Purge existing CDN/reverse-proxy cache for affected URLs after upgrading.
 
 ## What this release does
 
@@ -29,11 +29,13 @@ The four positions apply to CSS and native-hook rules where their scope and HTML
 
 ## JavaScript and server CSS modes
 
-Existing `css` rules remain **CSS selector — JavaScript**. They find targets in the browser, including content added later by IPS, and mount the prepared content with JavaScript. The new `server` mode is an explicit choice; upgrading does not convert rules or silently fall back between modes.
+Existing `css` rules remain **CSS selector — JavaScript**. They find targets in the browser, including content added later by IPS, and mount the prepared content with JavaScript. The `server` mode is an explicit choice; upgrading does not convert rules or silently fall back between modes.
 
 Server mode operates through supported `Loader::onFinish` processing of the main controller HTML on normal full HTML requests. It treats that fragment as the contents of a virtual `div#ipsLayout__main`; this is a selector scope, not access to the actual whole-page shell. It cannot target the global header, navigation, footer or head. AJAX requests are skipped with a diagnostic. Standalone Pages or direct-output routes may bypass this lifecycle and remain unsupported.
 
 After rule eligibility, native block permissions, target matching and a supported insertion context are confirmed, server mode renders the selected content and inserts it into the response HTML. Unchanged original HTML bytes are preserved; the app does not repair or reserialize the page. The controller fragment must use supported balanced HTML: malformed markup or omitted optional closing tags can cause processing to be skipped. Server rules add no JavaScript insertion payload. Scripts in the inserted HTML are handled by the browser when its parser reaches them; this does not guarantee compatibility with every advertising tag or widget. A synchronous script in head still cannot see body elements that have not yet been parsed.
+
+Native IPS pagination may include direct `input` and `button` children inside a `ul`. The parser accepts these controls without relaxing insertion-context, nested-form or content-validation guards. This compatibility fix requires no rule edits or mode conversion.
 
 Server processing is limited to a 2 MiB input fragment, 50,000 elements, nesting depth 256, 10,000 insertions and 8 MiB of output. Exceeding a limit skips server processing with a diagnostic. Invalid rendered block/template HTML, unmatched closing tags or a nested form also cause the affected placement to be omitted.
 
@@ -79,9 +81,9 @@ ACP save and diagnostics do not render a Pages block or execute template express
 
 Requirements: licensed Invision Community 5.0.20+, custom applications permitted, and ACP application-management access. Pages is required for block rules; custom template rules can run without it. Use a test installation and a database/file backup.
 
-Upgrade the existing application rather than installing a second copy. The internal key `rqblockplacements` and release filename prefix remain unchanged. The upgrade refreshes the application's standard names while preserving administrator-customized text, rules and settings. Beta.14 has no new schema migration: `server` fits the existing eight-character mode column, and old `css` and `hook` values remain unchanged. When upgrading an older beta, beta.12 still widens `rqbp_rules.rule_position` from `VARCHAR(8)` to `VARCHAR(16)` without rewriting existing before/after values; that migration can be retried after a partial upgrade.
+Upgrade the existing application rather than installing a second copy. The internal key `rqblockplacements` and release filename prefix remain unchanged. The upgrade refreshes the application's standard names while preserving administrator-customized text, rules and settings. Beta.15 has no new schema migration: `server` fits the existing eight-character mode column, and old `css` and `hook` values remain unchanged. When upgrading an older beta, beta.12 still widens `rqbp_rules.rule_position` from `VARCHAR(8)` to `VARCHAR(16)` without rewriting existing before/after values; that migration can be retried after a partial upgrade.
 
-1. Download [rqblockplacements-1.0.0-beta.14.tar](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.14/rqblockplacements-1.0.0-beta.14.tar) from the [beta.14 pre-release](https://github.com/PTiCA1/IPS-Content-Placements/releases/tag/v1.0.0-beta.14), or use the file in `dist/`. To verify with `shasum -a 256 -c SHA256SUMS`, keep `SHA256SUMS` and all four translation XML files in the same directory as the TAR. Installation itself requires only the TAR.
+1. Download [rqblockplacements-1.0.0-beta.15.tar](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.15/rqblockplacements-1.0.0-beta.15.tar) from the [beta.15 pre-release](https://github.com/PTiCA1/IPS-Content-Placements/releases/tag/v1.0.0-beta.15), or use the file in `dist/`. To verify with `shasum -a 256 -c SHA256SUMS`, keep `SHA256SUMS` and all four translation XML files in the same directory as the TAR. Installation itself requires only the TAR.
 2. Open **ACP → System → Applications**, choose the upload/install action and upload the **TAR**. The GitHub source ZIP is not the installable application.
 3. Open **ACP → Content Placements → Placement rules**. This is the application's own tab near the bottom of the sidebar, not an entry under native Advertisements or Pages. The standard main tab name is **Content Placements** in every language; for example, the Czech submenu is **Pravidla umístění**. Allow access to the `rqbp_manage` permission for other administrators who need it.
 4. Create a simple existing Pages HTML block, then add a placement rule. Start with one known CSS selector or native hook, the first occurrence, all platforms and no audience/URL restriction.
@@ -106,7 +108,7 @@ Each translation covers all application strings. Installation and ACP upgrades f
 
 No separate XML import is required for these existing languages. Custom text, including an intentional empty value, is preserved. Upgrades fill missing keys; changing an existing translated value requires an explicit refresh. Beta.9 also renames the exact known standard product labels from earlier betas; different custom labels stay unchanged. Other languages keep English defaults. The application does not create a language, switch the site's default language or change language metadata.
 
-The release also provides optional `rqblockplacements-1.0.0-beta.14-cs.xml`, `-sk.xml`, `-pl.xml` and `-de.xml` files, bundled in the TAR as `resources/lang-{cs,sk,pl,de}.xml`. Use the appropriate XML in ACP Languages for an explicit translation refresh or a language added after application installation. These files translate only this application. Back up the intended language before an optional native XML import, whose metadata behavior belongs to IPS.
+The release also provides optional `rqblockplacements-1.0.0-beta.15-cs.xml`, `-sk.xml`, `-pl.xml` and `-de.xml` files, bundled in the TAR as `resources/lang-{cs,sk,pl,de}.xml`. Use the appropriate XML in ACP Languages for an explicit translation refresh or a language added after application installation. These files translate only this application. Back up the intended language before an optional native XML import, whose metadata behavior belongs to IPS.
 
 ## Rules and troubleshooting
 
@@ -129,7 +131,7 @@ npm run test:build
 npx playwright install chromium
 npm run test:browser
 python3 tools/build.py --check-reproducible
-python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.14.tar
+python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.15.tar
 ```
 
 Tools require PHP (tested with 8.3), Python 3.10+ and Node 20+ for browser tests. `PHP_BINARY` can point to a specific PHP executable. Browser tests can use `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` instead of a downloaded Chromium. The builder reads the original `application/resources/lang/{en,cs,sk,pl,de}.php` arrays and generates native `data/lang.xml`, `data/installLang.json` and all four translation XML files.

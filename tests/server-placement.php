@@ -102,6 +102,33 @@ $result = ServerPlacement::apply($list, [rule(1, ['selector' => '#first', 'posit
 check(str_contains($result['html'], '</li>' . wrap(1, '<em>Inserted</em>', 'li') . '<li>Two'), 'List item siblings use li instead of div');
 $result = ServerPlacement::apply($list, [rule(1, ['selector' => '#first', 'position' => 'inside-end'])], static fn (): string => '<em>Inserted</em>');
 check(str_contains($result['html'], 'One' . wrap(1) . '</li>'), 'List item children use a div wrapper');
+
+// Original pagination-shaped fixture: no vendor template or forum response data.
+$pagination = static fn (string $id): string => '<nav id="' . $id . '"><form action="/example"><ul class="page-controls"><input type="number" name="page" min="1" max="10"><button type="submit">Go</button></ul></form></nav>';
+$topic = $pagination('pager-top') . "\n"
+    . '<form id="posts"><article data-ips-hook="postWrapper" id="post-one"><div>First example post</div></article>'
+    . '<article data-ips-hook="postWrapper" id="post-two"><div>Second example post</div></article></form>' . "\n"
+    . $pagination('pager-bottom') . '<script defer src="/example.js"></script>';
+$postSelector = '#ipsLayout__main form > article[data-ips-hook="postWrapper"]:nth-of-type(1)';
+$topicDocument = ServerDocument::parse($topic);
+$postIds = ServerSelector::select(ServerSelector::parse($postSelector), $topicDocument->nodes);
+check(count($postIds) === 1 && $topicDocument->nodes[$postIds[0]]['attrs']['id'] === 'post-one', 'Top and bottom list-based pagination do not prevent the first article selector from matching');
+check(count(ServerSelector::select(ServerSelector::parse('.page-controls > input, .page-controls > button'), $topicDocument->nodes)) === 4, 'Both pagination lists retain their direct input and button nodes');
+$calls = 0;
+$topicResult = ServerPlacement::apply($topic, [rule(1, ['selector' => $postSelector])], static function () use (&$calls): string { $calls++; return '<em>Inserted</em>'; });
+$firstPostEnd = $topicDocument->nodes[$postIds[0]]['end'];
+check($calls === 1 && $topicResult['reports'] === [['id' => 1, 'matches' => 1, 'inserted' => 1, 'reason' => 'inserted']], 'Native pagination permits one lazy server placement beside the first article');
+check($topicResult['html'] === substr($topic, 0, $firstPostEnd) . wrap(1) . substr($topic, $firstPostEnd), 'The article placement preserves every original pagination, form and script byte');
+check(strpos($topicResult['html'], wrap(1)) < strpos($topicResult['html'], '<script defer'), 'The placement is already in the response before deferred browser code');
+$calls = 0;
+$topicUnsafe = ServerPlacement::apply($topic, [rule(1, ['selector' => '.page-controls > input, .page-controls > button', 'occurrence' => 'all'])], static function () use (&$calls): string { $calls++; return '<em>Unexpected</em>'; });
+check($calls === 0 && $topicUnsafe['html'] === $topic && $topicUnsafe['reports'][0]['matches'] === 4 && $topicUnsafe['reports'][0]['reason'] === 'server_context_unsupported', 'Direct pagination controls remain unsafe insertion targets and never execute their renderer');
+foreach (['ul', 'ol', 'menu'] as $listTag) {
+    $controls = '<' . $listTag . ' id="target"><input name="page" type="number"><button type="submit">Go</button></' . $listTag . '>';
+    $controlsResult = ServerPlacement::apply($controls, [rule(1, ['position' => 'inside-start'])], static fn (): string => '<em>Inserted</em>');
+    check($controlsResult['html'] === '<' . $listTag . ' id="target">' . wrap(1, '<em>Inserted</em>', 'li') . '<input name="page" type="number"><button type="submit">Go</button></' . $listTag . '>', 'Control-bearing list keeps the safe li insertion wrapper: ' . $listTag);
+}
+
 $result = ServerPlacement::apply('<p id="target">Text</p>', [rule()], static fn (): string => '<em>Inserted</em>');
 check($result['html'] === '<p id="target">Text</p>' . wrap(1), 'Paragraph sibling insertions are allowed in a flow parent');
 

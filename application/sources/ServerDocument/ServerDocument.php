@@ -164,7 +164,9 @@ final class ServerDocument
         if (in_array($tag, ['html', 'head', 'body', 'frameset', 'frame', 'plaintext', 'image', 'isindex'], true)) { self::unsupported(); }
         $parentTag = $nodes[$parent]['tag'];
         if (isset(self::TABLE_CHILDREN[$parentTag]) && !in_array($tag, self::TABLE_CHILDREN[$parentTag], true)) { self::unsupported(); }
-        if (in_array($parentTag, ['ul', 'ol', 'menu'], true) && !in_array($tag, ['li', 'script', 'template'], true)) { self::unsupported(); }
+        // Native pagination keeps its number input and submit button directly
+        // in a list. Browsers retain both nodes without implicitly closing it.
+        if (in_array($parentTag, ['ul', 'ol', 'menu'], true) && !in_array($tag, ['li', 'input', 'button', 'script', 'template'], true)) { self::unsupported(); }
         if ($tag === 'li' && !in_array($parentTag, ['ul', 'ol', 'menu'], true)) { self::unsupported(); }
         if (in_array($tag, ['dt', 'dd'], true) && $parentTag !== 'dl') { self::unsupported(); }
         $requiredParent = ['caption' => ['table'], 'colgroup' => ['table'], 'thead' => ['table'], 'tbody' => ['table'], 'tfoot' => ['table'],

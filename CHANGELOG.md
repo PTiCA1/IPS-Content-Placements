@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0-beta.15 — 2026-10-25
+
+Build `1000015`; native pagination parser compatibility fix, without schema or rule changes.
+
+- Accept `input` and `button` controls as direct children of `ul` when parsing native IPS pagination. Beta.14 could reject the entire controller fragment as unsupported HTML even when the selector matched correctly in the browser, preventing server insertion.
+- Keep insertion-context, rendered-content, nested-form, permission and cache guards unchanged. Preserve all `css`, `server` and `hook` rules without rewriting or automatic mode conversion.
+- Add original regression coverage for pagination parsing, successful server placement and preservation of rejected unsafe insertions; do not bundle private forum HTML or licensed platform source.
+- No database migration is required. Retain the 5.0.20+ target, the 5.0.20 source-verification baseline and existing older migrations. Native beta.14 → beta.15 installation, pagination placement and upgrade acceptance remain pending. Earlier release notes and the dated audit remain historical.
+
 ## 1.0.0-beta.14 — 2026-10-25
 
 Build `1000014`; opt-in server CSS placement, without new database schema changes.
