@@ -10,7 +10,7 @@ Volitelná XML: [CS](https://github.com/PTiCA1/IPS-Content-Placements/releases/d
 
 Samostatná aplikace pro vkládání Pages bloků nebo vlastního kódu šablony IPS před či za CSS selektor nebo nativní hook. Má vlastní pravidla pro zařízení, skupiny, aplikace a URL. Vlastní kód doplňku je pod licencí MIT. [English](README.md).
 
-**1.0.0-beta.11 — sestavení 1000011.** Přidává oficiální odkaz na projekt GitHub a hlášení chyb. Funkce ani schéma se nemění. Obsahuje úplnou češtinu, slovenštinu, polštinu a němčinu. Připraveno pro IPS **5.0.20**; skutečná instalace a aktualizace ještě čekají na ověření před stabilním vydáním. [Výsledky datovaného auditu a jeho meze](docs/SECURITY-AUDIT-2026-10-25.md). Po aktualizaci vyprázdněte existující CDN/reverzní proxy cache dotčených URL.
+**1.0.0-beta.11 — sestavení 1000011.** Přidává oficiální odkaz na projekt GitHub a hlášení chyb. Funkce ani schéma se nemění. Obsahuje úplnou češtinu, slovenštinu, polštinu a němčinu. Určeno pro **Invision Community 5.0.20+**. Kontroly API a překladače šablon proběhly proti zdrojům verze **5.0.20**. Skutečná instalace a aktualizace ještě čekají na ověření před stabilním vydáním. [Výsledky datovaného auditu a jeho meze](docs/SECURITY-AUDIT-2026-10-25.md). Po aktualizaci vyprázdněte existující CDN/reverzní proxy cache dotčených URL.
 
 ## Funkce první verze
 
@@ -38,7 +38,7 @@ Při uložení a diagnostice se ověří syntaxe bez volání vloženého výraz
 
 ## Instalace bety přes ACP
 
-Potřebujete licencované IPS 5.0.20, povolené vlastní aplikace a oprávnění instalovat je v ACP. Pages jsou potřeba pro pravidla s bloky; vlastní kód může fungovat i bez Pages. Použijte testovací instalaci a zálohu databáze i souborů.
+Potřebujete licencované Invision Community 5.0.20+, povolené vlastní aplikace a oprávnění instalovat je v ACP. Pages jsou potřeba pro pravidla s bloky; vlastní kód může fungovat i bez Pages. Použijte testovací instalaci a zálohu databáze i souborů.
 
 Aktualizujte existující aplikaci, neinstalujte druhou kopii. Interní klíč `rqblockplacements` i předpona názvu balíčku zůstávají stejné. Aktualizace obnoví standardní názvy aplikace a zachová vlastní úpravy textů, pravidla i nastavení.
 

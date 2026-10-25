@@ -10,7 +10,7 @@ Optional XML: [CS](https://github.com/PTiCA1/IPS-Content-Placements/releases/dow
 
 Place an existing Invision Community Pages block or custom IPS template code before or after a CSS selector or a native theme hook, with rules for platforms, groups, applications and URLs. Original standalone application, MIT licensed. [Česky](README.cs.md).
 
-**1.0.0-beta.11 — build 1000011.** Adds the canonical GitHub project and issue-reporting links. No feature or schema changes. Includes complete Czech, Slovak, Polish and German translations. Prepared for IPS **5.0.20**; native installation and upgrade acceptance remain pending before a stable release. See [security boundaries](SECURITY.md) and the [dated audit report](docs/SECURITY-AUDIT-2026-10-25.md). Purge existing CDN/reverse-proxy cache for affected URLs after upgrading.
+**1.0.0-beta.11 — build 1000011.** Adds the canonical GitHub project and issue-reporting links. No feature or schema changes. Includes complete Czech, Slovak, Polish and German translations. Targets **Invision Community 5.0.20+**, with API and template-compiler checks against the **5.0.20** source code. Native installation and upgrade acceptance remain pending before a stable release. See [security boundaries](SECURITY.md) and the [dated audit report](docs/SECURITY-AUDIT-2026-10-25.md). Purge existing CDN/reverse-proxy cache for affected URLs after upgrading.
 
 ## What this release does
 
@@ -38,7 +38,7 @@ Saving and ACP diagnostics validate syntax without invoking the expression. Rend
 
 ## Install and try the beta
 
-Requirements: licensed IPS 5.0.20, custom applications permitted, and ACP application-management access. Pages is required for block rules; custom template rules can run without it. Use a test installation and a database/file backup.
+Requirements: licensed Invision Community 5.0.20+, custom applications permitted, and ACP application-management access. Pages is required for block rules; custom template rules can run without it. Use a test installation and a database/file backup.
 
 Upgrade the existing application rather than installing a second copy. The internal key `rqblockplacements` and release filename prefix remain unchanged. The upgrade refreshes the application's standard names while preserving administrator-customized text, rules and settings.
 
