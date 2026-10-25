@@ -14,6 +14,7 @@ use IPS\Http\Url;
 use IPS\Member;
 use IPS\Output;
 use IPS\rqblockplacements\Rule;
+use IPS\rqblockplacements\RuleAccess;
 use IPS\Session;
 use IPS\Settings as IPSSettings;
 
@@ -38,6 +39,7 @@ class settings extends Controller
         $form->addMessage('rqbp_settings_intro');
         $form->add(new YesNo('rqbp_enabled', (bool) IPSSettings::i()->rqbp_enabled));
         if ($values = $form->values()) {
+            RuleAccess::assertMasterEnable((bool) IPSSettings::i()->rqbp_enabled, (bool) $values['rqbp_enabled']);
             IPSSettings::i()->changeValues(['rqbp_enabled' => (int) $values['rqbp_enabled']]);
             Rule::changed();
             Session::i()->log('rqbp_log_settings');

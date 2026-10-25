@@ -2,11 +2,11 @@
 
 Stav: majitel potvrdil **funkční editor pravidel v beta.2** po opravě ACP chyb beta.1. **Cílení na zařízení z beta.3, automatická čeština z beta.4 i skutečná aktualizace ještě čekají na ověření.** Automatické mocky a test prohlížeče nepotvrzují skutečnou instalaci ani aktualizaci. Výsledky zaznamenejte před zveřejněním a označením verze za stabilní.
 
-Použijte privátní licencovanou testovací instalaci **IPS 5.0.20 + Pages**, se zálohou databáze i souborů. Poznamenejte verzi PHP, build IPS, motiv, prohlížeč, CDN/cache a SHA256 balíčku. Aktuální balíček je **`1.0.0-beta.5`, build `1000005`**; ověřte aktualizaci z beta.2 (`1000002`) i beta.3 (`1000003`).
+Použijte privátní licencovanou testovací instalaci **IPS 5.0.20 + Pages**, se zálohou databáze i souborů. Poznamenejte verzi PHP, build IPS, motiv, prohlížeč, CDN/cache a SHA256 balíčku. Aktuální balíček je **`1.0.0-beta.6`, build `1000006`**; ověřte aktualizaci z beta.2 (`1000002`) i beta.3 (`1000003`).
 
 ## Základní instalace
 
-1. V ACP nahrajte `rqblockplacements-1.0.0-beta.5.tar`. Ověřte dokončení instalace, verzi/build `1.0.0-beta.5` / `1000005` a viditelnou ikonu mřížky poblíž spodního konce běžného úzkého menu ACP. Otevřete **Block placements → Placement rules** a **Block placements → Settings**. V existujícím českém jazyce jsou cesty automaticky **Umístění bloků → Pravidla umístění / Nastavení**, bez importu XML. Jde o vlastní záložku aplikace, nikoli podmenu nativních reklam nebo Pages.
+1. V ACP nahrajte `rqblockplacements-1.0.0-beta.6.tar`. Ověřte dokončení instalace, verzi/build `1.0.0-beta.6` / `1000006` a viditelnou ikonu mřížky poblíž spodního konce běžného úzkého menu ACP. Otevřete **Block placements → Placement rules** a **Block placements → Settings**. V existujícím českém jazyce jsou cesty automaticky **Umístění bloků → Pravidla umístění / Nastavení**, bez importu XML. Jde o vlastní záložku aplikace, nikoli podmenu nativních reklam nebo Pages.
 2. V Pages vytvořte veřejný HTML blok s jednoznačným textem `RQBP TEST` a odkazem. Nejprve ověřte jeho běžné nativní zobrazení.
 3. Přidejte CSS pravidlo za skutečnou kategorii, například `li[data-categoryID="4"]`, poloha **za**, první výskyt, bez omezení. Číslo nahraďte ID ze svého fóra. Blok má být mezi kategoriemi, ne mezi příspěvky v tématu.
 4. Přepněte na polohu **před** a ověřte pořadí i absenci duplicit.
@@ -42,7 +42,7 @@ Přímý přístup: zachovejte skutečný adresář ACP ze své aktuální adres
 ## Aktualizace a odinstalace
 
 1. V instalované betě uložte reprezentativní CSS/hook pravidla, pořadí a skupiny. V beta.2 ponechte i staré OS volby (Android, iPhone, iPad, Windows a Neznámá); v beta.3 zachovejte volby zařízení. Zazálohujte databázi.
-2. Výslovně ověřte **beta.2 (`1000002`) → beta.5 (`1000005`)** i **beta.3 (`1000003`) → beta.5 (`1000005`)** nahráním `rqblockplacements-1.0.0-beta.5.tar` přes ACP. Opětovné nahrání stejné bety neověřuje migrace. U předchozí aktualizace beta.1 → beta.2 byly nahlášeny chybějící ikona a `template_store_missing`; přístup do editoru beta.2 je potvrzený, ověření beta.3 stále čeká.
+2. Výslovně ověřte **beta.2 (`1000002`) → beta.6 (`1000006`)** i **beta.3 (`1000003`) → beta.6 (`1000006`)** nahráním `rqblockplacements-1.0.0-beta.6.tar` přes ACP. Opětovné nahrání stejné bety neověřuje migrace. U předchozí aktualizace beta.1 → beta.2 byly nahlášeny chybějící ikona a `template_store_missing`; přístup do editoru beta.2 je potvrzený, ověření beta.3 stále čeká.
 3. Ověřte zachování pravidel/nastavení a jediné obnovení markerů. Android se musí převést na Mobil + Tablet, iPhone na Mobil, iPad/Kindle/PlayBook na Tablet a Windows/Neznámá na Desktop. Otevření pravidla normalizuje staré hodnoty; uložení zapíše nové bez změny schématu databáze. Po další úpravě nesmějí vzniknout duplicity. Běžná navigace i přímá URL musí otevřít stejnou tabulku pravidel.
 4. Bez importu XML ověřte automatickou češtinu a zachování vlastních textů podle oddílu výše. Ostatní jazyky musí nadále používat anglické výchozí texty. Pozdější výslovné obnovení XML má překládat jen tento doplněk; po nativním importu zkontrolujte zamýšlený jazyk.
 5. Na jednorázové testovací instalaci odinstalujte aplikaci. Vlastní tabulky/nastavení/markery mají zmizet, existující Pages bloky zůstat.
@@ -61,7 +61,7 @@ Stabilní 1.0.0 vydejte až po úspěšné instalaci, kontrole oprávnění, ass
 | Nativní assety / původní požadavek | Čeká | |
 | CDN cache hostů | Čeká | |
 | Diagnostika / omezení ACP | Čeká | |
-| Aktualizace beta.2 / beta.3 → beta.5 / převod platforem | Čeká | |
+| Aktualizace beta.2 / beta.3 → beta.6 / převod platforem | Čeká | |
 | Automatická čeština / zachování vlastních textů | Čeká | |
 | Anglické výchozí texty / nastavení jazyků beze změny | Čeká | |
 | Vypnutí / odinstalace | Čeká | |
@@ -73,3 +73,10 @@ Stabilní 1.0.0 vydejte až po úspěšné instalaci, kontrole oprávnění, ass
 - Ověřte kód přes CSS i hook, skupiny/zařízení/URL, vyřazeného hosta, před/za, opakování a chybějící selektor. Kód se připravuje serverově před hledáním CSS cíle.
 - Omezený administrátor bez rqbp_manage_code nesmí číst kód ani odeslat podvržený formulář, zapnout, duplikovat nebo upravit pravidlo s kódem. Bloková pravidla smí dál spravovat.
 - Vlastní kód musí fungovat bez Pages; pravidlo s Pages blokem má bez Pages zůstat neaktivní. Syntax error ani výjimka API nesmí uniknout do výstupu stránky.
+
+## Bezpečnostní ověření beta.6
+
+- Po aktualizaci vyprázdněte cache CDN/reverzní proxy na dotčených URL. Ověřte výsledné `private, no-store` i na archivovaném tématu a ve vyhledávání, pro povoleného i odmítnutého návštěvníka. Nová odpověď musí zakázat sdílené ukládání.
+- Vyzkoušejte odlišné skupiny hostů/bota a blok s vlastními Pages oprávněními, i bez explicitního filtru zařízení.
+- Správce bloků bez oprávnění ke kódu nesmí hlavním přepínačem znovu aktivovat zapnuté code pravidlo. Nouzové vypnutí musí fungovat.
+- Změna URL během čekání na reklamní skript musí ihned odstranit starý obal a zastavit následné staré skripty. Již připojený externí skript může prohlížeč ještě vykonat.

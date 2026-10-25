@@ -66,19 +66,19 @@ final class Runtime
             && \IPS\Member::loggedIn()->hasAcpRestriction('rqblockplacements', 'placements', 'rqbp_manage');
     }
 
-    /** Guard both matching and omitted platform variants against guest CDN sharing. */
+    /** A guest may use a different group (for example a verified sharing bot). */
     private static function guardCache(): void
     {
         if (self::$cacheChecked) { return; }
-        self::$cacheChecked = true;
         $context = self::context();
         foreach (self::rules() as $rule) {
-            if (($rule['platforms'] || $rule['content_type'] === 'template') && Policy::evaluate($rule, $context, false) === null) {
-                \IPS\Output::setCacheTime(false);
+            if (Policy::evaluate($rule, $context, false) === null) {
+                PageCache::disable();
                 break;
             }
         }
-        if (self::debug()) { \IPS\Output::setCacheTime(false); }
+        if (self::debug()) { PageCache::disable(); }
+        self::$cacheChecked = true;
     }
 
     /** Called by Loader and the early global head hook (also covers Pages dispatchers). */

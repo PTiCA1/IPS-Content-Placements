@@ -55,6 +55,7 @@ def validate(ips_source: Path | None = None, archive: Path | None = None) -> Non
     ids = list(map(int, data["versions"]))
     require(ids == sorted(set(ids)), "Version build IDs must be unique and increasing")
     require(data["modules"]["admin"]["placements"]["default_controller"] == "rules", "Admin module default must be rules")
+    require(data["acprestrictions"]["placements"]["rules"].get("rqbp_manage_code") == "rqbp_manage_code", "Separate code-management permission missing")
     require(data["extensions"]["core"]["Loader"]["Placements"] == f"IPS\\{KEY}\\extensions\\core\\Loader\\Placements", "Loader metadata mismatch")
     require(any(setting.get("key") == "rqbp_enabled" and str(setting.get("default")) == "1" for setting in data["settings"]), "Global enable setting missing")
     require(all(str(table).startswith("rqbp_") for table in data["schema"]), "Application schema must contain only its own rqbp_ tables")
@@ -72,7 +73,7 @@ def validate(ips_source: Path | None = None, archive: Path | None = None) -> Non
         require(len(keys) == len(set(keys)) and bool(keys), "Language keys missing or duplicated")
         validate_acp_menu(data["acpmenu"], {word.get("key"): word.text or "" for word in words})
     require({w.get("key") for w in en.find("app")} == {w.get("key") for w in cs.find("app")}, "English/Czech translation keys differ")
-    for name in ("Application.php", "sources/Policy/Policy.php", "sources/Translation/Translation.php", "sources/TemplateContent/TemplateContent.php", "setup/upg_1000005/upgrade.php", "modules/admin/placements/rules.php", "modules/admin/placements/settings.php", "extensions/core/Loader/Placements.php"):
+    for name in ("Application.php", "sources/Policy/Policy.php", "sources/RuleAccess/RuleAccess.php", "sources/PageCache/PageCache.php", "sources/Translation/Translation.php", "sources/TemplateContent/TemplateContent.php", "setup/upg_1000005/upgrade.php", "modules/admin/placements/rules.php", "modules/admin/placements/settings.php", "extensions/core/Loader/Placements.php"):
         require((APP / name).is_file(), f"Missing runtime file {name}")
     for name in ("resources/admin.js", "resources/placements.js"):
         require((APP / name).is_file(), f"Missing original browser asset {name}")

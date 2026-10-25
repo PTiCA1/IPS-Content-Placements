@@ -7,6 +7,9 @@ const runtime = await readFile(new URL('../application/resources/placements.js',
 const admin = await readFile(new URL('../application/resources/admin.js', import.meta.url), 'utf8');
 let fixture = '';
 let scriptRequests = 0;
+let legacyRequests = 0;
+let heldScript = null;
+let signalHeldScript = null;
 const server = http.createServer((request, response) => {
     if (request.url === '/placements.js' || request.url === '/admin.js') {
         response.setHeader('Content-Type', 'application/javascript');
@@ -15,6 +18,14 @@ const server = http.createServer((request, response) => {
         scriptRequests++;
         response.setHeader('Content-Type', 'application/javascript');
         response.end('window.order.push("external:" + document.currentScript.closest("[data-rqbp-placement]").dataset.rqbpPlacement);');
+    } else if (request.url === '/legacy-script.js') {
+        legacyRequests++;
+        response.setHeader('Content-Type', 'application/javascript');
+        response.end('window.legacyRan=true;');
+    } else if (request.url === '/held-script.js') {
+        response.setHeader('Content-Type', 'application/javascript');
+        heldScript = response;
+        signalHeldScript?.();
     } else {
         response.setHeader('Content-Type', 'text/html; charset=utf-8');
         response.end(fixture);
@@ -38,8 +49,11 @@ let passed = 0;
 
 const rule = (id, overrides = {}) => ({ id, name: `Rule ${id}`, selector: '#target', position: 'after', occurrence: 'first', occurrence_index: 1, sort_order: id, html: `<b data-ad="${id}">Ad ${id}</b>`, ...overrides });
 const encode = (value) => JSON.stringify(value).replaceAll('<', '\\u003c');
+function fixtureHtml(body, rules, extra = {}) {
+    return `<!doctype html><html><head><title>Placements test</title></head><body>${body}<script type="application/json" data-rqbp-payload>${encode({ page_url: '/fixture', rules, ...extra })}</script><script src="/placements.js"></script></body></html>`;
+}
 async function load(body, rules, extra = {}) {
-    fixture = `<!doctype html><html><head><title>Placements test</title></head><body>${body}<script type="application/json" data-rqbp-payload>${encode({ page_url: '/fixture', rules, ...extra })}</script><script src="/placements.js"></script></body></html>`;
+    fixture = fixtureHtml(body, rules, extra);
     await page.goto(`${origin}/fixture`);
     await page.evaluate(() => window.rqBlockPlacements.refresh(document));
 }
@@ -96,6 +110,31 @@ try {
         assert.equal((await page.evaluate(() => window.order)).length, 6);
     });
 
+    await test('modern browsers skip nomodule scripts without a timeout or request', async () => {
+        const initialLegacy = legacyRequests;
+        const started = Date.now();
+        await load('<main><div id="target">Target</div></main>', [rule(1, {
+            html: '<script nomodule src="/legacy-script.js"></script><script>window.afterLegacy=true;</script>'
+        })]);
+        assert.equal(await page.evaluate(() => window.afterLegacy), true);
+        assert.equal(await page.evaluate(() => window.legacyRan), undefined);
+        assert.equal(legacyRequests, initialLegacy);
+        assert.ok(Date.now() - started < 2000, 'Skipped nomodule must not incur the 15-second script timeout');
+        assert.deepEqual((await page.evaluate(() => window.rqBlockPlacements.getDiagnostics()))[0].notes, []);
+    });
+
+    await test('modules execute once while plain text and JSON scripts stay inert', async () => {
+        await load('<main><div id="target">Target</div></main>', [rule(1, {
+            html: '<script type="module">window.moduleRuns=(window.moduleRuns||0)+1;</script><script type="text/plain">window.plainRan=true;</script><script type="application/json">{"inert":true}</script>'
+        })]);
+        assert.equal(await page.evaluate(() => window.moduleRuns), 1);
+        assert.equal(await page.evaluate(() => window.plainRan), undefined);
+        await changed('main');
+        assert.equal(await page.evaluate(() => window.moduleRuns), 1);
+        assert.equal(await page.locator('[data-rqbp-placement] script[type="text/plain"]').count(), 1);
+        assert.equal(await page.locator('[data-rqbp-placement] script[type="application/json"]').count(), 1);
+    });
+
     await test('replacing targets removes orphaned placements and initializes new targets once', async () => {
         await load('<script>window.executions=0;</script><main><div id="target">Old</div></main>', [rule(1, { html: '<script>window.executions++;</script><b>Ad</b>' })]);
         await page.evaluate(() => {
@@ -124,6 +163,26 @@ try {
         assert.equal(await page.locator('[data-rqbp-placement]').count(), 2);
         assert.equal(await page.evaluate(() => window.executions), 2);
         assert.equal(await page.evaluate(() => window.existingPlacement === document.querySelector('[data-rqbp-placement]')), true);
+    });
+
+    await test('a burst of content changes uses one selector snapshot without duplicates', async () => {
+        await load('<main><div class="slot">A</div></main>', [rule(1, { selector: '.slot', occurrence: 'all' })]);
+        await page.evaluate(async () => {
+            window.snapshotCount = 0;
+            const root = document.documentElement;
+            const clone = root.cloneNode;
+            root.cloneNode = function (...args) {
+                window.snapshotCount++;
+                return clone.apply(this, args);
+            };
+            document.querySelector('main').insertAdjacentHTML('beforeend', '<div class="slot" id="burst">B</div>');
+            for (let count = 0; count < 100; count++) {
+                document.dispatchEvent(new CustomEvent('contentChange', { detail: { root: document.getElementById('burst') } }));
+            }
+            await window.rqBlockPlacements.whenIdle();
+        });
+        assert.equal(await page.evaluate(() => window.snapshotCount), 1);
+        assert.equal(await page.locator('[data-rqbp-placement]').count(), 2);
     });
 
     await test('deleted ads are not restarted against the same connected target', async () => {
@@ -163,6 +222,40 @@ try {
         await changed('main');
         assert.equal(await page.locator('[data-rqbp-placement]').count(), 0);
         assert.equal(scriptRequests, initialRequests);
+    });
+
+    await test('navigation aborts pending script waits and prevents remaining old inline code', async () => {
+        const heldStarted = new Promise((resolve) => { signalHeldScript = resolve; });
+        fixture = fixtureHtml('<main><div id="target">Target</div></main>', [rule(1, {
+            html: '<script src="/held-script.js"></script><script>window.oldInlineRan=true;</script>'
+        })]);
+        try {
+            await page.goto(`${origin}/fixture`, { waitUntil: 'domcontentloaded' });
+            await heldStarted;
+            const removedImmediately = await page.evaluate(() => {
+                history.pushState({}, '', '/other-page');
+                document.dispatchEvent(new CustomEvent('contentChange', { detail: { root: document.querySelector('main') } }));
+                return !document.querySelector('[data-rqbp-placement]');
+            });
+            assert.equal(removedImmediately, true, 'The wrapper must be removed before the pending external response is released');
+            await page.evaluate(() => Promise.race([
+                window.rqBlockPlacements.whenIdle(),
+                new Promise((resolve, reject) => setTimeout(() => reject(new Error('Stale script wait was not cancelled')), 1000))
+            ]));
+            assert.equal(await page.evaluate(() => window.oldInlineRan), undefined);
+            heldScript.end('window.alreadyAttachedExternalRan=true;');
+            heldScript = null;
+            await page.waitForLoadState('load');
+            await page.waitForTimeout(50);
+            // Browsers may still execute an already attached external script.
+            // The app only guarantees removal and no subsequent old activation.
+            assert.equal(await page.evaluate(() => window.oldInlineRan), undefined);
+            assert.equal(await page.locator('[data-rqbp-placement]').count(), 0);
+        } finally {
+            signalHeldScript = null;
+            heldScript?.end('');
+            heldScript = null;
+        }
     });
 
     await test('preview counts targets without parsing or running block HTML', async () => {

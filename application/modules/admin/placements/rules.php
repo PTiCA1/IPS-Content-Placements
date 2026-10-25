@@ -33,6 +33,7 @@ use IPS\rqblockplacements\Application as PlacementApplication;
 use IPS\rqblockplacements\HookCatalog;
 use IPS\rqblockplacements\Policy;
 use IPS\rqblockplacements\Rule;
+use IPS\rqblockplacements\RuleAccess;
 use IPS\rqblockplacements\TemplateContent;
 use IPS\Session;
 use IPS\Settings;
@@ -104,7 +105,7 @@ class rules extends Controller
             'add' => ['icon' => 'plus', 'title' => 'rqbp_add_rule', 'link' => $this->url('form')],
         ];
         $table->rowButtons = function (array $row): array {
-            if (($row['rule_content_type'] ?? 'block') === 'template' && !self::canManageCode()) {
+            if (RuleAccess::requiresCodePermission($row) && !RuleAccess::canManageCode()) {
                 return [];
             }
             $id = (int) $row['rule_id'];
@@ -138,12 +139,12 @@ class rules extends Controller
         $isNew = !isset(Request::i()->id);
         $config = $isNew ? $this->defaults() : $record->toConfig();
         $pagesEnabled = IPSApplication::appIsEnabled('cms');
-        $canManageCode = self::canManageCode();
+        $canManageCode = RuleAccess::canManageCode();
         $source = (string) (Request::i()->rqbp_block_source
             ?? ($config['content_type'] === 'template' || (!$pagesEnabled && $canManageCode) ? 'template' : 'picker'));
         // This must precede form construction: native fields validate submitted values immediately.
         if ($source === 'template') {
-            Dispatcher::i()->checkAcpPermission('rqbp_manage_code');
+            RuleAccess::assertCodePermission();
         }
         if (!$pagesEnabled && !$canManageCode) {
             Output::i()->title = self::word('rqbp_rules');
@@ -293,7 +294,7 @@ class rules extends Controller
 
         if ($values = $form->values()) {
             if (($values['rqbp_block_source'] ?? '') === 'template') {
-                Dispatcher::i()->checkAcpPermission('rqbp_manage_code');
+                RuleAccess::assertCodePermission();
             }
             try {
                 $selectedSource = (string) ($values['rqbp_block_source'] ?? '');
@@ -398,13 +399,7 @@ class rules extends Controller
         $other = $index === null ? -1 : $index + ($direction === 'up' ? -1 : 1);
         if ($index !== null && isset($records[$other])) {
             [$records[$index], $records[$other]] = [$records[$other], $records[$index]];
-            // Reordering a block can move a code rule too. Authorize the complete change before saving any row.
-            foreach ($records as $position => $candidate) {
-                if ((int) $candidate->sort_order !== ($position + 1) * 10
-                    && ($candidate->content_type ?? 'block') === 'template') {
-                    Dispatcher::i()->checkAcpPermission('rqbp_manage_code');
-                }
-            }
+            RuleAccess::assertReorder($records);
             foreach ($records as $position => $candidate) {
                 $order = ($position + 1) * 10;
                 if ((int) $candidate->sort_order !== $order) {
@@ -501,9 +496,7 @@ class rules extends Controller
     {
         try {
             $record = Rule::load((int) Request::i()->id);
-            if (($record->content_type ?? 'block') === 'template') {
-                Dispatcher::i()->checkAcpPermission('rqbp_manage_code');
-            }
+            RuleAccess::assertForRule($record);
             return $record;
         } catch (OutOfRangeException) {
             Output::i()->error('rqbp_error_missing_rule', '2RQBP/1', 404, '');
@@ -553,11 +546,6 @@ class rules extends Controller
     {
         $separator = strrpos($value, '|');
         return $separator === false ? ['', ''] : [substr($value, 0, $separator), substr($value, $separator + 1)];
-    }
-
-    protected static function canManageCode(): bool
-    {
-        return Member::loggedIn()->hasAcpRestriction('rqblockplacements', 'placements', 'rqbp_manage_code');
     }
 
     protected static function validateTemplate(string $value): void

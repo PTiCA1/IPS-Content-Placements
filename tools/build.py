@@ -19,6 +19,25 @@ APP = ROOT / "application"
 KEY = "rqblockplacements"
 
 
+def load_package_files(path: Path) -> frozenset[str]:
+    entries = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(entries, list) or not entries or not all(isinstance(item, str) for item in entries):
+        raise ValueError("Package manifest must be a nonempty list of relative file paths")
+    if len(entries) != len(set(entries)):
+        raise ValueError("Package manifest contains duplicate paths")
+    for name in entries:
+        relative = Path(name)
+        if (relative.is_absolute() or '..' in relative.parts or relative.as_posix() != name or not relative.parts
+                or '\\' in name or ':' in name or any(ord(char) < 32 or ord(char) == 127 for char in name)):
+            raise ValueError(f"Invalid package path: {name}")
+        if relative.parts[:2] == ('resources', 'lang'):
+            raise ValueError("Authoring language arrays must not be packaged")
+    return frozenset(entries)
+
+
+PACKAGE_FILES = load_package_files(ROOT / "tools/package-files.json")
+
+
 def php_words(path: Path) -> dict[str, str]:
     php = os.environ.get("PHP_BINARY") or shutil.which("php")
     if not php:
@@ -59,9 +78,10 @@ def generate_languages(build: int, version: str) -> None:
 
 
 def distribution_files() -> list[tuple[str, bytes, int]]:
-    allowed = {"data", "extensions", "interface", "listeners", "modules", "resources", "setup", "sources", "tasks"}
     excluded = {".DS_Store", ".git", "dev", "node_modules", "__pycache__"}
     files = []
+    if APP.is_symlink():
+        raise ValueError("Symlinks are forbidden in the application root")
     for path in sorted(APP.rglob("*")):
         relative = path.relative_to(APP)
         if path.is_symlink():
@@ -70,11 +90,16 @@ def distribution_files() -> list[tuple[str, bytes, int]]:
             continue
         if relative.parts[:2] == ("resources", "lang"):
             continue  # Authoring arrays are in Git; the installer receives generated XML.
-        if relative.name != "Application.php" and relative.parts[0] not in allowed:
-            raise ValueError(f"Unexpected application root file: {relative}")
+        if relative.as_posix() not in PACKAGE_FILES:
+            raise ValueError(f"File is not in the reviewed package manifest: {relative}")
         if relative.parts[0] == "setup" and "upg_working" in relative.parts:
             raise ValueError("Unversioned setup/upg_working cannot be released")
         files.append((relative.as_posix(), path.read_bytes(), 0o644))
+    missing = PACKAGE_FILES - {name for name, _, _ in files}
+    if missing:
+        raise ValueError(f"Package files are missing: {', '.join(sorted(missing))}")
+    if (ROOT / "LICENSE").is_symlink():
+        raise ValueError("Symlinks are forbidden for the package license")
     files.append(("LICENSE", (ROOT / "LICENSE").read_bytes(), 0o644))
     return sorted(files)
 

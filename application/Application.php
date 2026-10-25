@@ -6,7 +6,7 @@ if (!\defined('\IPS\SUITE_UNIQUE_KEY')) { exit; }
 
 class Application extends \IPS\Application
 {
-    public const RQBP_BUILD = 1000005;
+    public const RQBP_BUILD = 1000006;
 
     public static function asset(string $name): string
     {

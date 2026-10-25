@@ -45,7 +45,21 @@ namespace IPS {
         public function addToStack($key): string { return '__' . $key . '__'; }
         public function stripVLETags($html): string { return $html; }
     }; } public function hasAcpRestriction(...$args): bool { return true; } }
-    class Output { public static bool $cacheable = true; public static function setCacheTime($value = false): void { self::$cacheable = $value; } public static function i(): self { static $s; return $s ??= new self; } public function parseFileObjectUrls(&$html): void { $html = str_replace('<fileStore.test>', 'https://cdn.example', $html); } }
+    class Output {
+        public static bool $cacheable = true;
+        public static int $noCacheFailures = 0;
+        public array $httpHeaders = [];
+        public static function setCacheTime($value = false): void { self::$cacheable = $value; }
+        public static function getNoCacheHeaders(): array {
+            if (self::$noCacheFailures !== 0) {
+                if (self::$noCacheFailures > 0) { self::$noCacheFailures--; }
+                throw new \RuntimeException('Injected cache-header failure');
+            }
+            return ['Expires' => 0, 'Cache-Control' => 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0'];
+        }
+        public static function i(): self { static $s; return $s ??= new self; }
+        public function parseFileObjectUrls(&$html): void { $html = str_replace('<fileStore.test>', 'https://cdn.example', $html); }
+    }
     class Log { public static array $errors = []; public static function log($error, $key): void { self::$errors[] = $error; } }
     class Db { public static array $rows = []; public static function i(): self { static $s; return $s ??= new self; } public function select(...$args): array { $rows = self::$rows; usort($rows, static fn($a, $b) => [$a['rule_sort_order'] ?? 0, $a['rule_id']] <=> [$b['rule_sort_order'] ?? 0, $b['rule_id']]); return $rows; } }
 }
@@ -66,6 +80,7 @@ namespace {
     require __DIR__ . '/../application/sources/Rule/Rule.php';
     require __DIR__ . '/../application/Application.php';
     require __DIR__ . '/../application/sources/TemplateContent/TemplateContent.php';
+    require __DIR__ . '/../application/sources/PageCache/PageCache.php';
     require __DIR__ . '/../application/sources/Runtime/Runtime.php';
     use IPS\rqblockplacements\Runtime;
     use IPS\cms\Blocks\Block;
@@ -79,6 +94,8 @@ namespace {
         \IPS\Application::$pages = true;
         \IPS\Log::$errors = [];
         \IPS\Output::$cacheable = true;
+        \IPS\Output::$noCacheFailures = 0;
+        \IPS\Output::i()->httpHeaders = [];
         \IPS\Session::i()->userAgent->platform = 'Windows';
         \IPS\Session::i()->userAgent->useragent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0';
         \IPS\Member::loggedIn()->groups = [2];
@@ -131,6 +148,52 @@ namespace {
     \IPS\Member::loggedIn()->groups = [2, 4];
     Runtime::prepare();
     check(Block::$renders === 0 && !str_contains(Runtime::payload(), 'secret'), 'Secondary excluded group must not receive HTML');
+    foreach ([2, 4] as $guestGroup) {
+        fixture(['rule_allow_groups' => '["4"]']);
+        \IPS\Member::loggedIn()->member_id = 0;
+        \IPS\Member::loggedIn()->groups = [$guestGroup];
+        Runtime::prepare();
+        check(!\IPS\Output::$cacheable, 'Both ordinary and alternate-group guest variants bypass shared caching before the audience check');
+        check(Block::$renders === ($guestGroup === 4 ? 1 : 0), 'Guest group targeting still gates rendering independently of cache policy');
+    }
+    fixture(); Block::$allowed = false;
+    Runtime::prepare();
+    check(!\IPS\Output::$cacheable && Block::$renders === 0, 'A block with native view restrictions disables shared caching even without explicit rule filters');
+    fixture(); Runtime::prepare();
+    check(!\IPS\Output::$cacheable && Block::$renders === 1, 'The allowed native block-permission variant also disables shared caching');
+    fixture(['rule_apps' => '["cms"]']);
+    \IPS\Output::i()->httpHeaders = ['Cache-Control' => 'public, max-age=180'];
+    Runtime::prepare();
+    check(\IPS\Output::$cacheable && \IPS\Output::i()->httpHeaders === ['Cache-Control' => 'public, max-age=180'], 'An unmatched application route leaves the original cache policy intact');
+    fixture(['rule_include_urls' => '["/private/*"]']); Runtime::prepare();
+    check(\IPS\Output::$cacheable && \IPS\Output::i()->httpHeaders === [], 'An unmatched URL route does not change caching');
+    fixture(['rule_enabled' => 0]); Runtime::prepare();
+    check(\IPS\Output::$cacheable && \IPS\Output::i()->httpHeaders === [], 'A disabled rule does not change caching');
+    fixture();
+    \IPS\Output::i()->httpHeaders = [
+        'cache-control' => 'public, max-age=43200', 'CACHE-CONTROL' => 'public, s-maxage=43200',
+        'eXpIrEs' => 'future', 'pRaGmA' => 'cache', 'X-Preserved' => 'yes',
+    ];
+    Runtime::prepare();
+    $headers = \IPS\Output::i()->httpHeaders;
+    check(str_contains($headers['Cache-Control'], 'private') && str_contains($headers['Cache-Control'], 'no-store') && !str_contains($headers['Cache-Control'], 'public'), 'An eligible rule replaces prior public headers with private no-store headers');
+    check(!isset($headers['cache-control'], $headers['CACHE-CONTROL'], $headers['eXpIrEs'], $headers['pRaGmA']) && $headers['Expires'] === 0 && $headers['Pragma'] === 'no-cache', 'Conflicting cache header casing is normalized without duplicate directives');
+    check($headers['X-Preserved'] === 'yes', 'The cache guard preserves unrelated response headers');
+    \IPS\Output::i()->httpHeaders += ['Cache-Control' => 'public, max-age=43200', 'Expires' => 'future'];
+    check(\IPS\Output::i()->httpHeaders === $headers, 'Native controller headers added after an early hook cannot overwrite the cache guard');
+    foreach ([1, -1] as $failures) {
+        fixture(['rule_mode' => 'hook']);
+        \IPS\Output::i()->httpHeaders = ['Cache-Control' => 'public, max-age=43200'];
+        \IPS\Output::$noCacheFailures = $failures;
+        check(Runtime::hook(1) === '' && Block::$renders === 0, 'A failed cache-header guard does not render the first hook');
+        $second = Runtime::hook(1);
+        if ($failures === 1) {
+            check(str_contains($second, 'secret') && Block::$renders === 1, 'A later hook retries the cache guard and renders only after it succeeds');
+            check(str_contains(\IPS\Output::i()->httpHeaders['Cache-Control'], 'no-store'), 'Recovered rendering has a no-store response policy');
+        } else {
+            check($second === '' && Block::$renders === 0, 'A persistent cache-header failure also blocks later hooks');
+        }
+    }
     fixture(); Block::$allowed = false;
     Runtime::prepare();
     check(Block::$renders === 0 && Runtime::payload() === '', 'Native block permissions must gate HTML');

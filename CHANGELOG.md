@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.0-beta.6 — 2026-10-25
+
+Build `1000006`; security and refactoring release, without new schema changes.
+
+- Prevent public page-cache variants across guest groups and native block permissions. Override earlier public IPS response headers with private/no-store for every route with an eligible active rule, before audience checks.
+- Centralize code permissions in `RuleAccess`, including global reactivation of enabled template rules. Block administrators retain the panic stop.
+- Cancel stale placement processing after navigation, stop subsequent old scripts, correctly skip unsupported module/nomodule scripts and coalesce repeated content events.
+- Add a reviewed package-file manifest, header-failure regressions and adversarial browser/permission/cache checks.
+- See `docs/SECURITY-AUDIT-2026-10-25.md` for findings, evidence and limits. Purge pre-existing CDN/reverse-proxy cache after upgrading.
+
 ## 1.0.0-beta.5 — 2026-10-25
 
 Build `1000005`; additive, retryable migration from previous betas.

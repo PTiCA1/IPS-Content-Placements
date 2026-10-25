@@ -13,7 +13,11 @@
     const placements = new Set();
     let payload = null;
     let payloadInvalidated = false;
+    let generation = 0;
     let work = Promise.resolve();
+    let scheduled = false;
+    let pendingRoots = [];
+    const pendingScripts = new Set();
     let reports = [];
     let instance = 0;
     let jqueryBound = false;
@@ -21,6 +25,32 @@
     const currentUrl = () => window.location.pathname + window.location.search;
     const ownElement = (node) => node instanceof Element && Boolean(node.closest(owned));
     const number = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
+    const supportsModules = 'noModule' in document.createElement('script');
+
+    function cancelScriptWaits() {
+        [...pendingScripts].forEach((cancel) => cancel());
+    }
+
+    function clearPlacements() {
+        placements.forEach((record) => record.wrapper.remove());
+        placements.clear();
+        document.querySelector('[data-rqbp-diagnostics]')?.remove();
+    }
+
+    function invalidateIfStale() {
+        if (payload && payload.page_url !== currentUrl() && !payloadInvalidated) {
+            payloadInvalidated = true;
+            generation++;
+            cancelScriptWaits();
+            clearPlacements();
+        }
+    }
+
+    function currentContext(context) {
+        invalidateIfStale();
+        return !payloadInvalidated && payload === context.payload
+            && generation === context.generation && currentUrl() === context.url;
+    }
 
     function ingest() {
         document.querySelectorAll('script[type="application/json"][data-rqbp-payload]').forEach((node) => {
@@ -37,12 +67,13 @@
                     return;
                 }
                 if (payload && (payload.page_url !== data.page_url || payloadInvalidated)) {
-                    placements.forEach((record) => record.wrapper.remove());
-                    placements.clear();
+                    cancelScriptWaits();
+                    clearPlacements();
                     byTarget = new WeakMap();
                 }
                 payload = data;
                 payloadInvalidated = false;
+                generation++;
             } catch (error) {
                 // A malformed payload must never stop the forum's own scripts.
                 if (window.console) {
@@ -122,14 +153,56 @@
         return display === 'inline' || display === 'inline-block' || display.startsWith('table') ? null : 'div';
     }
 
+    function scriptType(script) {
+        return (script.getAttribute('type') || '').trim().toLowerCase().split(';')[0].trim();
+    }
+
     function executable(script) {
-        const type = (script.getAttribute('type') || '').trim().toLowerCase().split(';')[0];
+        const type = scriptType(script);
+        if (type === 'module' && !supportsModules) {
+            return false;
+        }
+        if (script.hasAttribute('nomodule') && supportsModules) {
+            return false;
+        }
         return !type || type === 'module' || /^(?:text|application)\/(?:java|ecma)script$/.test(type);
     }
 
-    async function activateScripts(wrapper, report) {
+    function waitForScript(script, report) {
+        return new Promise((resolve) => {
+            let done = false;
+            const finish = (status) => {
+                if (done) {
+                    return;
+                }
+                done = true;
+                window.clearTimeout(timer);
+                script.removeEventListener('load', loaded);
+                script.removeEventListener('error', failed);
+                pendingScripts.delete(cancel);
+                if (status === 'error') {
+                    report.notes.push('A block script could not be loaded.');
+                } else if (status === 'timeout') {
+                    report.notes.push('A block script did not finish loading within 15 seconds.');
+                }
+                resolve();
+            };
+            const loaded = () => finish('load');
+            const failed = () => finish('error');
+            const cancel = () => finish('cancelled');
+            const timer = window.setTimeout(() => finish('timeout'), 15000);
+            pendingScripts.add(cancel);
+            script.addEventListener('load', loaded);
+            script.addEventListener('error', failed);
+        });
+    }
+
+    async function activateScripts(wrapper, report, context) {
         for (const inert of wrapper.querySelectorAll('script')) {
-            if (!wrapper.isConnected || !executable(inert)) {
+            if (!currentContext(context) || !wrapper.isConnected) {
+                return;
+            }
+            if (!executable(inert)) {
                 continue;
             }
             if (!inert.src && /\bdocument\s*\.\s*write(?:ln)?\s*\(/.test(inert.textContent)) {
@@ -144,31 +217,20 @@
                 script.nonce = inert.nonce;
             }
             script.textContent = inert.textContent;
-            const waits = Boolean(script.src) || script.type === 'module';
+            const waits = Boolean(script.src) || scriptType(script) === 'module';
             let settled = Promise.resolve();
             if (waits) {
                 // Dynamic classic scripts otherwise default to asynchronous.
                 if (!script.hasAttribute('async')) {
                     script.async = false;
                 }
-                settled = new Promise((resolve) => {
-                    const timer = window.setTimeout(() => {
-                        report.notes.push('A block script did not finish loading within 15 seconds.');
-                        resolve();
-                    }, 15000);
-                    const finish = (error) => {
-                        window.clearTimeout(timer);
-                        if (error) {
-                            report.notes.push('A block script could not be loaded.');
-                        }
-                        resolve();
-                    };
-                    script.addEventListener('load', () => finish(false), { once: true });
-                    script.addEventListener('error', () => finish(true), { once: true });
-                });
+                settled = waitForScript(script, report);
             }
             inert.replaceWith(script);
             await settled;
+            if (!currentContext(context)) {
+                return;
+            }
         }
     }
 
@@ -223,17 +285,13 @@
         if (!payload) {
             return;
         }
-        if (payload.page_url !== currentUrl()) {
-            payloadInvalidated = true;
-        }
+        invalidateIfStale();
         if (payloadInvalidated) {
-            placements.forEach((record) => record.wrapper.remove());
-            placements.clear();
-            document.querySelector('[data-rqbp-diagnostics]')?.remove();
             // Returning to the same URL does not revive stale rendered HTML.
             // A new server payload is required after a page-context change.
             return;
         }
+        const context = { payload, generation, url: currentUrl() };
         const roots = rootsFrom(value);
         if (!roots.length) {
             return;
@@ -335,20 +393,38 @@
         // Activate in document order, including before-placement groups.
         added.sort((a, b) => a.wrapper.compareDocumentPosition(b.wrapper) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
         for (const { wrapper, report } of added) {
+            if (!currentContext(context)) {
+                return;
+            }
             if (wrapper.isConnected) {
-                await activateScripts(wrapper, report);
-                informIps(wrapper);
+                await activateScripts(wrapper, report, context);
+                if (currentContext(context) && wrapper.isConnected) {
+                    informIps(wrapper);
+                }
             }
         }
-        diagnostics();
+        if (currentContext(context)) {
+            diagnostics();
+        }
     }
 
     function refresh(value = document) {
-        work = work.then(() => scan(value)).catch((error) => {
-            if (window.console) {
-                console.warn('Pages Block Placements: insertion was skipped.', error);
-            }
-        });
+        // Do this before queuing: an old external script may still be loading.
+        invalidateIfStale();
+        pendingRoots.push(value);
+        if (!scheduled) {
+            scheduled = true;
+            work = work.then(() => {
+                scheduled = false;
+                const roots = pendingRoots;
+                pendingRoots = [];
+                return scan(roots);
+            }).catch((error) => {
+                if (window.console) {
+                    console.warn('Pages Block Placements: insertion was skipped.', error);
+                }
+            });
+        }
         return work;
     }
 
@@ -358,6 +434,7 @@
         }
         jqueryBound = true;
         window.jQuery(document).on('contentChange.rqblockplacements', (event, content) => {
+            invalidateIfStale();
             const value = content === undefined ? event.originalEvent?.detail || event.detail : content;
             if (rootsFrom(value).length) {
                 refresh(value);
@@ -366,11 +443,15 @@
     }
 
     document.addEventListener('contentChange', (event) => {
+        invalidateIfStale();
         if (!rootsFrom(event.detail).length) {
             return;
         }
         refresh(event.detail || document);
     });
+
+    window.addEventListener('popstate', () => refresh(document));
+    window.addEventListener('hashchange', () => refresh(document));
 
     window.rqBlockPlacements = {
         refresh,

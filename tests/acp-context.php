@@ -24,8 +24,11 @@ namespace IPS {
         public array $permissions = [];
         public function __construct() { $this->application = (object) ['directory' => 'rqblockplacements']; }
         public static function i(): self { static $instance; return $instance ??= new self; }
-        public function checkAcpPermission(string $permission): void {
+        public function checkAcpPermission(string $permission, ?string $app = null, ?string $module = null): void {
             $this->permissions[] = $permission;
+            if ($permission === 'rqbp_manage_code' && [$app, $module] !== ['rqblockplacements', 'placements']) {
+                throw new \RuntimeException('Code permission must use the explicit application and module');
+            }
             if ($permission === 'rqbp_manage_code' && !Member::$codePermission) {
                 throw new AcpPermissionDenied('403: rqbp_manage_code');
             }
@@ -40,7 +43,12 @@ namespace IPS {
     class Settings {
         public bool $rqbp_enabled = true;
         public string $base_url = 'https://board.example/community/';
+        public array $writes = [];
         public static function i(): self { static $instance; return $instance ??= new self; }
+        public function changeValues(array $values): void {
+            $this->writes[] = $values;
+            foreach ($values as $key => $value) { $this->$key = $value; }
+        }
     }
     class Member {
         public static bool $codePermission = false;
@@ -207,6 +215,7 @@ namespace IPS\rqblockplacements {
         public static array $records = [];
         public static array $saved = [];
         public static array $deleted = [];
+        public static int $changes = 0;
         public int $id = 1;
         public string $name = 'Test rule';
         public int $enabled = 1;
@@ -232,6 +241,7 @@ namespace IPS\rqblockplacements {
         public function toConfig(): array { return Policy::normalize(get_object_vars($this)); }
         public function save(): void { self::$saved[] = clone $this; }
         public function delete(): void { self::$deleted[] = $this->id; }
+        public static function changed(): void { self::$changes++; }
     }
     class TemplateContent {
         public static array $validated = [];
@@ -251,6 +261,7 @@ namespace IPS\rqblockplacements {
 
 namespace {
     require __DIR__ . '/../application/sources/Policy/Policy.php';
+    require __DIR__ . '/../application/sources/RuleAccess/RuleAccess.php';
     require __DIR__ . '/../application/Application.php';
     require __DIR__ . '/../application/modules/admin/placements/rules.php';
     require __DIR__ . '/../application/modules/admin/placements/settings.php';
@@ -429,6 +440,58 @@ namespace {
     check(count(\IPS\rqblockplacements\Rule::$saved) === $savedCount, 'A denied reorder does not save an earlier row before discovering the protected code rule');
     check($firstBlock->sort_order === 10 && $codeNeighbor->sort_order === 20, 'A denied reorder leaves every in-memory order unchanged');
     unset(\IPS\Request::i()->direction);
+
+    // The global switch must not bypass the per-rule permission to activate template code.
+    $settings = \IPS\Settings::i();
+    $settings->rqbp_enabled = false;
+    $settings->writes = [];
+    \IPS\rqblockplacements\Rule::$changes = 0;
+    \IPS\Helpers\Form::$submitted = ['rqbp_enabled' => true];
+    $savedCount = count(\IPS\rqblockplacements\Rule::$saved);
+    $denied = false;
+    try { runAcp('settings'); }
+    catch (\IPS\AcpPermissionDenied) { $denied = true; }
+    check($denied && !$settings->rqbp_enabled, 'A block administrator cannot globally reactivate an enabled template rule');
+    check($settings->writes === [] && \IPS\rqblockplacements\Rule::$changes === 0, 'Denied master activation changes neither settings nor caches/hooks');
+    check(count(\IPS\rqblockplacements\Rule::$saved) === $savedCount, 'Denied master activation saves no rule');
+
+    $codeNeighbor->enabled = 0;
+    \IPS\Helpers\Form::$submitted = ['rqbp_enabled' => true];
+    runAcp('settings');
+    check($settings->rqbp_enabled && count($settings->writes) === 1, 'A block administrator can enable the application when every template rule is disabled');
+    check(\IPS\rqblockplacements\Rule::$changes === 1, 'An allowed master change performs its ordinary cache/hook invalidation');
+
+    $settings->rqbp_enabled = false;
+    \IPS\rqblockplacements\Rule::$records = [1 => $firstBlock];
+    \IPS\Helpers\Form::$submitted = ['rqbp_enabled' => true];
+    runAcp('settings');
+    check($settings->rqbp_enabled, 'A block-only installation can be enabled without code permission');
+
+    $codeNeighbor->enabled = 1;
+    \IPS\rqblockplacements\Rule::$records[2] = $codeNeighbor;
+    \IPS\Helpers\Form::$submitted = ['rqbp_enabled' => false];
+    runAcp('settings');
+    check(!$settings->rqbp_enabled, 'A block administrator can stop enabled code through the global panic stop');
+
+    \IPS\Member::$codePermission = true;
+    \IPS\Helpers\Form::$submitted = ['rqbp_enabled' => true];
+    runAcp('settings');
+    check($settings->rqbp_enabled, 'A code administrator can globally activate enabled template rules');
+    \IPS\Member::$codePermission = false;
+    \IPS\Helpers\Form::$submitted = ['rqbp_enabled' => true];
+    runAcp('settings');
+    check($settings->rqbp_enabled, 'Saving an already enabled global switch does not require code permission');
+
+    check(!\IPS\rqblockplacements\RuleAccess::requiresCodePermission([]), 'Legacy records with no content type remain ordinary blocks');
+    check(\IPS\rqblockplacements\RuleAccess::requiresCodePermission(['rule_content_type' => 'unexpected']), 'An unknown stored source fails closed for ordinary administrators');
+    $unknown = new \IPS\rqblockplacements\Rule;
+    $unknown->id = 3;
+    $unknown->content_type = 'unexpected';
+    \IPS\rqblockplacements\Rule::$records[3] = $unknown;
+    $denied = false;
+    try { runAcp('rules', 'form', 3); }
+    catch (\IPS\AcpPermissionDenied) { $denied = true; }
+    check($denied, 'Direct requests cannot treat an unknown stored source as an ordinary block');
 
     foreach (\IPS\Theme::$calls as [$group, $app, $location]) {
         check($app === 'core' && ($group !== 'global' || $location === 'admin'), 'Every shared template uses its explicit core context');
