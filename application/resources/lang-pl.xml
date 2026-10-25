@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Polski" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.11" long_version="1000011" update_check="">
- <app key="rqblockplacements" version="1000011">
+<language name="Polski" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.12" long_version="1000012" update_check="">
+ <app key="rqblockplacements" version="1000012">
   <word key="__app_rqblockplacements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Reguły umieszczania</word>
@@ -64,6 +64,7 @@
   <word key="rqbp_error_missing_rule" js="0">Ta reguła umieszczania już nie istnieje.</word>
   <word key="rqbp_error_occurrence" js="0">Wprowadź numer wystąpienia nie mniejszy niż 1.</word>
   <word key="rqbp_error_order" js="0">Wybierz prawidłowy kierunek sortowania.</word>
+  <word key="rqbp_error_position" js="0">Wybierz obsługiwaną pozycję zgodną z kontekstem HTML elementu docelowego.</word>
   <word key="rqbp_error_save" js="0">Nie udało się zapisać konfiguracji. Sprawdź odwołanie do bloku i pola umiejscowienia.</word>
   <word key="rqbp_error_selector" js="0">Wprowadź niepusty selektor CSS bez znaków NUL.</word>
   <word key="rqbp_error_selector_browser" js="0">Selektor CSS jest nieprawidłowy. Sprawdź jego składnię przed zapisaniem.</word>
@@ -87,7 +88,10 @@
   <word key="rqbp_front_inserted" js="0">Wstawiono</word>
   <word key="rqbp_front_matches" js="0">Dopasowania</word>
   <word key="rqbp_hook" js="0">Natywny hook</word>
+  <word key="rqbp_hook_app" js="0">Aplikacja</word>
   <word key="rqbp_hook_desc" js="0">Dostępne hooki pochodzą z włączonych szablonów publicznej części witryny. Pozycje, których kontekst HTML nie pozwala na umieszczenie bloku, są pomijane.</word>
+  <word key="rqbp_hook_help_v12" js="0">Wybierz aplikację, następnie szablon i hook z aktualnego katalogu włączonych szablonów publicznej części witryny. Hooki w nieobsługiwanych kontekstach HTML, w tym &lt;code&gt;head&lt;/code&gt; i &lt;code&gt;title&lt;/code&gt;, nie są oferowane.</word>
+  <word key="rqbp_hook_template" js="0">Szablon</word>
   <word key="rqbp_include_urls" js="0">Uwzględnione wzorce URL</word>
   <word key="rqbp_include_urls_desc" js="0">Jeden wzorzec względem katalogu głównego społeczności w każdym wierszu, zaczynający się od &lt;code&gt;/&lt;/code&gt;, na przykład &lt;code&gt;/forums/*&lt;/code&gt;. Puste pole oznacza wszystkie adresy URL. Jedynym symbolem wieloznacznym jest &lt;code&gt;*&lt;/code&gt;. Ścieżka i parametry zapytania są dopasowywane łącznie; użyj &lt;code&gt;/forums/example/*&lt;/code&gt;, aby uwzględnić różne parametry stronicowania. Nie wpisuj domeny ani #fragment.</word>
   <word key="rqbp_log_deleted" js="0">Usunięto regułę umieszczania %s</word>
@@ -117,6 +121,7 @@
   <word key="rqbp_platforms" js="0">Platformy</word>
   <word key="rqbp_platforms_desc" js="0">Pozostaw puste, aby uwzględnić wszystkie trzy klasy urządzeń. Wykrywanie opiera się na platformie IPS i ciągu user-agent, a nie na szerokości ekranu. Nierozpoznane urządzenia należą do klasy Komputer. Zmiana rozmiaru okna nie zmienia klasy. iPad używający komputerowego ciągu user-agent może zostać rozpoznany jako Komputer.</word>
   <word key="rqbp_position" js="0">Wstaw blok</word>
+  <word key="rqbp_position_help_v12" js="0">Wstaw zawartość przed elementem docelowym, wewnątrz na jego początku, wewnątrz na jego końcu lub za nim. Dla elementu &lt;code&gt;body&lt;/code&gt; dozwolone są tylko dwie pozycje wewnętrzne; zawartości nie można wstawiać poza nim. Pozycja musi być zgodna z kontekstem HTML elementu docelowego.</word>
   <word key="rqbp_prepare_diagnostics" js="0">Przygotuj odnośnik testowy</word>
   <word key="rqbp_rule_enabled" js="0">Włącz tę regułę</word>
   <word key="rqbp_rule_enabled_desc" js="0">Nowe reguły są domyślnie wyłączone. Diagnostyka pomoże sprawdzić konfigurację przed włączeniem reguły umieszczania.</word>

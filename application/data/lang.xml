@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <language>
- <app key="rqblockplacements" version="1000011">
+ <app key="rqblockplacements" version="1000012">
   <word key="__app_rqblockplacements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Placement rules</word>
@@ -64,6 +64,7 @@
   <word key="rqbp_error_missing_rule" js="0">This placement rule no longer exists.</word>
   <word key="rqbp_error_occurrence" js="0">Enter an occurrence number of at least 1.</word>
   <word key="rqbp_error_order" js="0">Choose a valid ordering direction.</word>
+  <word key="rqbp_error_position" js="0">Choose a supported position that is valid for this target’s HTML context.</word>
   <word key="rqbp_error_save" js="0">The configuration could not be saved. Check the block reference and placement fields.</word>
   <word key="rqbp_error_selector" js="0">Enter a nonempty CSS selector without null characters.</word>
   <word key="rqbp_error_selector_browser" js="0">The CSS selector is invalid. Check its syntax before saving.</word>
@@ -87,7 +88,10 @@
   <word key="rqbp_front_inserted" js="0">Inserted</word>
   <word key="rqbp_front_matches" js="0">Matches</word>
   <word key="rqbp_hook" js="0">Native hook</word>
+  <word key="rqbp_hook_app" js="0">Application</word>
   <word key="rqbp_hook_desc" js="0">Available hooks come from enabled front-end templates. Positions whose HTML context cannot accept a block are omitted.</word>
+  <word key="rqbp_hook_help_v12" js="0">Choose an application, then a template and a hook from the current catalog of enabled front-end templates. Hooks in unsupported HTML contexts, including &lt;code&gt;head&lt;/code&gt; and &lt;code&gt;title&lt;/code&gt;, are not offered.</word>
+  <word key="rqbp_hook_template" js="0">Template</word>
   <word key="rqbp_include_urls" js="0">Included URL patterns</word>
   <word key="rqbp_include_urls_desc" js="0">One community-relative pattern per line, beginning with &lt;code&gt;/&lt;/code&gt;, for example &lt;code&gt;/forums/*&lt;/code&gt;. Empty means all URLs. &lt;code&gt;*&lt;/code&gt; is the only wildcard. The path and query are matched together; use &lt;code&gt;/forums/example/*&lt;/code&gt; to allow varying pagination queries. Do not include the domain or a #fragment.</word>
   <word key="rqbp_log_deleted" js="0">Deleted placement rule %s</word>
@@ -117,6 +121,7 @@
   <word key="rqbp_platforms" js="0">Platforms</word>
   <word key="rqbp_platforms_desc" js="0">Leave empty for all three device classes. Detection uses the IPS platform and user-agent string, not screen width. Unrecognized devices use Desktop. Resizing does not change the class. An iPad using a desktop user agent may be detected as Desktop.</word>
   <word key="rqbp_position" js="0">Insert the block</word>
+  <word key="rqbp_position_help_v12" js="0">Insert before the target, inside at its start, inside at its end or after the target. A &lt;code&gt;body&lt;/code&gt; target permits only the two inside positions; content cannot be inserted outside it. The position must be valid for the target’s HTML context.</word>
   <word key="rqbp_prepare_diagnostics" js="0">Prepare test link</word>
   <word key="rqbp_rule_enabled" js="0">Enable this rule</word>
   <word key="rqbp_rule_enabled_desc" js="0">New rules start disabled. Diagnostics can help you check the configuration before enabling the placement.</word>

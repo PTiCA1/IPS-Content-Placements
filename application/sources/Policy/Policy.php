@@ -38,7 +38,7 @@ final class Policy
         foreach (['name', 'hook_path', 'hook_name', 'selector', 'template_code'] as $key) { $rule[$key] = (string) ($rule[$key] ?? ''); }
         $rule['content_type'] = (string) ($rule['content_type'] ?? 'block');
         $rule['mode'] = $rule['mode'] ?? 'css';
-        $rule['position'] = $rule['position'] ?? 'after';
+        $rule['position'] = (string) ($rule['position'] ?? 'after');
         $rule['occurrence'] = $rule['occurrence'] ?? 'first';
         return $rule;
     }
@@ -48,6 +48,7 @@ final class Policy
     {
         $rule = self::normalize($rule);
         if (!$rule['enabled']) { return 'disabled'; }
+        if (!isset(self::positionOptions()[$rule['position']])) { return 'position_invalid'; }
         if ($rule['apps'] && !in_array((string) ($context['app'] ?? ''), $rule['apps'], true)) { return 'application'; }
         $url = (string) ($context['url'] ?? '/');
         if (self::matchesAny($url, $rule['exclude_urls'])) { return 'url_excluded'; }
@@ -89,6 +90,17 @@ final class Policy
     public static function platformOptions(): array
     {
         return ['mobile' => 'rqbp_platform_mobile', 'tablet' => 'rqbp_platform_tablet', 'desktop' => 'rqbp_platform_desktop'];
+    }
+
+    /** Native IPS hook types, also used for CSS insertion positions. */
+    public static function positionOptions(): array
+    {
+        return [
+            'before' => 'template_custom_before',
+            'inside-start' => 'template_custom_inside_start',
+            'inside-end' => 'template_custom_inside_end',
+            'after' => 'template_custom_after',
+        ];
     }
 
     /** Only three selectable classes; older OS filters are converted on read/save. */

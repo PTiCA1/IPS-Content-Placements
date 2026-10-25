@@ -97,7 +97,7 @@ class rules extends Controller
                 $target = $row['rule_mode'] === 'css'
                     ? $row['rule_selector']
                     : $row['rule_hook_path'] . ' · ' . $row['rule_hook_name'];
-                return self::escape(self::word($row['rule_position'] === 'before' ? 'rqbp_before' : 'rqbp_after'))
+                return self::escape(self::word(Policy::positionOptions()[$row['rule_position']] ?? 'rqbp_error_position'))
                     . '<br><code>' . self::escape($target) . '</code>';
             },
         ];
@@ -226,40 +226,67 @@ class rules extends Controller
         $form->addHeader('rqbp_section_placement');
         $form->add(new Radio('rqbp_mode', $config['mode'], true, [
             'options' => ['hook' => 'rqbp_mode_hook', 'css' => 'rqbp_mode_css'],
-            'toggles' => ['hook' => ['rqbp_hook'], 'css' => ['rqbp_selector']],
+            'toggles' => ['hook' => ['rqbp_hook_app', 'rqbp_hook_template', 'rqbp_hook'], 'css' => ['rqbp_selector']],
         ]));
         $hookOptions = ['' => self::word('rqbp_choose_hook')];
+        $appOptions = ['' => '—'];
+        $templateOptions = ['' => '—'];
+        $hookPositions = [];
+        $hookValue = (string) (Request::i()->rqbp_hook
+            ?? ($config['hook_path'] && $config['hook_name'] ? $config['hook_path'] . '|' . $config['hook_name'] : ''));
+        [$selectedPath] = self::splitHook($hookValue);
+        $selectedPath = (string) (Request::i()->rqbp_hook_template ?? $selectedPath);
+        $selectedApp = (string) (Request::i()->rqbp_hook_app ?? (explode('/', $selectedPath)[0] ?? ''));
         foreach (HookCatalog::options() as $path => $hooks) {
+            $app = explode('/', $path)[0];
+            $appOptions[$app] = self::word('__app_' . $app);
+            $templateOptions[$app][$path] = substr($path, strlen($app) + 1);
             foreach ($hooks as $name => $label) {
-                $hookOptions[$path][$path . '|' . $name] = $label;
+                $value = $path . '|' . $name;
+                $hookOptions[$value] = $name;
+                $hookPositions[$value] = HookCatalog::positions($path, $name);
             }
         }
-        $hookValue = $config['hook_path'] && $config['hook_name'] ? $config['hook_path'] . '|' . $config['hook_name'] : null;
-        if ($hookValue && !HookCatalog::has($config['hook_path'], $config['hook_name'])) {
-            $hookOptions[self::word('rqbp_unavailable_hook')][$hookValue] = $config['hook_path'] . ' · ' . $config['hook_name'];
+        if ($hookValue && !array_key_exists($hookValue, $hookOptions)) {
+            $hookOptions[$hookValue] = self::word('rqbp_unavailable_hook') . ' · ' . $config['hook_name'];
+            if ($selectedPath !== '') {
+                $appOptions[$selectedApp] ??= self::word('__app_' . $selectedApp);
+                $templateOptions[$selectedApp][$selectedPath] ??= $selectedPath;
+            }
+            $hookPositions[$hookValue] = [];
         }
-        $form->add(new Select('rqbp_hook', $hookValue, false, ['options' => $hookOptions, 'parse' => 'normal', 'noDefault' => true], static function ($value) use ($mode): void {
-            if ($mode !== 'hook') {
-                return;
-            }
-            [$path, $name] = self::splitHook((string) $value);
-            if (!HookCatalog::has($path, $name)) {
-                throw new DomainException('rqbp_error_hook');
-            }
-            try {
-                HookCatalog::wrapper($path, $name);
-            } catch (InvalidArgumentException) {
-                throw new DomainException('rqbp_error_hook_context');
-            }
-        }, null, null, 'rqbp_hook'));
+        $form->attributes['data-rqbp-hook-positions'] = json_encode($hookPositions, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR);
+        $form->add(new Select('rqbp_hook_app', $selectedApp, false,
+            ['options' => $appOptions, 'parse' => 'normal', 'noDefault' => true], null, null, null, 'rqbp_hook_app'));
+        $form->add(new Select('rqbp_hook_template', $selectedPath, false,
+            ['options' => $templateOptions, 'parse' => 'normal', 'noDefault' => true], null, null, null, 'rqbp_hook_template'));
+        $hookField = new Select('rqbp_hook', $hookValue, false,
+            ['options' => $hookOptions, 'parse' => 'normal', 'noDefault' => true], static function ($value) use ($mode): void {
+                if ($mode !== 'hook') { return; }
+                [$path, $name] = self::splitHook((string) $value);
+                if (!HookCatalog::has($path, $name)) { throw new DomainException('rqbp_error_hook'); }
+            }, null, null, 'rqbp_hook');
+        $hookField->label = self::word('template_hookpoint');
+        $hookField->description = self::word('rqbp_hook_help_v12');
+        $form->add($hookField);
         $form->add(new Text('rqbp_selector', $config['selector'], false, ['maxLength' => 1000], static function ($value) use ($mode): void {
             if ($mode === 'css' && (trim((string) $value) === '' || str_contains((string) $value, "\0"))) {
                 throw new DomainException('rqbp_error_selector');
             }
         }, null, null, 'rqbp_selector'));
-        $form->add(new Radio('rqbp_position', $config['position'], true, [
-            'options' => ['before' => 'rqbp_before', 'after' => 'rqbp_after'],
-        ]));
+        $positionField = new Select('rqbp_position', $config['position'], true,
+            ['options' => Policy::positionOptions(), 'noDefault' => true], static function ($value) use ($mode, $hookValue): void {
+                if (!is_string($value) || !isset(Policy::positionOptions()[$value])) {
+                    throw new DomainException('rqbp_error_position');
+                }
+                if ($mode === 'hook') {
+                    [$path, $name] = self::splitHook($hookValue);
+                    if (!HookCatalog::has($path, $name, $value)) { throw new DomainException('rqbp_error_position'); }
+                }
+            });
+        $positionField->label = self::word('template_hookpoint_type');
+        $positionField->description = self::word('rqbp_position_help_v12');
+        $form->add($positionField);
         $form->add(new Radio('rqbp_occurrence', $config['occurrence'], true, [
             'options' => ['first' => 'rqbp_first', 'nth' => 'rqbp_nth', 'all' => 'rqbp_all_occurrences'],
             'toggles' => ['nth' => ['rqbp_occurrence_index']],
@@ -314,7 +341,15 @@ class rules extends Controller
                         throw new DomainException('rqbp_error_block');
                     }
                 }
+                if (!isset(Policy::positionOptions()[$values['rqbp_position']])) { throw new DomainException('rqbp_error_position'); }
                 [$hookPath, $hookName] = $values['rqbp_mode'] === 'hook' ? self::splitHook((string) $values['rqbp_hook']) : ['', ''];
+                if ($values['rqbp_mode'] === 'hook') {
+                    if (!HookCatalog::has($hookPath, $hookName, $values['rqbp_position'])
+                        || ($values['rqbp_hook_template'] ?? '') !== $hookPath
+                        || ($values['rqbp_hook_app'] ?? '') !== explode('/', $hookPath)[0]) {
+                        throw new DomainException('rqbp_error_position');
+                    }
+                }
                 $record->name = trim((string) $values['rqbp_name']);
                 $record->enabled = (int) $values['rqbp_rule_enabled'];
                 $record->content_type = $selectedSource === 'template' ? 'template' : 'block';
@@ -452,7 +487,7 @@ class rules extends Controller
             $valid = HookCatalog::has($record->hook_path, $record->hook_name);
             if ($valid) {
                 try {
-                    HookCatalog::wrapper($record->hook_path, $record->hook_name);
+                    HookCatalog::wrapper($record->hook_path, $record->hook_name, $record->position);
                 } catch (InvalidArgumentException) {
                     $valid = false;
                 }

@@ -13,7 +13,7 @@ final class HookRegistry
         $wanted = [];
         foreach (Rule::all() as $model) {
             $rule = $model->toConfig();
-            if ($rule['mode'] !== 'hook' || !HookCatalog::has($rule['hook_path'], $rule['hook_name'])) { continue; }
+            if ($rule['mode'] !== 'hook' || !HookCatalog::has($rule['hook_path'], $rule['hook_name'], $rule['position'])) { continue; }
             $wanted['rqbp_rule_' . $rule['id']] = [
                 'hookpoint' => $rule['hook_path'] . ':' . $rule['hook_name'],
                 'type' => $rule['position'],

@@ -63,6 +63,27 @@ async function changed(selector) {
         await window.rqBlockPlacements.whenIdle();
     }, selector);
 }
+function acpFixture(values = {}) {
+    const positions = ['before', 'inside-start', 'inside-end', 'after'];
+    const hooks = {
+        'forums/front/index/forumRow|rowItem': positions,
+        'forums/front/index/forumRow|rowHeading': ['before', 'after'],
+        'forums/front/topics/topic|topicBody': ['inside-start', 'inside-end'],
+        'forums/front/topics/topic|topicFooter': ['after'],
+        'core/front/global/globalTemplate|body': ['inside-start', 'inside-end'],
+        'core/front/global/globalTemplate|main': positions
+    };
+    const options = (values) => '<option value="">—</option>' + values.map((value) => `<option value="${value}">${value}</option>`).join('');
+    const config = { rqbp_mode: 'hook', rqbp_hook_app: '', rqbp_hook_template: '', rqbp_hook: '', rqbp_position: 'after', ...values };
+    return `<!doctype html><form data-rqbp-hook-positions='${JSON.stringify(hooks)}'>
+        <select name="rqbp_mode"><option value="hook">Hook</option><option value="css">CSS</option></select>
+        <select name="rqbp_hook_app">${options(['forums', 'core'])}</select>
+        <select name="rqbp_hook_template"><option value="">—</option><optgroup label="Forums">${options(['forums/front/index/forumRow', 'forums/front/topics/topic']).replace('<option value="">—</option>', '')}</optgroup><optgroup label="Core">${options(['core/front/global/globalTemplate']).replace('<option value="">—</option>', '')}</optgroup></select>
+        <select name="rqbp_hook">${options(Object.keys(hooks))}</select>
+        <select name="rqbp_position">${positions.map((value) => `<option value="${value}">${value}</option>`).join('')}</select>
+        <input name="rqbp_selector" value="#target"><button type="submit">Save</button>
+        </form><script>for(const [name,value] of Object.entries(${encode(config)})){document.querySelector('[name="'+name+'"]').value=value;}</script><script src="/admin.js"></script>`;
+}
 async function test(name, callback) {
     failures.length = 0;
     try {
@@ -86,6 +107,116 @@ try {
         assert.deepEqual(await page.locator('main > *').evaluateAll((nodes) => nodes.map((node) => node.dataset.rqbpPlacement || 'target')), ['1', '2', 'target', '3', '4']);
         await changed('main');
         assert.equal(await page.locator('[data-rqbp-placement]').count(), 4);
+    });
+
+    await test('all four positions preserve sort order and execute once on repeat scans', async () => {
+        const positions = ['before', 'inside-start', 'inside-end', 'after'];
+        const rules = positions.flatMap((position, index) => [
+            rule(index * 2 + 1, { position, html: `<b>Ad</b><script>window.positionRuns=(window.positionRuns||0)+1;</script>` }),
+            rule(index * 2 + 2, { position, html: `<b>Ad</b><script>window.positionRuns=(window.positionRuns||0)+1;</script>` })
+        ]).reverse();
+        await load('<main><section id="target"><p id="original">Original</p></section></main>', rules);
+        assert.deepEqual(await page.locator('main > *').evaluateAll((nodes) => nodes.map((node) => node.dataset.rqbpPlacement || node.id)), ['1', '2', 'target', '7', '8']);
+        assert.deepEqual(await page.locator('#target > *').evaluateAll((nodes) => nodes.map((node) => node.dataset.rqbpPlacement || node.id)), ['3', '4', 'original', '5', '6']);
+        await changed('main');
+        await changed('#target');
+        assert.equal(await page.locator('[data-rqbp-placement]').count(), 8);
+        assert.equal(await page.evaluate(() => window.positionRuns), 8);
+        assert.deepEqual(await page.locator('#target > [data-rqbp-placement]').evaluateAll((nodes) => nodes.map((node) => node.dataset.rqbpPlacement)), ['3', '4', '5', '6']);
+    });
+
+    await test('empty containers accept both inside positions in stable order', async () => {
+        await load('<main><div id="target"></div></main>', [
+            rule(4, { position: 'inside-end' }), rule(2, { position: 'inside-start' }),
+            rule(3, { position: 'inside-end' }), rule(1, { position: 'inside-start' })
+        ]);
+        await changed('#target');
+        assert.deepEqual(await page.locator('#target > *').evaluateAll((nodes) => nodes.map((node) => node.dataset.rqbpPlacement)), ['1', '2', '3', '4']);
+    });
+
+    await test('new same-URL payloads add start rules in sorted order without restarting or moving old ads', async () => {
+        const scripted = (id, order, position = 'inside-start') => rule(id, {
+            position, sort_order: order,
+            html: `<b>Ad ${id}</b><script>window.ruleRuns[${id}]=(window.ruleRuns[${id}]||0)+1;</script>`
+        });
+        for (const original of ['', '<p id="original">Original</p>']) {
+            const rules = [scripted(1, 10), scripted(2, 30), scripted(9, 90, 'inside-end')];
+            await load(`<script>window.ruleRuns={};</script><main><section id="target">${original}</section></main>`, rules);
+            await page.evaluate(() => {
+                window.oldPlacements = Array.from(document.querySelectorAll('[data-rqbp-placement]'));
+                window.removedOldPlacements = [];
+                window.placementObserver = new MutationObserver((changes) => {
+                    for (const change of changes) {
+                        for (const node of change.removedNodes) {
+                            if (window.oldPlacements.includes(node)) {
+                                window.removedOldPlacements.push(node.dataset.rqbpPlacement);
+                            }
+                        }
+                    }
+                });
+                window.placementObserver.observe(document.getElementById('target'), { childList: true });
+            });
+            for (const [added, expected] of [
+                [scripted(3, 50), ['1', '2', '3']],
+                [scripted(4, 20), ['1', '4', '2', '3']],
+                [scripted(5, 5), ['5', '1', '4', '2', '3']]
+            ]) {
+                rules.push(added);
+                await page.evaluate(async (rules) => {
+                    const data = document.createElement('script');
+                    data.type = 'application/json';
+                    data.setAttribute('data-rqbp-payload', '');
+                    data.textContent = JSON.stringify({ page_url: '/fixture', rules });
+                    document.body.append(data);
+                    await window.rqBlockPlacements.refresh(document);
+                }, rules);
+                await changed('#target');
+                assert.deepEqual(await page.locator('#target > *').evaluateAll((nodes) => nodes.map((node) => node.dataset.rqbpPlacement || node.id)), [...expected, ...(original ? ['original'] : []), '9']);
+                assert.deepEqual(await page.evaluate(() => window.removedOldPlacements), []);
+                assert.equal(await page.evaluate(() => window.oldPlacements.every((node) => node.isConnected)), true);
+                assert.deepEqual(await page.evaluate(() => Object.values(window.ruleRuns)), rules.map(() => 1));
+            }
+            await page.evaluate(() => window.placementObserver.disconnect());
+        }
+    });
+
+    await test('list and list-item wrappers depend on the actual insertion destination', async () => {
+        const rules = [];
+        let id = 0;
+        for (const selector of ['#ul', '#ol', '#menu']) {
+            for (const position of ['before', 'inside-start', 'inside-end', 'after']) {
+                rules.push(rule(++id, { selector, position }));
+            }
+        }
+        for (const position of ['before', 'inside-start', 'inside-end', 'after']) {
+            rules.push(rule(++id, { selector: '#item', position }));
+        }
+        await load('<main><ul id="ul"><li id="item">Item</li></ul><ol id="ol"></ol><menu id="menu"></menu></main>', rules);
+        for (const selector of ['#ul', '#ol', '#menu']) {
+            assert.equal(await page.locator(`${selector} > [data-rqbp-placement]:not(li)`).count(), 0);
+            assert.equal(await page.locator(`${selector} > [data-rqbp-placement]`).count(), selector === '#ul' ? 4 : 2);
+        }
+        assert.equal(await page.locator('#item > [data-rqbp-placement]:not(div)').count(), 0);
+        assert.equal(await page.locator('#item > [data-rqbp-placement]').count(), 2);
+        assert.equal(await page.locator('main > [data-rqbp-placement]:not(div)').count(), 0);
+        await changed('main');
+        assert.equal(await page.locator('[data-rqbp-placement]').count(), 16);
+    });
+
+    await test('body accepts only inside positions and rejects unsafe inside contexts', async () => {
+        const rules = [rule(1, { selector: 'body', position: 'inside-start' }), rule(2, { selector: 'body', position: 'inside-end' }), rule(3, { selector: 'body', position: 'before' }), rule(4, { selector: 'body', position: 'after' })];
+        let id = 4;
+        for (const selector of ['html', 'head', 'title', '#script', '#textarea', '#select', '#table', '#cell', '#input', '#img', '#br', '#svg']) {
+            for (const position of ['inside-start', 'inside-end']) {
+                rules.push(rule(++id, { selector, position }));
+            }
+        }
+        await load('<main><script id="script" type="text/plain">data</script><textarea id="textarea"></textarea><select id="select"><option>A</option></select><table id="table"><tbody><tr><td id="cell">Cell</td></tr></tbody></table><input id="input"><img id="img"><br id="br"><svg id="svg"></svg></main>', rules);
+        await changed('body');
+        assert.equal(await page.locator('[data-rqbp-placement]').count(), 2);
+        assert.deepEqual(await page.locator('body > [data-rqbp-placement]').evaluateAll((nodes) => nodes.map((node) => node.dataset.rqbpPlacement)), ['1', '2']);
+        assert.equal(await page.locator('body').evaluate((node) => node.firstElementChild.dataset.rqbpPlacement), '1');
+        assert.equal(await page.locator('body').evaluate((node) => node.lastElementChild.dataset.rqbpPlacement), '2');
     });
 
     await test('structural selectors ignore placements on subsequent content changes', async () => {
@@ -135,19 +266,21 @@ try {
         assert.equal(await page.locator('[data-rqbp-placement] script[type="application/json"]').count(), 1);
     });
 
-    await test('replacing targets removes orphaned placements and initializes new targets once', async () => {
-        await load('<script>window.executions=0;</script><main><div id="target">Old</div></main>', [rule(1, { html: '<script>window.executions++;</script><b>Ad</b>' })]);
-        await page.evaluate(() => {
-            const target = document.createElement('div');
-            target.id = 'target';
-            target.textContent = 'Replacement';
-            document.getElementById('target').replaceWith(target);
-        });
-        await changed('main');
-        assert.equal(await page.locator('[data-rqbp-placement]').count(), 1);
-        assert.equal(await page.evaluate(() => window.executions), 2);
-        await changed('main');
-        assert.equal(await page.evaluate(() => window.executions), 2);
+    await test('replacing targets initializes each of the four positions once', async () => {
+        for (const position of ['before', 'inside-start', 'inside-end', 'after']) {
+            await load('<script>window.executions=0;</script><main><div id="target">Old</div></main>', [rule(1, { position, html: '<script>window.executions++;</script><b>Ad</b>' })]);
+            await page.evaluate(() => {
+                const target = document.createElement('div');
+                target.id = 'target';
+                target.textContent = 'Replacement';
+                document.getElementById('target').replaceWith(target);
+            });
+            await changed('main');
+            assert.equal(await page.locator('[data-rqbp-placement]').count(), 1);
+            assert.equal(await page.evaluate(() => window.executions), 2);
+            await changed('main');
+            assert.equal(await page.evaluate(() => window.executions), 2);
+        }
     });
 
     await test('new AJAX content is handled while already connected ads stay attached', async () => {
@@ -293,6 +426,43 @@ try {
         await page.locator('[name=rqbp_mode]').selectOption('css');
         await page.locator('[name=rqbp_selector]').fill('.valid:nth-child(2)');
         assert.equal(await page.locator('[name=rqbp_selector]').evaluate((node) => node.checkValidity()), true);
+    });
+
+    await test('native ACP selects filter templates and hooks while enforcing valid positions', async () => {
+        fixture = acpFixture();
+        await page.goto(`${origin}/admin`);
+        for (const name of ['rqbp_hook_app', 'rqbp_hook_template', 'rqbp_hook']) {
+            assert.equal(await page.locator(`[name=${name}]`).inputValue(), '');
+        }
+        const visibleOptions = (name) => page.locator(`[name=${name}]`).evaluate((select) => Array.from(select.options).filter((option) => option.value && !option.hidden && !option.disabled).map((option) => option.value));
+        await page.locator('[name=rqbp_hook_app]').selectOption('forums');
+        assert.deepEqual(await visibleOptions('rqbp_hook_template'), ['forums/front/index/forumRow', 'forums/front/topics/topic']);
+        assert.equal(await page.locator('[name=rqbp_hook_template]').inputValue(), 'forums/front/index/forumRow');
+        assert.equal(await page.locator('[name=rqbp_hook]').inputValue(), 'forums/front/index/forumRow|rowItem');
+        await page.locator('[name=rqbp_position]').selectOption('after');
+        await page.locator('[name=rqbp_hook_app]').selectOption('core');
+        assert.deepEqual(await visibleOptions('rqbp_hook_template'), ['core/front/global/globalTemplate']);
+        assert.equal(await page.locator('[name=rqbp_hook]').inputValue(), 'core/front/global/globalTemplate|body');
+        assert.deepEqual(await visibleOptions('rqbp_position'), ['inside-start', 'inside-end']);
+        assert.equal(await page.locator('[name=rqbp_position]').inputValue(), 'inside-start');
+        await page.locator('[name=rqbp_mode]').selectOption('css');
+        assert.deepEqual(await visibleOptions('rqbp_position'), ['before', 'inside-start', 'inside-end', 'after']);
+        await page.locator('[name=rqbp_position]').selectOption('after');
+        await page.locator('[name=rqbp_mode]').selectOption('hook');
+        assert.equal(await page.locator('[name=rqbp_position]').inputValue(), 'inside-start');
+        await page.locator('[name=rqbp_hook_app]').selectOption('forums');
+        await page.locator('[name=rqbp_hook_template]').selectOption('forums/front/topics/topic');
+        assert.equal(await page.locator('[name=rqbp_hook]').inputValue(), 'forums/front/topics/topic|topicBody');
+        assert.deepEqual(await visibleOptions('rqbp_hook'), ['forums/front/topics/topic|topicBody', 'forums/front/topics/topic|topicFooter']);
+    });
+
+    await test('native ACP selects preserve a valid existing template, hook and position', async () => {
+        fixture = acpFixture({ rqbp_hook_app: 'forums', rqbp_hook_template: 'forums/front/topics/topic', rqbp_hook: 'forums/front/topics/topic|topicFooter', rqbp_position: 'after' });
+        await page.goto(`${origin}/admin`);
+        assert.equal(await page.locator('[name=rqbp_hook_template]').inputValue(), 'forums/front/topics/topic');
+        assert.equal(await page.locator('[name=rqbp_hook]').inputValue(), 'forums/front/topics/topic|topicFooter');
+        assert.equal(await page.locator('[name=rqbp_position]').inputValue(), 'after');
+        assert.equal(await page.locator('[name=rqbp_position] option:not(:disabled)').count(), 1);
     });
 } finally {
     await browser.close();

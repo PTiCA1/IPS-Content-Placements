@@ -151,7 +151,9 @@ namespace IPS\Helpers {
         public static array|false $submitted = false;
         public ?string $error = null;
         public array $fields = [];
+        public array $attributes = [];
         public function __construct(public string $id = 'form', ...$args) {
+            $this->attributes = $args[2] ?? [];
             self::$last = $this;
             \IPS\Theme::i()->getTemplate('forms', 'core', 'global');
         }
@@ -254,8 +256,11 @@ namespace IPS\rqblockplacements {
         }
     }
     class HookCatalog {
-        public static function options(): array { return ['forums/front/index/forumRow' => ['rowItem' => 'rowItem (li)']]; }
-        public static function has(...$args): bool { return true; }
+        public static function options(): array { return ['forums/front/index/forumRow' => ['rowItem' => 'rowItem (li)'], 'core/front/global/globalTemplate' => ['body' => 'body (body)']]; }
+        public static function positions(string $path, string $name): array { return $name === 'body' ? ['inside-start', 'inside-end'] : ['before', 'inside-start', 'inside-end', 'after']; }
+        public static function has(string $path, string $name, ?string $position = null): bool {
+            return isset(self::options()[$path][$name]) && ($position === null || in_array($position, self::positions($path, $name), true));
+        }
         public static function wrapper(...$args): string { return 'li'; }
     }
 }
@@ -298,6 +303,11 @@ namespace {
     $fields = \IPS\Helpers\Form::$last->fields;
     check(isset($fields['rqbp_block_picker'], $fields['rqbp_block_reference'], $fields['rqbp_hook'], $fields['rqbp_selector']), 'The native form contains both block sources and placement modes');
     check($fields['rqbp_block_reference']->description === 'rqbp_block_reference_help_v10', 'The block reference uses the new explicit help instead of a previously saved field description');
+    check(isset($fields['rqbp_hook_app'], $fields['rqbp_hook_template']), 'Native-style selectors separate application, template and target hook');
+    check($fields['rqbp_position'] instanceof \IPS\Helpers\Form\Select && $fields['rqbp_position']->options['options'] === \IPS\rqblockplacements\Policy::positionOptions(), 'The type dropdown uses all four native hook types');
+    check($fields['rqbp_position']->label === 'template_hookpoint_type', 'Hook Type uses the native field label');
+    $hookPositions = json_decode(\IPS\Helpers\Form::$last->attributes['data-rqbp-hook-positions'], true, 512, JSON_THROW_ON_ERROR);
+    check($hookPositions['core/front/global/globalTemplate|body'] === ['inside-start', 'inside-end'], 'The browser receives only safe body positions');
     check($fields['rqbp_rule_enabled']->value === false, 'New rules remain disabled by default');
     $deviceOptions = [
         'mobile' => 'rqbp_platform_mobile',
@@ -394,11 +404,13 @@ namespace {
     check(end(\IPS\rqblockplacements\TemplateContent::$validated) === $template->template_code, 'Diagnostics pass the original template source to syntax validation only');
 
     \IPS\Request::i()->rqbp_block_source = 'template';
-    \IPS\Helpers\Form::$submitted = ['rqbp_name' => 'Code without Pages', 'rqbp_template_code' => $template->template_code];
+    \IPS\Request::i()->rqbp_mode = 'css';
+    \IPS\Helpers\Form::$submitted = ['rqbp_name' => 'Code without Pages', 'rqbp_template_code' => $template->template_code, 'rqbp_mode' => 'css', 'rqbp_selector' => '.category'];
     runAcp('rules', 'form');
     $saved = end(\IPS\rqblockplacements\Rule::$saved);
     check($saved->content_type === 'template' && $saved->block_id === 0, 'Saving custom code persists its discriminator and clears the block ID');
     check($saved->template_code === $template->template_code && $saved->enabled === 0, 'Saving custom code preserves exact source and the disabled default');
+    unset(\IPS\Request::i()->rqbp_mode);
     $savedCount = count(\IPS\rqblockplacements\Rule::$saved);
     foreach (['' => 'rqbp_error_template_empty', 'invalid-template' => 'rqbp_error_template_invalid', str_repeat('ě', 32768) => 'rqbp_error_template_too_long'] as $code => $error) {
         \IPS\Helpers\Form::$submitted = ['rqbp_name' => 'Invalid code', 'rqbp_template_code' => $code];
@@ -494,6 +506,40 @@ namespace {
     try { runAcp('rules', 'form', 3); }
     catch (\IPS\AcpPermissionDenied) { $denied = true; }
     check($denied, 'Direct requests cannot treat an unknown stored source as an ordinary block');
+
+    \IPS\Application::$pages = true;
+    \IPS\Request::i()->rqbp_block_source = 'picker';
+    \IPS\Request::i()->rqbp_mode = 'hook';
+    \IPS\Request::i()->rqbp_hook_app = 'core';
+    \IPS\Request::i()->rqbp_hook_template = 'core/front/global/globalTemplate';
+    \IPS\Request::i()->rqbp_hook = 'core/front/global/globalTemplate|body';
+    $bodySubmission = [
+        'rqbp_name' => 'Body placement', 'rqbp_block_source' => 'picker',
+        'rqbp_block_picker' => new \IPS\cms\Blocks\Block, 'rqbp_mode' => 'hook',
+        'rqbp_hook_app' => 'core', 'rqbp_hook_template' => 'core/front/global/globalTemplate',
+        'rqbp_hook' => 'core/front/global/globalTemplate|body',
+    ];
+    foreach (['inside-start', 'inside-end'] as $position) {
+        $savedCount = count(\IPS\rqblockplacements\Rule::$saved);
+        \IPS\Helpers\Form::$submitted = $bodySubmission + ['rqbp_position' => $position];
+        runAcp('rules', 'form');
+        $saved = end(\IPS\rqblockplacements\Rule::$saved);
+        check(count(\IPS\rqblockplacements\Rule::$saved) === $savedCount + 1
+            && $saved->position === $position && $saved->hook_name === 'body'
+            && $saved->hook_path === 'core/front/global/globalTemplate', 'Native body positions are saved without truncation or loss of the target');
+    }
+    foreach (['before', 'after', 'inside', 'unknown'] as $position) {
+        $savedCount = count(\IPS\rqblockplacements\Rule::$saved);
+        \IPS\Helpers\Form::$submitted = $bodySubmission + ['rqbp_position' => $position];
+        runAcp('rules', 'form');
+        check(count(\IPS\rqblockplacements\Rule::$saved) === $savedCount
+            && \IPS\Helpers\Form::$last->error === 'rqbp_error_position', 'Unsafe or unsupported body positions cannot be saved through a forged request');
+    }
+    \IPS\Helpers\Form::$submitted = array_replace($bodySubmission, ['rqbp_hook_app' => 'forums', 'rqbp_position' => 'inside-end']);
+    $savedCount = count(\IPS\rqblockplacements\Rule::$saved);
+    runAcp('rules', 'form');
+    check(count(\IPS\rqblockplacements\Rule::$saved) === $savedCount, 'Mismatched application/template/target selectors are rejected before saving');
+    foreach (['rqbp_hook_app', 'rqbp_hook_template', 'rqbp_hook', 'rqbp_mode'] as $field) { unset(\IPS\Request::i()->$field); }
 
     foreach (\IPS\Theme::$calls as [$group, $app, $location]) {
         check($app === 'core' && ($group !== 'global' || $location === 'admin'), 'Every shared template uses its explicit core context');

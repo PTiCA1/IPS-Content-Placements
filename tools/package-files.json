@@ -27,6 +27,8 @@
   "resources/placements.js",
   "setup/upg_1000005/data.json",
   "setup/upg_1000005/upgrade.php",
+  "setup/upg_1000012/data.json",
+  "setup/upg_1000012/upgrade.php",
   "sources/HookCatalog/HookCatalog.php",
   "sources/HookRegistry/HookRegistry.php",
   "sources/PageCache/PageCache.php",

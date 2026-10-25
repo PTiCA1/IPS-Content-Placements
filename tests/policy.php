@@ -36,12 +36,20 @@ same(['2', '7'], Policy::lines('[2,7]'), 'Serialized group IDs accepted');
 same(['0'], Policy::lines([0, '0', '']), 'Zero must not disappear as an empty group value');
 same('block', Policy::normalize(['rule_block_id' => 9])['content_type'], 'Older records retain Pages as their content source');
 same('', Policy::normalize(['rule_block_id' => 9])['template_code'], 'Older records have no custom template');
+same([
+    'before' => 'template_custom_before', 'inside-start' => 'template_custom_inside_start',
+    'inside-end' => 'template_custom_inside_end', 'after' => 'template_custom_after',
+], Policy::positionOptions(), 'All four positions reuse native IPS translations and identifiers');
 $custom = '{expression="(new \\IPS\\ExampleContent())->render(\'example\')" raw="true"}';
 same($custom, Policy::normalize(['rule_content_type' => 'template', 'rule_template_code' => $custom])['template_code'], 'Preserve native template code without evaluation');
 
 $rule = ['enabled' => 1, 'mode' => 'hook', 'platforms' => [], 'allow_groups' => [], 'exclude_groups' => [], 'apps' => [], 'include_urls' => [], 'exclude_urls' => []];
 $context = ['app' => 'forums', 'url' => '/topic/42/?page=2', 'platform' => 'Windows', 'groups' => [3, 7]];
 same(null, Policy::evaluate($rule, $context), 'Unrestricted rule');
+foreach (array_keys(Policy::positionOptions()) as $position) {
+    same(null, Policy::evaluate(array_replace($rule, ['position' => $position]), $context), 'Each native position is eligible: ' . $position);
+}
+same('position_invalid', Policy::evaluate(array_replace($rule, ['position' => 'unsupported']), $context), 'Invalid stored positions fail closed instead of becoming after');
 same('disabled', Policy::evaluate(array_replace($rule, ['enabled' => 0]), $context), 'Disabled rule never eligible');
 same('application', Policy::evaluate(array_replace($rule, ['apps' => ['cms']]), $context), 'App restriction');
 same(null, Policy::evaluate(array_replace($rule, ['apps' => ['forums', 'cms']]), $context), 'App multiselect');

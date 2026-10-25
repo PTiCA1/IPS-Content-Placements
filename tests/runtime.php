@@ -73,7 +73,14 @@ namespace IPS\cms\Blocks {
     }
 }
 namespace IPS\rqblockplacements {
-    class HookCatalog { public static function has($path, $name): bool { return $name !== 'missing'; } public static function wrapper($path, $name): string { return 'li'; } }
+    class HookCatalog {
+        public static function has($path, $name, ?string $position = null): bool {
+            return $name !== 'missing' && ($name !== 'body' || $position === null || in_array($position, ['inside-start', 'inside-end'], true));
+        }
+        public static function wrapper($path, $name, string $position = 'after'): string {
+            return $name === 'body' || str_starts_with($position, 'inside-') ? 'div' : 'li';
+        }
+    }
 }
 namespace {
     require __DIR__ . '/../application/sources/Policy/Policy.php';
@@ -210,6 +217,22 @@ namespace {
     $html = Runtime::hook(1);
     check(str_starts_with($html, '<li ') && str_contains($html, 'secret'), 'Second native hook uses list-safe wrapper');
     check(Runtime::hook(1) === '' && Block::$renders === 1, 'Native hook nth is request-local');
+    foreach (['inside-start', 'inside-end'] as $position) {
+        fixture(['rule_mode' => 'hook', 'rule_hook_name' => 'body', 'rule_position' => $position]);
+        check(str_starts_with(Runtime::hook(1), '<div ') && Block::$renders === 1, 'Body child positions use a flow wrapper: ' . $position);
+    }
+    foreach (['before', 'after'] as $position) {
+        fixture(['rule_mode' => 'hook', 'rule_hook_name' => 'body', 'rule_position' => $position]);
+        check(Runtime::hook(1) === '' && Block::$renders === 0 && Block::$loads === 0, 'Unsafe body positions are rejected before rendering: ' . $position);
+        check(Runtime::diagnose(\IPS\rqblockplacements\Rule::all()[0])['status'] === 'hook_context_invalid', 'Unsafe hook position has a clear diagnostic reason');
+    }
+    foreach (['inside-start', 'inside-end'] as $position) {
+        fixture(['rule_position' => $position]);
+        $insidePayload = Runtime::payload();
+        preg_match('~<script type="application/json" data-rqbp-payload>(.*?)</script>~s', $insidePayload, $insideMatch);
+        $insideData = json_decode($insideMatch[1] ?? '', true, 512, JSON_THROW_ON_ERROR);
+        check($insideData['rules'][0]['position'] === $position, 'CSS payload retains the exact native insertion position');
+    }
     fixture(['rule_mode' => 'hook']);
     $nested = null; Block::$callback = static function () use (&$nested) { $nested = Runtime::hook(1); };
     check(str_contains(Runtime::hook(1), 'secret') && $nested === '' && Block::$renders === 1, 'Recursive block cannot recursively invoke its rule');

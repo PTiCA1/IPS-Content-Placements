@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Slovenčina" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.11" long_version="1000011" update_check="">
- <app key="rqblockplacements" version="1000011">
+<language name="Slovenčina" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.12" long_version="1000012" update_check="">
+ <app key="rqblockplacements" version="1000012">
   <word key="__app_rqblockplacements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Pravidlá umiestnenia</word>
@@ -64,6 +64,7 @@
   <word key="rqbp_error_missing_rule" js="0">Toto pravidlo umiestnenia už neexistuje.</word>
   <word key="rqbp_error_occurrence" js="0">Zadajte číslo výskytu aspoň 1.</word>
   <word key="rqbp_error_order" js="0">Vyberte platný smer zoradenia.</word>
+  <word key="rqbp_error_position" js="0">Vyberte podporovanú pozíciu vhodnú pre HTML kontext tohto cieľa.</word>
   <word key="rqbp_error_save" js="0">Nastavenia sa nepodarilo uložiť. Skontrolujte odkaz na blok a polia umiestnenia.</word>
   <word key="rqbp_error_selector" js="0">Zadajte neprázdny CSS selektor bez nulových znakov.</word>
   <word key="rqbp_error_selector_browser" js="0">CSS selektor je neplatný. Pred uložením skontrolujte jeho syntax.</word>
@@ -87,7 +88,10 @@
   <word key="rqbp_front_inserted" js="0">Vložené</word>
   <word key="rqbp_front_matches" js="0">Zhody</word>
   <word key="rqbp_hook" js="0">Natívny hook</word>
+  <word key="rqbp_hook_app" js="0">Aplikácia</word>
   <word key="rqbp_hook_desc" js="0">Dostupné hooky pochádzajú zo zapnutých šablón verejnej časti webu. Pozície, ktorých HTML kontext neumožňuje vložiť blok, sa nezobrazujú.</word>
+  <word key="rqbp_hook_help_v12" js="0">Vyberte aplikáciu, potom šablónu a hook z aktuálneho katalógu zapnutých šablón verejnej časti webu. Hooky v nepodporovaných HTML kontextoch vrátane &lt;code&gt;head&lt;/code&gt; a &lt;code&gt;title&lt;/code&gt; sa neponúkajú.</word>
+  <word key="rqbp_hook_template" js="0">Šablóna</word>
   <word key="rqbp_include_urls" js="0">Povolené vzory URL</word>
   <word key="rqbp_include_urls_desc" js="0">Jeden vzor relatívny ku koreňu komunity na riadok, začínajúci &lt;code&gt;/&lt;/code&gt;, napríklad &lt;code&gt;/forums/*&lt;/code&gt;. Prázdne pole povoľuje všetky URL. Jediným zástupným znakom je &lt;code&gt;*&lt;/code&gt;. Cesta a parametre dopytu sa porovnávajú spoločne; vzor &lt;code&gt;/forums/example/*&lt;/code&gt; umožní rôzne parametre stránkovania. Nezadávajte doménu ani #fragment.</word>
   <word key="rqbp_log_deleted" js="0">Odstránené pravidlo umiestnenia %s</word>
@@ -117,6 +121,7 @@
   <word key="rqbp_platforms" js="0">Platformy</word>
   <word key="rqbp_platforms_desc" js="0">Prázdny výber povoľuje všetky tri triedy zariadení. Rozpoznávanie používa platformu IPS a reťazec user-agent, nie šírku obrazovky. Nerozpoznané zariadenia patria do triedy Počítač. Zmena veľkosti okna triedu nemení. iPad s user-agentom pre počítače môže byť rozpoznaný ako Počítač.</word>
   <word key="rqbp_position" js="0">Vložiť blok</word>
+  <word key="rqbp_position_help_v12" js="0">Vložte obsah pred cieľ, dovnútra na jeho začiatok, dovnútra na jeho koniec alebo za cieľ. Pri cieli &lt;code&gt;body&lt;/code&gt; sú povolené iba obe vnútorné pozície; obsah nemožno vložiť mimo neho. Pozícia musí zodpovedať HTML kontextu cieľa.</word>
   <word key="rqbp_prepare_diagnostics" js="0">Pripraviť testovací odkaz</word>
   <word key="rqbp_rule_enabled" js="0">Zapnúť toto pravidlo</word>
   <word key="rqbp_rule_enabled_desc" js="0">Nové pravidlá sú vypnuté. Pred zapnutím umiestnenia môžete jeho nastavenia overiť v diagnostike.</word>

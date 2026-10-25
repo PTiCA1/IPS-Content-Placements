@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.0-beta.12 — 2026-10-25
+
+Build `1000012`; four insertion positions and a retryable position-column migration.
+
+- Add `inside-start` and `inside-end` alongside `before` and `after` for CSS and native-hook rules. Keep existing before/after rules unchanged.
+- Select native hooks through application → template → hook → insertion type, using the current catalog and installed IPS core position labels. Add localized help in all five application languages.
+- Allow `body` only for inside positions; exclude `head`, `title` and other unsupported block-content contexts from the hook picker.
+- Widen `rqbp_rules.rule_position` from `VARCHAR(8)` to `VARCHAR(16)` in the clean-install schema and `upg_1000012`, preserving existing rules and supporting retries after a partial upgrade.
+- Retain the 5.0.20+ compatibility target with source verification against 5.0.20. Native beta.11 → beta.12 installation, placement and upgrade acceptance remain pending. The dated security audit remains historical.
+
 ## 1.0.0-beta.11 — 2026-10-25
 
 Build `1000011`; repository metadata update, without feature or schema changes.

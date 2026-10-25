@@ -112,7 +112,7 @@ final class Runtime
             if (!Policy::selectedOccurrence($rule['occurrence'], $rule['occurrence_index'], $ordinal)) { return ''; }
             $html = self::render($rule);
             if ($html === '') { return ''; }
-            $wrapper = HookCatalog::wrapper($rule['hook_path'], $rule['hook_name']);
+            $wrapper = HookCatalog::wrapper($rule['hook_path'], $rule['hook_name'], $rule['position']);
             self::note($rule, 'inserted');
             return '<' . $wrapper . ' data-rqbp-placement="' . $id . '" data-rqbp-rule="' . $id . '">' . $html . '</' . $wrapper . '>';
         } catch (\Throwable $error) { self::log($error); return ''; }
@@ -126,6 +126,7 @@ final class Runtime
         if ($rule['content_type'] === 'block' && !\IPS\Application::appIsEnabled('cms')) { return 'pages_missing'; }
         if ($rule['content_type'] === 'template' && trim($rule['template_code']) === '') { return 'template_empty'; }
         if ($rule['mode'] === 'hook' && !HookCatalog::has($rule['hook_path'], $rule['hook_name'])) { return 'hook_missing'; }
+        if ($rule['mode'] === 'hook' && !HookCatalog::has($rule['hook_path'], $rule['hook_name'], $rule['position'])) { return 'hook_context_invalid'; }
         if ($rule['mode'] === 'css' && trim($rule['selector']) === '') { return 'selector_empty'; }
         return null;
     }

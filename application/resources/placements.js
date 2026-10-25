@@ -26,6 +26,7 @@
     const ownElement = (node) => node instanceof Element && Boolean(node.closest(owned));
     const number = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
     const supportsModules = 'noModule' in document.createElement('script');
+    const positions = ['before', 'inside-start', 'inside-end', 'after'];
 
     function cancelScriptWaits() {
         [...pendingScripts].forEach((cancel) => cancel());
@@ -138,15 +139,16 @@
         });
     }
 
-    function wrapperTag(target) {
-        const parent = target.parentElement;
+    function wrapperTag(target, position) {
+        const inside = position === 'inside-start' || position === 'inside-end';
+        const parent = inside ? target : target.parentElement;
         if (!parent || !document.body.contains(parent) || parent.namespaceURI !== 'http://www.w3.org/1999/xhtml') {
             return null;
         }
         if (/^(UL|OL|MENU)$/.test(parent.tagName)) {
-            return target.tagName === 'LI' ? 'li' : null;
+            return inside || target.tagName === 'LI' ? 'li' : null;
         }
-        if (/^(TABLE|THEAD|TBODY|TFOOT|TR|COLGROUP|SELECT|OPTGROUP|DATALIST|SVG|MATH|HEAD|HTML|SCRIPT|STYLE|TEMPLATE|TEXTAREA|P|A|SPAN|LABEL|STRONG|EM|SMALL|B|I|U|S|CODE|PRE|BUTTON|LEGEND|SUMMARY|H[1-6])$/.test(parent.tagName)) {
+        if (/^(TABLE|THEAD|TBODY|TFOOT|TR|COLGROUP|SELECT|OPTGROUP|OPTION|DATALIST|SVG|MATH|HEAD|HTML|SCRIPT|STYLE|TEMPLATE|TEXTAREA|TITLE|IFRAME|NOEMBED|NOFRAMES|NOSCRIPT|PLAINTEXT|XMP|AREA|BASE|BR|COL|EMBED|HR|IMG|INPUT|LINK|META|PARAM|SOURCE|TRACK|WBR|P|A|SPAN|LABEL|STRONG|EM|SMALL|B|I|U|S|CODE|PRE|BUTTON|LEGEND|SUMMARY|H[1-6])$/.test(parent.tagName)) {
             return null;
         }
         const display = window.getComputedStyle(parent).display;
@@ -330,7 +332,11 @@
                 if (!relevant(target, roots)) {
                     return;
                 }
-                const tag = wrapperTag(target);
+                if (!positions.includes(rule.position)) {
+                    report.reason = 'Unsupported placement position.';
+                    return;
+                }
+                const tag = wrapperTag(target, rule.position);
                 if (!tag) {
                     report.reason = 'Unsupported HTML context.';
                     return;
@@ -340,14 +346,14 @@
                     return;
                 }
                 if (!groups.has(target)) {
-                    groups.set(target, { before: [], after: [] });
+                    groups.set(target, Object.fromEntries(positions.map((position) => [position, []])));
                 }
-                groups.get(target)[rule.position === 'before' ? 'before' : 'after'].push({ rule, target, tag, report });
+                groups.get(target)[rule.position].push({ rule, target, tag, report });
             });
         });
 
         const added = [];
-        function place(entry, cursor, position) {
+        function place(entry, parent, reference, position, fallback = reference) {
             const { target, rule, tag, report } = entry;
             let records = byTarget.get(target);
             if (!records) {
@@ -367,7 +373,7 @@
                     return existing.wrapper;
                 }
                 report.reason = 'Already initialized; removed placement was not restarted.';
-                return cursor;
+                return fallback;
             }
             const wrapper = document.createElement(tag);
             wrapper.className = 'rqbp-placement';
@@ -375,7 +381,7 @@
             wrapper.setAttribute('data-rqbp-instance', String(++instance));
             wrapper.setAttribute('data-rqbp-position', position);
             wrapper.innerHTML = rule.html;
-            cursor.parentNode.insertBefore(wrapper, position === 'before' ? cursor : cursor.nextSibling);
+            parent.insertBefore(wrapper, reference);
             const record = { target, wrapper, notes: report.notes };
             records.set(key, record);
             placements.add(record);
@@ -385,9 +391,18 @@
         }
         groups.forEach((group, target) => {
             let cursor = target;
-            [...group.before].reverse().forEach((entry) => { cursor = place(entry, cursor, 'before'); });
+            [...group.before].reverse().forEach((entry) => { cursor = place(entry, target.parentNode, cursor, 'before'); });
+            cursor = target.firstChild;
+            // Anchor after existing start placements. A later payload may add
+            // rules between or after them without moving an initialized ad.
+            while (cursor instanceof Element && cursor.matches('[data-rqbp-placement][data-rqbp-position="inside-start"]')) {
+                cursor = cursor.nextSibling;
+            }
+            [...group['inside-start']].reverse().forEach((entry) => { cursor = place(entry, target, cursor, 'inside-start'); });
+            cursor = null;
+            [...group['inside-end']].reverse().forEach((entry) => { cursor = place(entry, target, cursor, 'inside-end'); });
             cursor = target;
-            group.after.forEach((entry) => { cursor = place(entry, cursor, 'after'); });
+            group.after.forEach((entry) => { cursor = place(entry, target.parentNode, cursor.nextSibling, 'after', cursor); });
         });
         // Nodes are in their final position before any executable code runs.
         // Activate in document order, including before-placement groups.

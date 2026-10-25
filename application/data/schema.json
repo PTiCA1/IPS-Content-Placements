@@ -125,7 +125,7 @@
             "rule_position": {
                 "name": "rule_position",
                 "type": "VARCHAR",
-                "length": 8,
+                "length": 16,
                 "decimals": null,
                 "values": [],
                 "allow_null": false,
