@@ -113,6 +113,18 @@ final class Runtime
             $html = self::render($rule);
             if ($html === '') { return ''; }
             $wrapper = HookCatalog::wrapper($rule['hook_path'], $rule['hook_name'], $rule['position']);
+            if ($wrapper === '') {
+                // Head metadata must stay in the native server-rendered hook,
+                // without a body-only wrapper or a deferred browser insertion.
+                \IPS\Member::loggedIn()->language()->parseOutputForDisplay($html);
+                \IPS\Output::i()->parseFileObjectUrls($html);
+                if (!HeadContent::isValid($html)) {
+                    self::note($rule, 'head_content_invalid');
+                    return '';
+                }
+                self::note($rule, 'inserted');
+                return $html;
+            }
             self::note($rule, 'inserted');
             return '<' . $wrapper . ' data-rqbp-placement="' . $id . '" data-rqbp-rule="' . $id . '">' . $html . '</' . $wrapper . '>';
         } catch (\Throwable $error) { self::log($error); return ''; }
@@ -185,6 +197,13 @@ final class Runtime
                 $payload['diagnostics'] = array_values(self::$diagnostics);
                 $payload['debug'] = true;
                 $language = \IPS\Member::loggedIn()->language();
+                foreach ($payload['diagnostics'] as &$diagnostic) {
+                    if ($diagnostic['status'] !== 'head_content_invalid') { continue; }
+                    $diagnostic['reason'] = $language->addToStack('rqbp_error_head_content');
+                    $language->parseOutputForDisplay($diagnostic['reason']);
+                    $diagnostic['reason'] = $language->stripVLETags($diagnostic['reason']);
+                }
+                unset($diagnostic);
                 $payload['strings'] = [
                     'diagnostics' => $language->addToStack('rqbp_front_diagnostics'),
                     'matches' => $language->addToStack('rqbp_front_matches'),

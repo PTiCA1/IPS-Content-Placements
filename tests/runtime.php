@@ -41,7 +41,7 @@ namespace IPS {
     class Session { public object $userAgent; public function __construct() { $this->userAgent = (object) ['platform' => 'Windows', 'useragent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0']; } public static function i(): self { static $s; return $s ??= new self; } }
     class Request { public bool $rqbp_diagnostics = false; public string $currentUrl = 'https://forum.example/community/forums/?page=2'; public static function i(): self { static $s; return $s ??= new self; } public function url(): string { return $this->currentUrl; } }
     class Member { public int $member_id = 0; public array $groups = [2]; public static function loggedIn(): self { static $s; return $s ??= new self; } public function language(): object { return new class {
-        public function parseOutputForDisplay(&$html): void { $html = str_replace('<lang>', 'Translated', $html); $html = preg_replace('/__rqbp_front_[a-z]+__/', "Label with \"quotes\" </script>\nnext", $html); }
+        public function parseOutputForDisplay(&$html): void { $html = str_replace(['<lang>', '__rqbp_error_head_content__'], ['Translated', 'Only script, style, meta and link are allowed.'], $html); $html = preg_replace('/__rqbp_front_[a-z]+__/', "Label with \"quotes\" </script>\nnext", $html); }
         public function addToStack($key): string { return '__' . $key . '__'; }
         public function stripVLETags($html): string { return $html; }
     }; } public function hasAcpRestriction(...$args): bool { return true; } }
@@ -67,18 +67,19 @@ namespace IPS\Http { class Url { public static function baseUrl(): string { retu
 namespace IPS\cms\Blocks {
     class Block {
         public bool $active = true; public static bool $allowed = true; public static bool $exists = true; public static int $renders = 0; public static int $loads = 0; public static $callback = null;
+        public static string $html = '<span>secret <lang> <fileStore.test></span>';
         public static function load($id): self { self::$loads++; if (!self::$exists) { throw new \OutOfRangeException; } return new self; }
         public function can($action): bool { return self::$allowed; }
-        public static function display($block): string { self::$renders++; if (self::$callback) { (self::$callback)(); } return '<span>secret <lang> <fileStore.test></span>'; }
+        public static function display($block): string { self::$renders++; if (self::$callback) { (self::$callback)(); } return self::$html; }
     }
 }
 namespace IPS\rqblockplacements {
     class HookCatalog {
         public static function has($path, $name, ?string $position = null): bool {
-            return $name !== 'missing' && ($name !== 'body' || $position === null || in_array($position, ['inside-start', 'inside-end'], true));
+            return $name !== 'missing' && (!in_array($name, ['body', 'head'], true) || $position === null || in_array($position, ['inside-start', 'inside-end'], true));
         }
         public static function wrapper($path, $name, string $position = 'after'): string {
-            return $name === 'body' || str_starts_with($position, 'inside-') ? 'div' : 'li';
+            return $name === 'head' ? '' : ($name === 'body' || str_starts_with($position, 'inside-') ? 'div' : 'li');
         }
     }
 }
@@ -87,6 +88,7 @@ namespace {
     require __DIR__ . '/../application/sources/Rule/Rule.php';
     require __DIR__ . '/../application/Application.php';
     require __DIR__ . '/../application/sources/TemplateContent/TemplateContent.php';
+    require __DIR__ . '/../application/sources/HeadContent/HeadContent.php';
     require __DIR__ . '/../application/sources/PageCache/PageCache.php';
     require __DIR__ . '/../application/sources/Runtime/Runtime.php';
     use IPS\rqblockplacements\Runtime;
@@ -96,6 +98,7 @@ namespace {
     function fixture(array $overrides = []): void {
         Runtime::reset();
         Block::$renders = Block::$loads = 0; Block::$allowed = Block::$exists = true; Block::$callback = null;
+        Block::$html = '<span>secret <lang> <fileStore.test></span>';
         \IPS\Theme::$compiles = \IPS\Theme::$executions = \IPS\ExampleContent::$calls = 0;
         \IPS\Theme::$callback = null;
         \IPS\Application::$pages = true;
@@ -233,6 +236,34 @@ namespace {
         $insideData = json_decode($insideMatch[1] ?? '', true, 512, JSON_THROW_ON_ERROR);
         check($insideData['rules'][0]['position'] === $position, 'CSS payload retains the exact native insertion position');
     }
+    foreach (['inside-start', 'inside-end'] as $position) {
+        fixture(['rule_mode' => 'hook', 'rule_hook_name' => 'head', 'rule_position' => $position]);
+        Block::$html = '<meta name="example" content="<lang>"><link rel="stylesheet" href="<fileStore.test>/example.css"><script>window.example="<div></head>";</script>';
+        $metadata = Runtime::hook(1);
+        check($metadata === '<meta name="example" content="Translated"><link rel="stylesheet" href="https://cdn.example/example.css"><script>window.example="<div></head>";</script>', 'Native head output is finalized and emitted unchanged without a div wrapper');
+        check(!str_contains($metadata, 'data-rqbp-placement') && Block::$renders === 1, 'Head metadata uses the native rendering path and its request-local cache');
+    }
+    foreach (['before', 'after'] as $position) {
+        fixture(['rule_mode' => 'hook', 'rule_hook_name' => 'head', 'rule_position' => $position]);
+        check(Runtime::hook(1) === '' && Block::$renders === 0, 'Outer head positions cannot render content');
+    }
+    fixture(['rule_mode' => 'hook', 'rule_hook_name' => 'head', 'rule_position' => 'inside-end']);
+    Block::$html = '<script>window.example=true;</script><div>Body banner</div>';
+    \IPS\Request::i()->rqbp_diagnostics = true;
+    \IPS\Member::loggedIn()->member_id = 1;
+    check(Runtime::hook(1) === '', 'A mixed metadata/body fragment is rejected as a whole, with no partial script output');
+    $headDebug = Runtime::payload();
+    preg_match('~<script type="application/json" data-rqbp-payload>(.*?)</script>~s', $headDebug, $headDebugMatch);
+    $headDiagnostics = json_decode($headDebugMatch[1] ?? '', true, 512, JSON_THROW_ON_ERROR);
+    check($headDiagnostics['diagnostics'][0]['status'] === 'head_content_invalid'
+        && $headDiagnostics['diagnostics'][0]['reason'] === 'Only script, style, meta and link are allowed.', 'Invalid head HTML has a localized administrator diagnostic');
+    fixture(['rule_mode' => 'hook', 'rule_hook_name' => 'head', 'rule_position' => 'inside-start']);
+    Block::$allowed = false;
+    check(Runtime::hook(1) === '' && Block::$renders === 0, 'Pages block permissions still gate head rendering');
+    fixture(['rule_mode' => 'hook', 'rule_hook_name' => 'head', 'rule_position' => 'inside-start', 'rule_content_type' => 'template', 'rule_block_id' => 0, 'rule_template_code' => '<script>window.example=true;</script>']);
+    check(Runtime::hook(1) === '<script>window.example=true;</script>' && \IPS\Theme::$executions === 1 && Block::$loads === 0, 'Custom template head markup uses the same metadata guard without Pages block access');
+    fixture(['rule_mode' => 'hook', 'rule_hook_name' => 'head', 'rule_position' => 'inside-start', 'rule_content_type' => 'template', 'rule_block_id' => 0, 'rule_template_code' => '<script>window.example=true;</script>', 'rule_allow_groups' => '["99"]']);
+    check(Runtime::hook(1) === '' && \IPS\Theme::$executions === 0, 'Disallowed audiences cannot execute a head template');
     fixture(['rule_mode' => 'hook']);
     $nested = null; Block::$callback = static function () use (&$nested) { $nested = Runtime::hook(1); };
     check(str_contains(Runtime::hook(1), 'secret') && $nested === '' && Block::$renders === 1, 'Recursive block cannot recursively invoke its rule');

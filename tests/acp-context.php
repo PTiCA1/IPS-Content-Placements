@@ -256,8 +256,8 @@ namespace IPS\rqblockplacements {
         }
     }
     class HookCatalog {
-        public static function options(): array { return ['forums/front/index/forumRow' => ['rowItem' => 'rowItem (li)'], 'core/front/global/globalTemplate' => ['body' => 'body (body)']]; }
-        public static function positions(string $path, string $name): array { return $name === 'body' ? ['inside-start', 'inside-end'] : ['before', 'inside-start', 'inside-end', 'after']; }
+        public static function options(): array { return ['forums/front/index/forumRow' => ['rowItem' => 'rowItem (li)'], 'core/front/global/globalTemplate' => ['body' => 'body (body)', 'head' => 'head (head)']]; }
+        public static function positions(string $path, string $name): array { return in_array($name, ['body', 'head'], true) ? ['inside-start', 'inside-end'] : ['before', 'inside-start', 'inside-end', 'after']; }
         public static function has(string $path, string $name, ?string $position = null): bool {
             return isset(self::options()[$path][$name]) && ($position === null || in_array($position, self::positions($path, $name), true));
         }
@@ -308,6 +308,8 @@ namespace {
     check($fields['rqbp_position']->label === 'template_hookpoint_type', 'Hook Type uses the native field label');
     $hookPositions = json_decode(\IPS\Helpers\Form::$last->attributes['data-rqbp-hook-positions'], true, 512, JSON_THROW_ON_ERROR);
     check($hookPositions['core/front/global/globalTemplate|body'] === ['inside-start', 'inside-end'], 'The browser receives only safe body positions');
+    check($hookPositions['core/front/global/globalTemplate|head'] === ['inside-start', 'inside-end'], 'The native head target is offered with only its inside positions');
+    check($fields['rqbp_hook']->description === 'rqbp_hook_help_v13' && $fields['rqbp_position']->description === 'rqbp_position_help_v13', 'Fresh head-aware help is used on existing installations');
     check($fields['rqbp_rule_enabled']->value === false, 'New rules remain disabled by default');
     $deviceOptions = [
         'mobile' => 'rqbp_platform_mobile',
@@ -535,6 +537,27 @@ namespace {
         check(count(\IPS\rqblockplacements\Rule::$saved) === $savedCount
             && \IPS\Helpers\Form::$last->error === 'rqbp_error_position', 'Unsafe or unsupported body positions cannot be saved through a forged request');
     }
+    \IPS\Request::i()->rqbp_hook = 'core/front/global/globalTemplate|head';
+    $headSubmission = array_replace($bodySubmission, [
+        'rqbp_name' => 'Head placement', 'rqbp_hook' => 'core/front/global/globalTemplate|head',
+    ]);
+    foreach (['inside-start', 'inside-end'] as $position) {
+        $savedCount = count(\IPS\rqblockplacements\Rule::$saved);
+        \IPS\Helpers\Form::$submitted = $headSubmission + ['rqbp_position' => $position];
+        runAcp('rules', 'form');
+        $saved = end(\IPS\rqblockplacements\Rule::$saved);
+        check(count(\IPS\rqblockplacements\Rule::$saved) === $savedCount + 1
+            && $saved->position === $position && $saved->hook_name === 'head'
+            && $saved->hook_path === 'core/front/global/globalTemplate', 'Native head positions preserve the metadata target and complete position');
+    }
+    foreach (['before', 'after'] as $position) {
+        $savedCount = count(\IPS\rqblockplacements\Rule::$saved);
+        \IPS\Helpers\Form::$submitted = $headSubmission + ['rqbp_position' => $position];
+        runAcp('rules', 'form');
+        check(count(\IPS\rqblockplacements\Rule::$saved) === $savedCount
+            && \IPS\Helpers\Form::$last->error === 'rqbp_error_position', 'Forged requests cannot place metadata outside the head element');
+    }
+    \IPS\Request::i()->rqbp_hook = 'core/front/global/globalTemplate|body';
     \IPS\Helpers\Form::$submitted = array_replace($bodySubmission, ['rqbp_hook_app' => 'forums', 'rqbp_position' => 'inside-end']);
     $savedCount = count(\IPS\rqblockplacements\Rule::$saved);
     runAcp('rules', 'form');

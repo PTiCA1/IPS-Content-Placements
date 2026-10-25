@@ -114,9 +114,11 @@ namespace {
     $all = ['before', 'inside-start', 'inside-end', 'after'];
     \IPS\Application::$enabled = ['core' => (object) ['long_version' => 5000020], 'forums' => (object) ['long_version' => 5000020]];
     Db::$templates = [
-        source('global', '<html data-ips-hook="html"><head data-ips-hook="head"><title data-ips-hook="title">Title</title></head><body data-ips-hook="body"><div data-ips-hook="layout"></div></body></html>'),
+        source('global', '<html data-ips-hook="html"><head data-ips-hook="head"><title data-ips-hook="title">Title</title><div data-ips-hook="headChild"></div></head><body data-ips-hook="body"><div data-ips-hook="layout"></div></body></html>'),
         source('lists', '<div><ul data-ips-hook="unordered"><li data-ips-hook="item"><div data-ips-hook="itemContent"></div></li></ul><ol data-ips-hook="ordered"></ol><menu data-ips-hook="menu"></menu></div>'),
         source('fragment', '<li data-ips-hook="rootItem">Item</li>'),
+        source('headFragment', '<head data-ips-hook="fragmentHead"><meta name="example" content="value"></head>'),
+        source('invalidHead', '<div><head data-ips-hook="nestedHead"></head></div>'),
         source('text', '<div><p data-ips-hook="paragraph">Text</p><h2 data-ips-hook="heading">Heading</h2></div>'),
         source('forbidden', '<div><script data-ips-hook="script">"<div data-ips-hook=\'scriptChild\'></div>"</script><style data-ips-hook="style"></style><table data-ips-hook="table"><tbody><tr><td><div data-ips-hook="tableChild"></div></td></tr></tbody></table><select data-ips-hook="select"><option data-ips-hook="option">Option</option></select><svg data-ips-hook="svg"><foreignObject><div data-ips-hook="svgChild"></div></foreignObject></svg><a><div data-ips-hook="linkChild"></div></a><p><div data-ips-hook="paragraphChild"></div></p><span><section><div data-ips-hook="inlineAncestor"></div></section></span></div>'),
         source('attributes', '<div><!-- <div data-ips-hook="comment"></div> --><div title=\'data-ips-hook="quotedFake"\'></div><div title="x > y" data-ips-hook="quotedGreater"></div><div data-ips-hook="dynamic{{if true}}suffix{{endif}}"></div><div class="{{if $value > 1}}wide{{endif}}" data-ips-hook="condition"></div></div>'),
@@ -136,15 +138,29 @@ namespace {
     same($all, HookCatalog::positions($global, 'layout'), 'A normal flow container offers all four native positions');
     foreach ($all as $position) { same('div', HookCatalog::wrapper($global, 'layout', $position), 'Layout position uses a flow wrapper'); }
     same(false, HookCatalog::has($global, 'html'), 'The html element cannot receive blocks');
-    same(false, HookCatalog::has($global, 'head'), 'The head element cannot receive blocks');
+    same(['inside-start', 'inside-end'], HookCatalog::positions($global, 'head'), 'Head is only available for insertion inside the element');
+    same(true, HookCatalog::has($global, 'head'), 'Head remains discoverable with an empty raw wrapper');
+    foreach (['inside-start', 'inside-end'] as $position) {
+        same(true, HookCatalog::has($global, 'head', $position), 'An empty raw wrapper is a valid head position');
+        same('', HookCatalog::wrapper($global, 'head', $position), 'Head inserts metadata without a div wrapper');
+    }
+    foreach (['before', 'after'] as $position) {
+        same(false, HookCatalog::has($global, 'head', $position), 'Head does not allow insertion outside the element');
+        rejects(static fn () => HookCatalog::wrapper($global, 'head', $position), 'An outer head position must not get a wrapper');
+    }
+    same(false, HookCatalog::has($global, 'headChild'), 'Head children remain forbidden as separate insertion targets');
     same(false, HookCatalog::has($global, 'title'), 'The title element cannot receive blocks');
     rejects(static fn () => HookCatalog::wrapper($global, 'body'), 'The default after position must also reject body');
     rejects(static fn () => HookCatalog::wrapper($global, 'layout', 'unknown'), 'Unknown placement types must not get a wrapper');
     same(1, Db::$catalogReads, 'An old catalog cache is rebuilt once');
-    same(2, Store::i()->rqbp_hook_catalog['version'], 'The stored catalog identifies its position-aware format');
+    same(3, Store::i()->rqbp_hook_catalog['version'], 'The stored catalog identifies its head-aware format');
     forgetRequestCatalog();
     same($all, HookCatalog::positions($global, 'layout'), 'The position-aware catalog can be restored from its store');
+    same('', HookCatalog::wrapper($global, 'head', 'inside-start'), 'A cached empty head wrapper stays valid');
     same(1, Db::$catalogReads, 'A current stored catalog avoids another source scan');
+    same(['inside-start', 'inside-end'], HookCatalog::positions('core/front/example/headFragment', 'fragmentHead'), 'A root head fragment allows only inside positions');
+    same('', HookCatalog::wrapper('core/front/example/headFragment', 'fragmentHead', 'inside-end'), 'A root head fragment also uses raw metadata');
+    same(false, HookCatalog::has('core/front/example/invalidHead', 'nestedHead'), 'Head nested in a non-html parent remains unsupported');
 
     $lists = 'core/front/example/lists';
     foreach (['unordered', 'ordered', 'menu'] as $hook) {
@@ -184,6 +200,7 @@ namespace {
         $rule(7, $global, 'body', 'inside-start'), $rule(8, $global, 'body', 'before'),
         $rule(9, $lists, 'unordered', 'inside-end'), $rule(10, $lists, 'item', 'after'),
         $rule(11, $global, 'layout', 'unknown'), $rule(12, $global, 'layout', 'inside-start', 'css'),
+        $rule(13, $global, 'head', 'inside-end'), $rule(14, $global, 'head', 'before'),
     ];
     Db::$custom = [
         ['template_app' => 'rqblockplacements', 'template_name' => 'rqbp_rule_7'],
@@ -194,11 +211,13 @@ namespace {
     Store::i()->custom_templates = ['stale'];
     Store::i()->custom_templates_rows = ['stale'];
     HookRegistry::reconcile();
-    same(['rqbp_rule_7', 'rqbp_rule_9', 'rqbp_rule_10'], array_keys(\IPS\Theme\CustomTemplate::$saved), 'Only valid hook/position pairs receive registry markers');
+    same(['rqbp_rule_7', 'rqbp_rule_9', 'rqbp_rule_10', 'rqbp_rule_13'], array_keys(\IPS\Theme\CustomTemplate::$saved), 'Only valid hook/position pairs receive registry markers, including raw head metadata');
     same(['rqbp_rule_99'], \IPS\Theme\CustomTemplate::$deleted, 'Registry cleanup stays within this application and its dynamic markers');
     same('inside-start', \IPS\Theme\CustomTemplate::$saved['rqbp_rule_7']['hookpoint_type'], 'Inside-start is stored using its native canonical value');
     same('inside-end', \IPS\Theme\CustomTemplate::$saved['rqbp_rule_9']['hookpoint_type'], 'Inside-end is stored using its native canonical value');
     same('after', \IPS\Theme\CustomTemplate::$saved['rqbp_rule_10']['hookpoint_type'], 'Existing after placement remains canonical');
+    same('inside-end', \IPS\Theme\CustomTemplate::$saved['rqbp_rule_13']['hookpoint_type'], 'Raw head insertion keeps its native canonical position');
+    same($global . ':head', \IPS\Theme\CustomTemplate::$saved['rqbp_rule_13']['hookpoint'], 'The registry forwards the head target without changing its path');
     same($global . ':body', \IPS\Theme\CustomTemplate::$saved['rqbp_rule_7']['hookpoint'], 'Registry preserves the native hookpoint path shape');
     same('{expression="\\IPS\\rqblockplacements\\Runtime::hook(7)" raw="true"}', \IPS\Theme\CustomTemplate::$saved['rqbp_rule_7']['content'], 'Generated marker content remains fixed code with an integer rule identifier');
     same(Application::RQBP_BUILD, \IPS\Theme\CustomTemplate::$saved['rqbp_rule_7']['version'], 'Registry markers use the current application build');

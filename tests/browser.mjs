@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFile, access } from 'node:fs/promises';
 import http from 'node:http';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 const runtime = await readFile(new URL('../application/resources/placements.js', import.meta.url), 'utf8');
@@ -71,6 +73,7 @@ function acpFixture(values = {}) {
         'forums/front/topics/topic|topicBody': ['inside-start', 'inside-end'],
         'forums/front/topics/topic|topicFooter': ['after'],
         'core/front/global/globalTemplate|body': ['inside-start', 'inside-end'],
+        'core/front/global/globalTemplate|head': ['inside-start', 'inside-end'],
         'core/front/global/globalTemplate|main': positions
     };
     const options = (values) => '<option value="">—</option>' + values.map((value) => `<option value="${value}">${value}</option>`).join('');
@@ -463,6 +466,44 @@ try {
         assert.equal(await page.locator('[name=rqbp_hook]').inputValue(), 'forums/front/topics/topic|topicFooter');
         assert.equal(await page.locator('[name=rqbp_position]').inputValue(), 'after');
         assert.equal(await page.locator('[name=rqbp_position] option:not(:disabled)').count(), 1);
+    });
+
+    await test('native ACP exposes head and restricts its insertion type to inside positions', async () => {
+        fixture = acpFixture({ rqbp_hook_app: 'core', rqbp_hook_template: 'core/front/global/globalTemplate', rqbp_hook: 'core/front/global/globalTemplate|head', rqbp_position: 'inside-end' });
+        await page.goto(`${origin}/admin`);
+        assert.equal(await page.locator('[name=rqbp_hook]').inputValue(), 'core/front/global/globalTemplate|head');
+        assert.equal(await page.locator('[name=rqbp_position]').inputValue(), 'inside-end');
+        assert.deepEqual(await page.locator('[name=rqbp_position]').evaluate((select) => Array.from(select.options).filter((option) => !option.disabled).map((option) => option.value)), ['inside-start', 'inside-end']);
+    });
+
+    await test('server-validated native head fragments preserve the browser head and execute once', async () => {
+        const fragments = [
+            '<meta name="rqbp-test" content="A > B"><link rel="alternate" href="/example">',
+            '<script>window.headRuns=(window.headRuns||0)+1;window.headString="<div></head>";</script><style>.head-test{color:red}</style>',
+            '<script type="application/json">{"example":"<div></head>"}</script>',
+            '<!-- comment containing <div> --><meta name="comment-test" content="valid">',
+            '<script>window.invalidHeadRan=true;</script><div>Invalid body content</div>',
+            '<script><!--<script>example</script><meta name="unclosed-script" content="invalid">',
+            '<script>const value="</script><div>Unexpected body</div>";</script>'
+        ];
+        const php = 'define("IPS\\\\SUITE_UNIQUE_KEY", "browser-test");require $argv[1];echo json_encode(array_map(static fn($html) => \\IPS\\rqblockplacements\\HeadContent::isValid($html) ? $html : "", json_decode($argv[2], true, 512, JSON_THROW_ON_ERROR)), JSON_THROW_ON_ERROR);';
+        const accepted = JSON.parse(execFileSync(process.env.PHP_BINARY || 'php', ['-r', php, fileURLToPath(new URL('../application/sources/HeadContent/HeadContent.php', import.meta.url)), JSON.stringify(fragments)], { encoding: 'utf8' }));
+        assert.deepEqual(accepted, [...fragments.slice(0, 4), '', '', '']);
+        for (const position of ['inside-start', 'inside-end']) {
+            const original = '<title>Original title</title><meta name="original" content="original">';
+            const metadata = accepted.join('');
+            fixture = `<!doctype html><html><head>${position === 'inside-start' ? metadata + original : original + metadata}<meta name="head-end" content="preserved"></head><body><main id="body-sentinel">Original body</main></body></html>`;
+            await page.goto(`${origin}/native-head`);
+            assert.equal(await page.locator('head > [name=head-end]').count(), 1);
+            assert.equal(await page.locator('head > [name=rqbp-test]').getAttribute('content'), 'A > B');
+            assert.equal(await page.locator('head > [name=original]').count(), 1);
+            assert.equal(await page.locator('#body-sentinel').textContent(), 'Original body');
+            assert.equal(await page.locator('body > *').count(), 1);
+            assert.equal(await page.evaluate(() => window.headRuns), 1);
+            assert.equal(await page.evaluate(() => window.headString), '<div></head>');
+            assert.equal(await page.evaluate(() => window.invalidHeadRan), undefined);
+            assert.equal(await page.locator('[data-rqbp-placement]').count(), 0);
+        }
     });
 } finally {
     await browser.close();

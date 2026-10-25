@@ -4,10 +4,10 @@ namespace IPS\rqblockplacements;
 
 if (!\defined('\IPS\SUITE_UNIQUE_KEY')) { exit; }
 
-/** Frontend hooks with an explicit block wrapper for every safe insertion position. */
+/** Frontend hooks with an explicit wrapper policy for every safe insertion position. */
 final class HookCatalog
 {
-    private const CACHE_VERSION = 2;
+    private const CACHE_VERSION = 3;
     private const FLOW_CONTAINERS = ['div', 'section', 'article', 'aside', 'header', 'footer', 'main', 'nav', 'li', 'form', 'figure', 'blockquote'];
     private const LIST_CONTAINERS = ['ul', 'ol', 'menu'];
     private const SIBLING_ANCHORS = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
@@ -41,6 +41,7 @@ final class HookCatalog
         return $position === null ? (bool) $positions : isset($positions[$position]);
     }
 
+    /** An empty wrapper is valid raw head metadata; only null means unsupported. */
     public static function wrapper(string $path, string $name, string $position = 'after'): string
     {
         $wrapper = self::catalog()[$path][$name]['positions'][$position] ?? null;
@@ -120,6 +121,9 @@ final class HookCatalog
     {
         if (array_intersect($ancestors, self::FORBIDDEN_CONTEXTS)) { return []; }
         $parent = $ancestors ? end($ancestors) : null;
+        if ($tag === 'head') {
+            return $parent === null || $parent === 'html' ? ['inside-start' => '', 'inside-end' => ''] : [];
+        }
         if ($tag === 'body') {
             return $parent === null || $parent === 'html' ? ['inside-start' => 'div', 'inside-end' => 'div'] : [];
         }

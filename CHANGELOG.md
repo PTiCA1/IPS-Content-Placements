@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0-beta.13 — 2026-10-25
+
+Build `1000013`; native metadata-only head placement, without new database schema changes.
+
+- Enable the native `head` hook for inside-start/end. Keep native head/body outside positions invalid, CSS head targets unsupported, and `title` or unsupported hooks inside head unavailable.
+- Render head content without a `div` wrapper. Validate the actual public output from either Pages blocks or custom template code and accept only `script`, `style`, `meta` and `link` elements; omit invalid visible HTML/text or other unsupported output as a whole placement.
+- Keep ACP save and diagnostics nonexecuting: they cannot infer the final rendered fragment. Add fresh head/position help and a head-content error in all five application languages.
+- Preserve the beta.12 position-column migration and existing rules. Retain the 5.0.20+ target and 5.0.20 source-verification baseline; native beta.12 → beta.13 head placement, installation and upgrade acceptance remain pending. Earlier release notes and the dated security audit remain historical.
+
 ## 1.0.0-beta.12 — 2026-10-25
 
 Build `1000012`; four insertion positions and a retryable position-column migration.

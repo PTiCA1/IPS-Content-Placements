@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Čeština" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.12" long_version="1000012" update_check="">
- <app key="rqblockplacements" version="1000012">
+<language name="Čeština" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.13" long_version="1000013" update_check="">
+ <app key="rqblockplacements" version="1000013">
   <word key="__app_rqblockplacements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Pravidla umístění</word>
@@ -59,6 +59,7 @@
   <word key="rqbp_error_content_save" js="0">Konfiguraci se nepodařilo uložit. Zkontrolujte zdroj obsahu a nastavení umístění.</word>
   <word key="rqbp_error_content_source" js="0">Vyberte dostupný zdroj obsahu.</word>
   <word key="rqbp_error_diagnostic_url" js="0">Zadejte URL této komunity s jejím nastaveným protokolem, doménou a základní cestou.</word>
+  <word key="rqbp_error_head_content" js="0">Při umístění do head jsou povoleny pouze prvky script, style, meta a link.</word>
   <word key="rqbp_error_hook" js="0">Vyberte dostupný nativní hook veřejné části webu.</word>
   <word key="rqbp_error_hook_context" js="0">Do této pozice hooku nelze bezpečně vložit blok. Vyberte jiný hook.</word>
   <word key="rqbp_error_missing_rule" js="0">Toto pravidlo umístění již neexistuje.</word>
@@ -91,6 +92,7 @@
   <word key="rqbp_hook_app" js="0">Aplikace</word>
   <word key="rqbp_hook_desc" js="0">Dostupné hooky pocházejí ze zapnutých šablon veřejné části webu. Pozice, jejichž HTML kontext neumožňuje vložit blok, nejsou v nabídce.</word>
   <word key="rqbp_hook_help_v12" js="0">Vyberte aplikaci, potom šablonu a hook z aktuálního katalogu zapnutých šablon veřejné části webu. Hooky v nepodporovaných HTML kontextech, včetně &lt;code&gt;head&lt;/code&gt; a &lt;code&gt;title&lt;/code&gt;, nejsou v nabídce.</word>
+  <word key="rqbp_hook_help_v13" js="0">Vyberte aplikaci, potom šablonu a hook z aktuálního katalogu zapnutých šablon veřejné části webu. Nativní hooky &lt;code&gt;head&lt;/code&gt; a &lt;code&gt;body&lt;/code&gt; povolují pouze vnitřní pozice. Umístění do head nemá obal &lt;code&gt;div&lt;/code&gt; a přijímá pouze výstup tvořený prvky &lt;code&gt;script&lt;/code&gt;, &lt;code&gt;style&lt;/code&gt;, &lt;code&gt;meta&lt;/code&gt; a &lt;code&gt;link&lt;/code&gt;. &lt;code&gt;title&lt;/code&gt; ani nepodporované hooky uvnitř head nejsou v nabídce.</word>
   <word key="rqbp_hook_template" js="0">Šablona</word>
   <word key="rqbp_include_urls" js="0">Povolené vzory URL</word>
   <word key="rqbp_include_urls_desc" js="0">Jeden vzor relativní ke kořenu komunity na řádek, začínající &lt;code&gt;/&lt;/code&gt;, například &lt;code&gt;/forums/*&lt;/code&gt;. Prázdné pole povoluje všechny URL. Jediný zástupný znak je &lt;code&gt;*&lt;/code&gt;. Cesta a parametry dotazu se porovnávají společně; &lt;code&gt;/forums/example/*&lt;/code&gt; umožní různé parametry stránkování. Nezadávejte doménu ani #fragment.</word>
@@ -122,6 +124,7 @@
   <word key="rqbp_platforms_desc" js="0">Prázdný výběr povoluje všechny tři třídy zařízení. Rozhoduje platforma IPS a user-agent, nikoli šířka obrazovky. Nerozpoznaná zařízení patří do Desktopu. Změna šířky okna třídu nemění. iPad s desktopovým user-agentem může být rozpoznán jako Desktop.</word>
   <word key="rqbp_position" js="0">Vložit blok</word>
   <word key="rqbp_position_help_v12" js="0">Vložte obsah před cíl, dovnitř na jeho začátek, dovnitř na jeho konec nebo za cíl. U cíle &lt;code&gt;body&lt;/code&gt; jsou povoleny pouze obě vnitřní pozice; obsah nelze vložit mimo něj. Pozice musí odpovídat HTML kontextu cíle.</word>
+  <word key="rqbp_position_help_v13" js="0">Vložte obsah před cíl, dovnitř na jeho začátek, dovnitř na jeho konec nebo za cíl. U cílů &lt;code&gt;head&lt;/code&gt; a &lt;code&gt;body&lt;/code&gt; jsou povoleny pouze obě vnitřní pozice. Vložení do head podporuje pouze nativní hook; cílení na head přes CSS zůstává nepodporované. Výstup se kontroluje při veřejném vykreslení: viditelné HTML nebo jiné nepodporované prvky způsobí vynechání celého umístění.</word>
   <word key="rqbp_prepare_diagnostics" js="0">Připravit testovací odkaz</word>
   <word key="rqbp_rule_enabled" js="0">Zapnout toto pravidlo</word>
   <word key="rqbp_rule_enabled_desc" js="0">Nová pravidla jsou vypnutá. Před zapnutím můžete konfiguraci zkontrolovat v diagnostice.</word>

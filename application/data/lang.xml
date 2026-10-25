@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <language>
- <app key="rqblockplacements" version="1000012">
+ <app key="rqblockplacements" version="1000013">
   <word key="__app_rqblockplacements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Placement rules</word>
@@ -59,6 +59,7 @@
   <word key="rqbp_error_content_save" js="0">The configuration could not be saved. Check the content source and placement fields.</word>
   <word key="rqbp_error_content_source" js="0">Select an available content source.</word>
   <word key="rqbp_error_diagnostic_url" js="0">Enter a URL within this community using its configured scheme, host, and base path.</word>
+  <word key="rqbp_error_head_content" js="0">Only script, style, meta and link elements are allowed in a head placement.</word>
   <word key="rqbp_error_hook" js="0">Select an available native front-end hook.</word>
   <word key="rqbp_error_hook_context" js="0">This hook position cannot safely contain a block. Choose another hook.</word>
   <word key="rqbp_error_missing_rule" js="0">This placement rule no longer exists.</word>
@@ -91,6 +92,7 @@
   <word key="rqbp_hook_app" js="0">Application</word>
   <word key="rqbp_hook_desc" js="0">Available hooks come from enabled front-end templates. Positions whose HTML context cannot accept a block are omitted.</word>
   <word key="rqbp_hook_help_v12" js="0">Choose an application, then a template and a hook from the current catalog of enabled front-end templates. Hooks in unsupported HTML contexts, including &lt;code&gt;head&lt;/code&gt; and &lt;code&gt;title&lt;/code&gt;, are not offered.</word>
+  <word key="rqbp_hook_help_v13" js="0">Choose an application, then a template and a hook from the current catalog of enabled front-end templates. Native &lt;code&gt;head&lt;/code&gt; and &lt;code&gt;body&lt;/code&gt; hooks allow only inside positions. A head placement has no &lt;code&gt;div&lt;/code&gt; wrapper and accepts only &lt;code&gt;script&lt;/code&gt;, &lt;code&gt;style&lt;/code&gt;, &lt;code&gt;meta&lt;/code&gt; and &lt;code&gt;link&lt;/code&gt; output. &lt;code&gt;title&lt;/code&gt; and unsupported hooks inside head are not offered.</word>
   <word key="rqbp_hook_template" js="0">Template</word>
   <word key="rqbp_include_urls" js="0">Included URL patterns</word>
   <word key="rqbp_include_urls_desc" js="0">One community-relative pattern per line, beginning with &lt;code&gt;/&lt;/code&gt;, for example &lt;code&gt;/forums/*&lt;/code&gt;. Empty means all URLs. &lt;code&gt;*&lt;/code&gt; is the only wildcard. The path and query are matched together; use &lt;code&gt;/forums/example/*&lt;/code&gt; to allow varying pagination queries. Do not include the domain or a #fragment.</word>
@@ -122,6 +124,7 @@
   <word key="rqbp_platforms_desc" js="0">Leave empty for all three device classes. Detection uses the IPS platform and user-agent string, not screen width. Unrecognized devices use Desktop. Resizing does not change the class. An iPad using a desktop user agent may be detected as Desktop.</word>
   <word key="rqbp_position" js="0">Insert the block</word>
   <word key="rqbp_position_help_v12" js="0">Insert before the target, inside at its start, inside at its end or after the target. A &lt;code&gt;body&lt;/code&gt; target permits only the two inside positions; content cannot be inserted outside it. The position must be valid for the target’s HTML context.</word>
+  <word key="rqbp_position_help_v13" js="0">Insert before the target, inside at its start, inside at its end or after the target. The &lt;code&gt;head&lt;/code&gt; and &lt;code&gt;body&lt;/code&gt; targets permit only the two inside positions. Head placement is supported only through a native hook; CSS targeting head remains unsupported. Output is checked during public rendering: visible HTML or other unsupported elements cause the entire placement to be omitted.</word>
   <word key="rqbp_prepare_diagnostics" js="0">Prepare test link</word>
   <word key="rqbp_rule_enabled" js="0">Enable this rule</word>
   <word key="rqbp_rule_enabled_desc" js="0">New rules start disabled. Diagnostics can help you check the configuration before enabling the placement.</word>

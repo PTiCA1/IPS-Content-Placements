@@ -267,7 +267,7 @@ class rules extends Controller
                 if (!HookCatalog::has($path, $name)) { throw new DomainException('rqbp_error_hook'); }
             }, null, null, 'rqbp_hook');
         $hookField->label = self::word('template_hookpoint');
-        $hookField->description = self::word('rqbp_hook_help_v12');
+        $hookField->description = self::word('rqbp_hook_help_v13');
         $form->add($hookField);
         $form->add(new Text('rqbp_selector', $config['selector'], false, ['maxLength' => 1000], static function ($value) use ($mode): void {
             if ($mode === 'css' && (trim((string) $value) === '' || str_contains((string) $value, "\0"))) {
@@ -285,7 +285,7 @@ class rules extends Controller
                 }
             });
         $positionField->label = self::word('template_hookpoint_type');
-        $positionField->description = self::word('rqbp_position_help_v12');
+        $positionField->description = self::word('rqbp_position_help_v13');
         $form->add($positionField);
         $form->add(new Radio('rqbp_occurrence', $config['occurrence'], true, [
             'options' => ['first' => 'rqbp_first', 'nth' => 'rqbp_nth', 'all' => 'rqbp_all_occurrences'],

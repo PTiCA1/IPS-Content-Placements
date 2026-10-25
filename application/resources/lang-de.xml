@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Deutsch" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.12" long_version="1000012" update_check="">
- <app key="rqblockplacements" version="1000012">
+<language name="Deutsch" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.13" long_version="1000013" update_check="">
+ <app key="rqblockplacements" version="1000013">
   <word key="__app_rqblockplacements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Platzierungsregeln</word>
@@ -59,6 +59,7 @@
   <word key="rqbp_error_content_save" js="0">Die Konfiguration konnte nicht gespeichert werden. Prüfen Sie die Inhaltsquelle und die Felder für die Platzierung.</word>
   <word key="rqbp_error_content_source" js="0">Wählen Sie eine verfügbare Inhaltsquelle aus.</word>
   <word key="rqbp_error_diagnostic_url" js="0">Geben Sie eine URL innerhalb dieser Community mit dem konfigurierten Protokoll, Host und Basispfad ein.</word>
+  <word key="rqbp_error_head_content" js="0">Bei einer Platzierung in head sind nur die Elemente script, style, meta und link zulässig.</word>
   <word key="rqbp_error_hook" js="0">Wählen Sie einen verfügbaren nativen Frontend-Hook aus.</word>
   <word key="rqbp_error_hook_context" js="0">An dieser Hook-Position kann kein Block sicher eingefügt werden. Wählen Sie einen anderen Hook.</word>
   <word key="rqbp_error_missing_rule" js="0">Diese Platzierungsregel existiert nicht mehr.</word>
@@ -91,6 +92,7 @@
   <word key="rqbp_hook_app" js="0">Anwendung</word>
   <word key="rqbp_hook_desc" js="0">Die verfügbaren Hooks stammen aus aktivierten Frontend-Vorlagen. Positionen, deren HTML-Kontext keinen Block aufnehmen kann, werden nicht angeboten.</word>
   <word key="rqbp_hook_help_v12" js="0">Wählen Sie eine Anwendung, dann eine Vorlage und einen Hook aus dem aktuellen Katalog aktivierter Frontend-Vorlagen. Hooks in nicht unterstützten HTML-Kontexten, einschließlich &lt;code&gt;head&lt;/code&gt; und &lt;code&gt;title&lt;/code&gt;, werden nicht angeboten.</word>
+  <word key="rqbp_hook_help_v13" js="0">Wählen Sie eine Anwendung, dann eine Vorlage und einen Hook aus dem aktuellen Katalog aktivierter Frontend-Vorlagen. Native Hooks für &lt;code&gt;head&lt;/code&gt; und &lt;code&gt;body&lt;/code&gt; erlauben nur innere Positionen. Eine Platzierung in head erhält keinen &lt;code&gt;div&lt;/code&gt;-Wrapper und akzeptiert ausschließlich die Elemente &lt;code&gt;script&lt;/code&gt;, &lt;code&gt;style&lt;/code&gt;, &lt;code&gt;meta&lt;/code&gt; und &lt;code&gt;link&lt;/code&gt;. &lt;code&gt;title&lt;/code&gt; und nicht unterstützte Hooks innerhalb von head werden nicht angeboten.</word>
   <word key="rqbp_hook_template" js="0">Vorlage</word>
   <word key="rqbp_include_urls" js="0">Zugelassene URL-Muster</word>
   <word key="rqbp_include_urls_desc" js="0">Ein Muster relativ zum Community-Verzeichnis pro Zeile, beginnend mit &lt;code&gt;/&lt;/code&gt;, zum Beispiel &lt;code&gt;/forums/*&lt;/code&gt;. Eine leere Liste lässt alle URLs zu. &lt;code&gt;*&lt;/code&gt; ist das einzige Platzhalterzeichen. Pfad und Abfrageparameter werden gemeinsam verglichen; verwenden Sie &lt;code&gt;/forums/example/*&lt;/code&gt;, um wechselnde Parameter für die Seitennavigation zuzulassen. Geben Sie weder die Domain noch ein #fragment an.</word>
@@ -122,6 +124,7 @@
   <word key="rqbp_platforms_desc" js="0">Lassen Sie die Auswahl leer, um alle drei Geräteklassen zuzulassen. Die Erkennung verwendet die IPS-Plattform und die User-Agent-Zeichenfolge, nicht die Bildschirmbreite. Nicht erkannte Geräte werden als Desktop eingestuft. Eine Änderung der Fenstergröße ändert die Geräteklasse nicht. Ein iPad mit einem Desktop-User-Agent kann als Desktop erkannt werden.</word>
   <word key="rqbp_position" js="0">Block einfügen</word>
   <word key="rqbp_position_help_v12" js="0">Fügen Sie den Inhalt vor dem Ziel, innerhalb am Anfang, innerhalb am Ende oder nach dem Ziel ein. Beim Ziel &lt;code&gt;body&lt;/code&gt; sind nur die beiden inneren Positionen zulässig; Inhalte dürfen nicht außerhalb eingefügt werden. Die Position muss zum HTML-Kontext des Ziels passen.</word>
+  <word key="rqbp_position_help_v13" js="0">Fügen Sie den Inhalt vor dem Ziel, innerhalb am Anfang, innerhalb am Ende oder nach dem Ziel ein. Bei den Zielen &lt;code&gt;head&lt;/code&gt; und &lt;code&gt;body&lt;/code&gt; sind nur die beiden inneren Positionen zulässig. Platzierungen in head werden nur über einen nativen Hook unterstützt; CSS-Ziele in head bleiben ausgeschlossen. Die Ausgabe wird beim Rendern der öffentlichen Seite geprüft: Sichtbares HTML oder andere nicht unterstützte Elemente führen dazu, dass die gesamte Platzierung entfällt.</word>
   <word key="rqbp_prepare_diagnostics" js="0">Testlink vorbereiten</word>
   <word key="rqbp_rule_enabled" js="0">Diese Regel aktivieren</word>
   <word key="rqbp_rule_enabled_desc" js="0">Neue Regeln sind zunächst deaktiviert. Mit der Diagnose können Sie die Konfiguration prüfen, bevor Sie die Platzierung aktivieren.</word>

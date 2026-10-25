@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Polski" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.12" long_version="1000012" update_check="">
- <app key="rqblockplacements" version="1000012">
+<language name="Polski" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.13" long_version="1000013" update_check="">
+ <app key="rqblockplacements" version="1000013">
   <word key="__app_rqblockplacements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Reguły umieszczania</word>
@@ -59,6 +59,7 @@
   <word key="rqbp_error_content_save" js="0">Nie udało się zapisać konfiguracji. Sprawdź źródło zawartości i pola umiejscowienia.</word>
   <word key="rqbp_error_content_source" js="0">Wybierz dostępne źródło zawartości.</word>
   <word key="rqbp_error_diagnostic_url" js="0">Wprowadź adres URL w tej społeczności z jej skonfigurowanym protokołem, hostem i ścieżką bazową.</word>
+  <word key="rqbp_error_head_content" js="0">W head można umieszczać wyłącznie elementy script, style, meta i link.</word>
   <word key="rqbp_error_hook" js="0">Wybierz dostępny natywny hook publicznej części witryny.</word>
   <word key="rqbp_error_hook_context" js="0">W tej pozycji hooka nie można bezpiecznie umieścić bloku. Wybierz inny hook.</word>
   <word key="rqbp_error_missing_rule" js="0">Ta reguła umieszczania już nie istnieje.</word>
@@ -91,6 +92,7 @@
   <word key="rqbp_hook_app" js="0">Aplikacja</word>
   <word key="rqbp_hook_desc" js="0">Dostępne hooki pochodzą z włączonych szablonów publicznej części witryny. Pozycje, których kontekst HTML nie pozwala na umieszczenie bloku, są pomijane.</word>
   <word key="rqbp_hook_help_v12" js="0">Wybierz aplikację, następnie szablon i hook z aktualnego katalogu włączonych szablonów publicznej części witryny. Hooki w nieobsługiwanych kontekstach HTML, w tym &lt;code&gt;head&lt;/code&gt; i &lt;code&gt;title&lt;/code&gt;, nie są oferowane.</word>
+  <word key="rqbp_hook_help_v13" js="0">Wybierz aplikację, następnie szablon i hook z aktualnego katalogu włączonych szablonów publicznej części witryny. Natywne hooki &lt;code&gt;head&lt;/code&gt; i &lt;code&gt;body&lt;/code&gt; dopuszczają tylko pozycje wewnętrzne. Zawartość umieszczana w head nie ma elementu opakowującego &lt;code&gt;div&lt;/code&gt; i może zawierać wyłącznie elementy &lt;code&gt;script&lt;/code&gt;, &lt;code&gt;style&lt;/code&gt;, &lt;code&gt;meta&lt;/code&gt; i &lt;code&gt;link&lt;/code&gt;. &lt;code&gt;title&lt;/code&gt; i nieobsługiwane hooki wewnątrz head nie są oferowane.</word>
   <word key="rqbp_hook_template" js="0">Szablon</word>
   <word key="rqbp_include_urls" js="0">Uwzględnione wzorce URL</word>
   <word key="rqbp_include_urls_desc" js="0">Jeden wzorzec względem katalogu głównego społeczności w każdym wierszu, zaczynający się od &lt;code&gt;/&lt;/code&gt;, na przykład &lt;code&gt;/forums/*&lt;/code&gt;. Puste pole oznacza wszystkie adresy URL. Jedynym symbolem wieloznacznym jest &lt;code&gt;*&lt;/code&gt;. Ścieżka i parametry zapytania są dopasowywane łącznie; użyj &lt;code&gt;/forums/example/*&lt;/code&gt;, aby uwzględnić różne parametry stronicowania. Nie wpisuj domeny ani #fragment.</word>
@@ -122,6 +124,7 @@
   <word key="rqbp_platforms_desc" js="0">Pozostaw puste, aby uwzględnić wszystkie trzy klasy urządzeń. Wykrywanie opiera się na platformie IPS i ciągu user-agent, a nie na szerokości ekranu. Nierozpoznane urządzenia należą do klasy Komputer. Zmiana rozmiaru okna nie zmienia klasy. iPad używający komputerowego ciągu user-agent może zostać rozpoznany jako Komputer.</word>
   <word key="rqbp_position" js="0">Wstaw blok</word>
   <word key="rqbp_position_help_v12" js="0">Wstaw zawartość przed elementem docelowym, wewnątrz na jego początku, wewnątrz na jego końcu lub za nim. Dla elementu &lt;code&gt;body&lt;/code&gt; dozwolone są tylko dwie pozycje wewnętrzne; zawartości nie można wstawiać poza nim. Pozycja musi być zgodna z kontekstem HTML elementu docelowego.</word>
+  <word key="rqbp_position_help_v13" js="0">Wstaw zawartość przed elementem docelowym, wewnątrz na jego początku, wewnątrz na jego końcu lub za nim. Dla celów &lt;code&gt;head&lt;/code&gt; i &lt;code&gt;body&lt;/code&gt; dozwolone są tylko dwie pozycje wewnętrzne. Umieszczanie w head jest obsługiwane wyłącznie przez natywny hook; kierowanie do head przez CSS pozostaje nieobsługiwane. Wynik jest sprawdzany podczas renderowania publicznej strony: widoczny HTML lub inne nieobsługiwane elementy powodują pominięcie całego umieszczenia.</word>
   <word key="rqbp_prepare_diagnostics" js="0">Przygotuj odnośnik testowy</word>
   <word key="rqbp_rule_enabled" js="0">Włącz tę regułę</word>
   <word key="rqbp_rule_enabled_desc" js="0">Nowe reguły są domyślnie wyłączone. Diagnostyka pomoże sprawdzić konfigurację przed włączeniem reguły umieszczania.</word>

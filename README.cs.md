@@ -4,18 +4,19 @@ for Invision Community 5
 
 [Projekt na GitHubu](https://github.com/PTiCA1/IPS-Content-Placements) · [Hlášení chyb](https://github.com/PTiCA1/IPS-Content-Placements/issues)
 
-**[Testovací vydání beta.12](https://github.com/PTiCA1/IPS-Content-Placements/releases/tag/v1.0.0-beta.12)** · **[Stáhnout TAR](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.12/rqblockplacements-1.0.0-beta.12.tar)** · [SHA256SUMS](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.12/SHA256SUMS)
+**[Testovací vydání beta.13](https://github.com/PTiCA1/IPS-Content-Placements/releases/tag/v1.0.0-beta.13)** · **[Stáhnout TAR](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.13/rqblockplacements-1.0.0-beta.13.tar)** · [SHA256SUMS](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.13/SHA256SUMS)
 
-Volitelná XML: [CS](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.12/rqblockplacements-1.0.0-beta.12-cs.xml) · [SK](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.12/rqblockplacements-1.0.0-beta.12-sk.xml) · [PL](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.12/rqblockplacements-1.0.0-beta.12-pl.xml) · [DE](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.12/rqblockplacements-1.0.0-beta.12-de.xml). TAR už obsahuje všechny čtyři překlady; samostatné stahování XML je volitelné.
+Volitelná XML: [CS](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.13/rqblockplacements-1.0.0-beta.13-cs.xml) · [SK](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.13/rqblockplacements-1.0.0-beta.13-sk.xml) · [PL](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.13/rqblockplacements-1.0.0-beta.13-pl.xml) · [DE](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.13/rqblockplacements-1.0.0-beta.13-de.xml). TAR už obsahuje všechny čtyři překlady; samostatné stahování XML je volitelné.
 
 Samostatná aplikace pro vkládání Pages bloků nebo vlastního kódu šablony IPS před cíl, dovnitř na jeho začátek, dovnitř na jeho konec nebo za cíl CSS selektoru či nativního hooku. Má vlastní pravidla pro zařízení, skupiny, aplikace a URL. Vlastní kód doplňku je pod licencí MIT. [English](README.md).
 
-**1.0.0-beta.12 — sestavení 1000012.** Přidává čtyři pozice vložení a výběr hooku ve stylu nativního editoru aplikace → šablona → hook. Opakovatelná migrace rozšíří uloženou pozici z 8 na 16 znaků a zachová existující pravidla. Obsahuje úplnou češtinu, slovenštinu, polštinu a němčinu. Určeno pro **Invision Community 5.0.20+**. Kontroly API a překladače šablon proběhly proti zdrojům verze **5.0.20**. Skutečná instalace, nové chování pozic a aktualizace ještě čekají na ověření před stabilním vydáním. [Výsledky datovaného auditu a jeho meze](docs/SECURITY-AUDIT-2026-10-25.md). Po aktualizaci vyprázdněte existující CDN/reverzní proxy cache dotčených URL.
+**1.0.0-beta.13 — sestavení 1000013.** Přidává nativní hook `head` pro výstup tvořený pouze metadaty, bez obalu `div`. Hooky head a body přijímají pouze vnitřní pozice; vkládání do head přes CSS zůstává nepodporované. Schéma databáze se nově nemění. Obsahuje úplnou češtinu, slovenštinu, polštinu a němčinu. Určeno pro **Invision Community 5.0.20+**. Kontroly API a překladače šablon proběhly proti zdrojům verze **5.0.20**. Skutečná instalace, vkládání do head a aktualizace ještě čekají na ověření před stabilním vydáním. [Výsledky datovaného auditu a jeho meze](docs/SECURITY-AUDIT-2026-10-25.md). Po aktualizaci vyprázdněte existující CDN/reverzní proxy cache dotčených URL.
 
 ## Funkce této verze
 
 - Výběr Pages bloku nebo zadání jednoho přesného odkazu, například `{block="my_new_block"}`. Blok s tímto klíčem musí existovat; jinak `my_new_block` nahraďte skutečným klíčem svého bloku.
 - Výběr CSS selektoru nebo nativního hooku přes aplikaci → šablonu → hook a polohy před cílem, uvnitř na začátku, uvnitř na konci nebo za cílem.
+- Nativní hook `head` pro prvky `script`, `style`, `meta` a `link`, pouze s inside-start/end.
 - První, konkrétní číslovaný nebo všechny odpovídající prvky či výskyty hooku.
 - Výběr Mobilu, Tabletu a/nebo Desktopu. Prázdný výběr povoluje všechny tři třídy. Rozhoduje platforma IPS a user-agent, nikoli šířka okna.
 - Povolené a vyloučené skupiny včetně vedlejších členství. Vyloučení má přednost.
@@ -24,7 +25,7 @@ Samostatná aplikace pro vkládání Pages bloků nebo vlastního kódu šablony
 
 Doplněk nerozšiřuje nativní reklamní systém. Hook musí v instalované šabloně existovat. V režimu CSS lze cílit i na kategorii bez vlastního hooku, například `li[data-categoryID="4"]`; číslo `4` nahraďte ID skutečně přítomným na svém fóru. CSS selektor závisí na HTML motivu a po aktualizaci motivu či platformy jej ověřte.
 
-Všechny čtyři pozice platí pro CSS i nativní hooky. Před/za vloží sourozenecký prvek; `inside-start` a `inside-end` vloží prvního nebo posledního potomka. U cíle `body` jsou povoleny pouze obě vnitřní pozice: obsah nesmí být mimo tělo dokumentu. Nabídka hooků vychází z aktuálního katalogu zapnutých šablon veřejné části webu a vynechává nepodporované kontexty pro obsah bloku, včetně `head` a `title`, přestože je nativní editor vlastních šablon IPS může nabízet. Názvy pozic používají překlady jádra instalovaného IPS. Ověřte, že HTML vašeho bloku odpovídá zvolenému cíli.
+Všechny čtyři pozice platí pro CSS i nativní hooky tam, kde je kontext dovoluje. Před/za vloží sourozenecký prvek; `inside-start` a `inside-end` vloží prvního nebo posledního potomka. Nativní hooky `head` a `body` povolují pouze obě vnitřní pozice. CSS může cílit dovnitř body, do head však obsah nevkládá. Nabídka hooků vychází z aktuálního katalogu zapnutých šablon veřejné části webu; `title` a nepodporované hooky uvnitř head vynechává, i když je nativní editor IPS nabízí. Názvy pozic používají překlady jádra instalovaného IPS. Ověřte, že HTML vašeho bloku odpovídá zvolenému cíli.
 
 ## Vlastní kód šablony IPS
 
@@ -38,13 +39,25 @@ Ukázka vypíše **Hello world** a nevyžaduje žádné další rozšíření. E
 
 Při uložení a diagnostice se ověří syntaxe bez volání vloženého výrazu. Vyhodnocení proběhne na veřejné stránce po kontrole pravidla. Nastavte stejné skupiny, zařízení, URL a selektor/hook jako u bloku. Vlastní kód nemá implicitní oprávnění Pages bloku. Sdílená cache se pro odpovídající stránky vypne. Používejte syntaxi šablon IPS, nikoli značky `<?php ?>`.
 
+## Nativní vložení do head
+
+Zvolte nativní hook, aplikaci Core, šablonu `core/front/global/globalTemplate`, hook `head` a pozici `inside-start` nebo `inside-end`. Tato podpora head platí výhradně pro nativní hook; cílení na head přes CSS zůstává nepodporované. Vlastní kód šablony IPS může například vrátit jednoduchý prvek metadat:
+
+```html
+<meta name="rqbp-test" content="head-placement">
+```
+
+Obsah do head může dodat Pages blok i vlastní kód šablony, ale skutečně vykreslený fragment musí obsahovat pouze prvky `script`, `style`, `meta` a `link`. Vloží se bez obalu `div`. Viditelné HTML/text, obal přidaný blokem nebo jiný nepodporovaný výstup způsobí vynechání celého umístění. Ukázka Hello world výše je viditelný obsah těla stránky a pro vložení do head není vhodná.
+
+Uložení a diagnostika v ACP nevykreslují Pages blok ani nespouštějí šablonové výrazy, proto nemohou ověřit jejich výsledný výstup. Kontrola fragmentu metadat proběhne při veřejném požadavku po kontrole pravidla a nativních oprávnění bloku. Na testovací instalaci zkontrolujte zdroj výsledné stránky a diagnostiku.
+
 ## Instalace bety přes ACP
 
 Potřebujete licencované Invision Community 5.0.20+, povolené vlastní aplikace a oprávnění instalovat je v ACP. Pages jsou potřeba pro pravidla s bloky; vlastní kód může fungovat i bez Pages. Použijte testovací instalaci a zálohu databáze i souborů.
 
-Aktualizujte existující aplikaci, neinstalujte druhou kopii. Interní klíč `rqblockplacements` i předpona názvu balíčku zůstávají stejné. Aktualizace obnoví standardní názvy aplikace a zachová vlastní úpravy textů, pravidla i nastavení. Beta.12 rozšíří `rqbp_rules.rule_position` z `VARCHAR(8)` na `VARCHAR(16)` bez přepsání existujících hodnot před/za. Migraci lze po částečné aktualizaci zopakovat.
+Aktualizujte existující aplikaci, neinstalujte druhou kopii. Interní klíč `rqblockplacements` i předpona názvu balíčku zůstávají stejné. Aktualizace obnoví standardní názvy aplikace a zachová vlastní úpravy textů, pravidla i nastavení. Beta.13 nemá novou migraci schématu. Při aktualizaci starší bety se nadále provede rozšíření `rqbp_rules.rule_position` z `VARCHAR(8)` na `VARCHAR(16)` zavedené v beta.12, bez přepsání existujících hodnot před/za; tuto migraci lze po částečné aktualizaci zopakovat.
 
-1. Stáhněte [rqblockplacements-1.0.0-beta.12.tar](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.12/rqblockplacements-1.0.0-beta.12.tar) z [testovacího vydání beta.12](https://github.com/PTiCA1/IPS-Content-Placements/releases/tag/v1.0.0-beta.12), případně použijte soubor z `dist/`. Pro ověření příkazem `shasum -a 256 -c SHA256SUMS` mějte ve stejném adresáři také `SHA256SUMS` a všechna čtyři překladová XML. Pro samotnou instalaci stačí TAR.
+1. Stáhněte [rqblockplacements-1.0.0-beta.13.tar](https://github.com/PTiCA1/IPS-Content-Placements/releases/download/v1.0.0-beta.13/rqblockplacements-1.0.0-beta.13.tar) z [testovacího vydání beta.13](https://github.com/PTiCA1/IPS-Content-Placements/releases/tag/v1.0.0-beta.13), případně použijte soubor z `dist/`. Pro ověření příkazem `shasum -a 256 -c SHA256SUMS` mějte ve stejném adresáři také `SHA256SUMS` a všechna čtyři překladová XML. Pro samotnou instalaci stačí TAR.
 2. V **ACP → System → Applications** zvolte nahrání/instalaci aplikace a nahrajte **TAR**. ZIP zdrojového repozitáře se neinstaluje.
 3. Otevřete **ACP → Content Placements → Pravidla umístění** (anglicky **Placement rules**). Standardní název hlavní záložky je ve všech jazycích **Content Placements**, podnabídky zůstávají přeložené. Jde o vlastní záložku aplikace poblíž spodního konce postranního menu, nikoli položku uvnitř nativních reklam nebo Pages. Dalším administrátorům případně přidělte oprávnění `rqbp_manage`.
 4. V Pages vytvořte jednoduchý HTML blok a přidejte pravidlo pro jeden známý CSS selektor nebo hook. Začněte prvním výskytem, všemi platformami a bez omezení skupin či URL.
@@ -54,7 +67,7 @@ Pokud menu nemůžete najít, otevřete současnou adresu svého ACP s `index.ph
 
 Pro rychlé vypnutí použijte globální přepínač, vypněte konkrétní pravidlo nebo celou aplikaci. Odinstalace odstraní pravidla a generované markery doplňku; existující Pages bloky neodstraňuje.
 
-Nativní hook je místem vložení; HTML bloku musí také odpovídat zvolenému kontextu. Katalog vynechává nepodporované kontexty pro obsah bloku a `body` přijímá pouze vnitřní pozice. Ověřte i okolní HTML, CSS a skripty bloku. Některé interaktivní bloky mají pevná HTML ID nebo inicializaci určenou jen pro jeden výskyt.
+Nativní hook je místem vložení; HTML bloku musí také odpovídat zvolenému kontextu. Katalog vynechává nepodporované kontexty; nativní `head` a `body` přijímají pouze vnitřní pozice a head navíc vyžaduje výstup tvořený jen metadaty. Ověřte i okolní HTML, CSS a skripty bloku. Některé interaktivní bloky mají pevná HTML ID nebo inicializaci určenou jen pro jeden výskyt.
 
 ## Čeština, slovenština, polština a němčina
 
@@ -69,7 +82,7 @@ Každý překlad obsahuje všechny texty aplikace. Instalace i aktualizace přes
 
 Pro tyto existující jazyky není samostatný import XML potřeba. Vlastní texty včetně záměrně prázdných hodnot se nepřepisují. Aktualizace doplní chybějící klíče; změnu existujícího překladu provedete výslovným obnovením. Beta.9 navíc přejmenuje přesně známé standardní názvy z předchozích bet; odlišné vlastní názvy zůstanou zachované. Ostatním jazykům zůstávají anglické výchozí texty. Aplikace nevytváří nový jazyk, nepřepíná výchozí jazyk webu ani nemění metadata jazyků.
 
-Vydání obsahuje také volitelná `rqblockplacements-1.0.0-beta.12-cs.xml`, `-sk.xml`, `-pl.xml` a `-de.xml`; uvnitř TAR jsou jako `resources/lang-{cs,sk,pl,de}.xml`. Příslušné XML použijte ve správě jazyků ACP pro výslovné obnovení překladu nebo jazyk přidaný až po instalaci aplikace. Soubory překládají pouze tento doplněk. Před volitelným nativním importem zamýšlený jazyk zálohujte; zacházení s metadaty při tomto importu řídí IPS.
+Vydání obsahuje také volitelná `rqblockplacements-1.0.0-beta.13-cs.xml`, `-sk.xml`, `-pl.xml` a `-de.xml`; uvnitř TAR jsou jako `resources/lang-{cs,sk,pl,de}.xml`. Příslušné XML použijte ve správě jazyků ACP pro výslovné obnovení překladu nebo jazyk přidaný až po instalaci aplikace. Soubory překládají pouze tento doplněk. Před volitelným nativním importem zamýšlený jazyk zálohujte; zacházení s metadaty při tomto importu řídí IPS.
 
 ## Pravidla a diagnostika
 
@@ -90,7 +103,7 @@ npm run test:build
 npx playwright install chromium
 npm run test:browser
 python3 tools/build.py --check-reproducible
-python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.12.tar
+python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.13.tar
 ```
 
 Potřebujete PHP (ověřeno s 8.3), Python 3.10+ a pro test prohlížeče Node 20+. `PHP_BINARY` může určit jinou binárku PHP; `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` vlastní Chrome/Chromium. Překlady se generují z vlastních PHP polí `application/resources/lang/{en,cs,sk,pl,de}.php`.
