@@ -8,11 +8,11 @@ namespace IPS\Node { class Model {} }
 namespace IPS {
     class Application {}
     class IPS { public static function mb_ucfirst(string $word): string { return ucfirst($word); } }
-    class MafraApi {
+    class ExampleContent {
         public static int $calls = 0;
-        public function getMafraApiId(string $id): string {
+        public function render(string $key): string {
             self::$calls++;
-            return '<strong data-id="' . $id . '">Mafra</strong>';
+            return '<strong data-key="' . $key . '">Example content</strong>';
         }
     }
     if (!getenv('RQBP_IPS_THEME_SOURCE')) {
@@ -23,7 +23,7 @@ namespace IPS {
             public static function compileTemplate(string $code, string $name): string {
                 self::$compiles++;
                 $body = match ($code) {
-                    '{expression="(new \\IPS\\MafraApi())->getMafraApiId(\'28\')" raw="true"}' => 'return (new \\IPS\\MafraApi())->getMafraApiId("28");',
+                    '{expression="(new \\IPS\\ExampleContent())->render(\'example\')" raw="true"}' => 'return (new \\IPS\\ExampleContent())->render("example");',
                     '{{echo "echo ";}}<b>return</b>' => 'echo "echo "; return "<b>return</b>";',
                     '{{ob_start(); echo "nested ";}}<b>return</b>' => 'ob_start(); echo "nested "; return "<b>return</b>";',
                     '{{echo "SECRET"; ob_start(); echo "NESTED_SECRET"; throw new \\RuntimeException("failed");}}' => 'echo "SECRET"; ob_start(); echo "NESTED_SECRET"; throw new \\RuntimeException("failed");',
@@ -66,20 +66,20 @@ namespace {
     }
 
     $example = <<<'IPS'
-{expression="(new \IPS\MafraApi())->getMafraApiId('28')" raw="true"}
+{expression="(new \IPS\ExampleContent())->render('example')" raw="true"}
 IPS;
     $function = 'IPS\\Theme\\rqbp_template_' . Application::RQBP_BUILD . '_' . hash('sha256', $example);
     TemplateContent::validate($example);
     TemplateContent::validate($example);
-    check(\IPS\MafraApi::$calls === 0, 'Validating the exact user expression never calls MafraApi');
+    check(\IPS\ExampleContent::$calls === 0, 'Validating the generic expression never renders example content');
     check(!function_exists($function), 'Validation does not define the compiled template function');
     if (!$native) { check(\IPS\Theme::$registrations === 0 && \IPS\Theme::$compiles === 2, 'Validation only compiles/parses and never installs the function'); }
     $level = ob_get_level();
     $html = TemplateContent::render($example);
-    check(trim($html) === '<strong data-id="28">Mafra</strong>', 'The exact raw expression renders unescaped Mafra HTML');
-    check(\IPS\MafraApi::$calls === 1 && ob_get_level() === $level, 'Rendering calls the API exactly once and restores buffers');
+    check(trim($html) === '<strong data-key="example">Example content</strong>', 'The raw expression renders unescaped example HTML');
+    check(\IPS\ExampleContent::$calls === 1 && ob_get_level() === $level, 'Rendering calls the example content method exactly once and restores buffers');
     TemplateContent::render($example);
-    check(\IPS\MafraApi::$calls === 2, 'Compiled function reuse never shares rendered HTML between invocations');
+    check(\IPS\ExampleContent::$calls === 2, 'Compiled function reuse never shares rendered HTML between invocations');
 
     $echoed = TemplateContent::render('{{echo "echo ";}}<b>return</b>');
     check(str_contains($echoed, 'echo ') && str_contains($echoed, '<b>return</b>'), 'Both echoed and returned template HTML are captured');
@@ -96,7 +96,7 @@ IPS;
     rejects('<?xml version="1.0"?>', 'rqbp_error_template_php_tags');
     rejects('{{if true}}broken', 'rqbp_error_template_invalid');
     TemplateContent::validate(str_repeat('a', TemplateContent::MAX_BYTES));
-    check(\IPS\MafraApi::$calls === 2, 'Length and syntax checks do not execute templates');
+    check(\IPS\ExampleContent::$calls === 2, 'Length and syntax checks do not execute templates');
 
     $exception = null;
     ob_start();

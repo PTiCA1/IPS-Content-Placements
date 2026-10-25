@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0-beta.10 — 2026-10-25
+
+Build `1000010`; universal examples and documentation update, without schema changes.
+
+- Standardize positive Pages-tag examples on `{block="my_new_block"}` and explain that the block must exist or the key must be replaced with the actual one.
+- Keep the standalone Hello world template example and use generic descriptions for site-specific integrations.
+- Add a new ACP help key so existing installations receive the revised block example without overwriting custom translations.
+- Retain the Content Placements name, installed application identity and existing rules. Native beta.9 → beta.10 upgrade acceptance remains pending.
+
 ## 1.0.0-beta.9 — 2026-10-25
 
 Build `1000009`; rebranding release, without new schema changes.
@@ -44,7 +53,7 @@ Build `1000005`; additive, retryable migration from previous betas.
 - Restrict code management with the separate `rqbp_manage_code` ACP permission. Validate compiled syntax without invoking the expression during save or ACP diagnostics.
 - Apply the same device/group/URL and placement filters before execution. Template rules run without Pages and bypass shared page caching; block rules retain Pages permissions.
 - Preserve existing block rules through an additive schema migration. Add tests for native rendering boundaries, permissions, failures and partial-upgrade retries.
-- Native installation and the owner's actual MafraApi integration remain pending live acceptance.
+- Native installation and the owner's live custom integration remain pending live acceptance.
 
 ## 1.0.0-beta.4 — 2026-10-24
 

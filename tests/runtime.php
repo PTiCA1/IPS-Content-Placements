@@ -11,9 +11,9 @@ namespace IPS\Patterns {
 }
 namespace IPS {
     class Application { public static bool $pages = true; public static function appIsEnabled($key): bool { return $key !== 'cms' || self::$pages; } }
-    class MafraApi {
+    class ExampleContent {
         public static int $calls = 0;
-        public function getMafraApiId(string $id): string { self::$calls++; return '<strong>Mafra ' . $id . '</strong>'; }
+        public function render(string $key): string { self::$calls++; return '<strong>Content ' . $key . '</strong>'; }
     }
     class Theme {
         public static int $compiles = 0;
@@ -30,7 +30,7 @@ namespace IPS {
         public static function execute(string $code): string {
             self::$executions++;
             if (self::$callback) { (self::$callback)(); }
-            if (str_contains($code, 'MafraApi')) { return (new MafraApi)->getMafraApiId('28'); }
+            if (str_contains($code, 'ExampleContent')) { return (new ExampleContent)->render('example'); }
             if ($code === '__THROW_AFTER_ECHO__') { echo 'SECRET_PARTIAL'; ob_start(); echo 'NESTED_SECRET'; throw new \RuntimeException('Template API failed'); }
             if ($code === '__EMPTY__') { return ''; }
             return $code;
@@ -89,7 +89,7 @@ namespace {
     function fixture(array $overrides = []): void {
         Runtime::reset();
         Block::$renders = Block::$loads = 0; Block::$allowed = Block::$exists = true; Block::$callback = null;
-        \IPS\Theme::$compiles = \IPS\Theme::$executions = \IPS\MafraApi::$calls = 0;
+        \IPS\Theme::$compiles = \IPS\Theme::$executions = \IPS\ExampleContent::$calls = 0;
         \IPS\Theme::$callback = null;
         \IPS\Application::$pages = true;
         \IPS\Log::$errors = [];
@@ -228,18 +228,18 @@ namespace {
     check(\IPS\Log::$errors === [], 'No swallowed runtime errors in successful block boundary tests');
 
     $example = <<<'IPS'
-{expression="(new \IPS\MafraApi())->getMafraApiId('28')" raw="true"}
+{expression="(new \IPS\ExampleContent())->render('example')" raw="true"}
 IPS;
     $templateRule = ['rule_content_type' => 'template', 'rule_template_code' => $example];
     fixture($templateRule);
     Runtime::prepare();
     $templatePayload = Runtime::payload();
-    check(\IPS\MafraApi::$calls === 1 && \IPS\Theme::$executions === 1, 'The exact Mafra expression executes once during the original frontend request');
-    check(Block::$loads === 0 && Block::$renders === 0 && str_contains($templatePayload, 'Mafra 28'), 'Template content never loads or checks a Pages block');
+    check(\IPS\ExampleContent::$calls === 1 && \IPS\Theme::$executions === 1, 'The generic content expression executes once during the original frontend request');
+    check(Block::$loads === 0 && Block::$renders === 0 && str_contains($templatePayload, 'Content example'), 'Template content never loads or checks a Pages block');
     check(!\IPS\Output::$cacheable, 'Arbitrary template output disables shared page caching even without device filters');
     check(!str_contains($templatePayload, '<strong>'), 'Template output is inert and JSON hex escaped in CSS mode');
-    check(!str_contains($templatePayload, 'getMafraApiId') && !str_contains($templatePayload, 'template_code'), 'CSS payload contains rendered HTML without exposing its server template source');
-    check(Runtime::payload() === '' && \IPS\MafraApi::$calls === 1, 'Repeated payload access does not reexecute the template');
+    check(!str_contains($templatePayload, 'ExampleContent') && !str_contains($templatePayload, 'template_code'), 'CSS payload contains rendered HTML without exposing its server template source');
+    check(Runtime::payload() === '' && \IPS\ExampleContent::$calls === 1, 'Repeated payload access does not reexecute the template');
 
     foreach ([
         ['rule_platforms' => '["mobile"]'],
@@ -252,14 +252,14 @@ IPS;
     ] as $filter) {
         fixture(array_replace($templateRule, $filter));
         Runtime::prepare();
-        check(\IPS\Theme::$compiles === 0 && \IPS\MafraApi::$calls === 0 && Runtime::payload() === '', 'Audience and route restrictions run before template compilation and execution');
+        check(\IPS\Theme::$compiles === 0 && \IPS\ExampleContent::$calls === 0 && Runtime::payload() === '', 'Audience and route restrictions run before template compilation and execution');
     }
     fixture(array_replace($templateRule, ['rule_allow_groups' => '["4"]']));
     Runtime::prepare();
     check(!\IPS\Output::$cacheable && \IPS\Theme::$executions === 0, 'A denied audience variant of a template route also disables shared caching');
     fixture($templateRule);
     \IPS\Application::$pages = false;
-    check(str_contains(Runtime::payload(), 'Mafra 28') && \IPS\MafraApi::$calls === 1 && Block::$loads === 0, 'Standalone templates render with Pages disabled');
+    check(str_contains(Runtime::payload(), 'Content example') && \IPS\ExampleContent::$calls === 1 && Block::$loads === 0, 'Standalone templates render with Pages disabled');
     fixture();
     \IPS\Application::$pages = false;
     check(Runtime::payload() === '' && Block::$loads === 0, 'Pages block content fails closed before loading when Pages is disabled');
@@ -267,11 +267,11 @@ IPS;
     fixture(array_replace($templateRule, ['rule_mode' => 'hook', 'rule_occurrence' => 'all']));
     $nested = null;
     \IPS\Theme::$callback = static function () use (&$nested) { $nested = Runtime::hook(1); };
-    check(str_contains(Runtime::hook(1), 'Mafra 28') && $nested === '', 'Templates cannot recursively invoke their own hook');
-    check(str_contains(Runtime::hook(1), 'Mafra 28') && \IPS\MafraApi::$calls === 1, 'All hook occurrences reuse request-local template output without API reexecution');
+    check(str_contains(Runtime::hook(1), 'Content example') && $nested === '', 'Templates cannot recursively invoke their own hook');
+    check(str_contains(Runtime::hook(1), 'Content example') && \IPS\ExampleContent::$calls === 1, 'All hook occurrences reuse request-local template output without content reexecution');
     fixture($templateRule);
     $model = \IPS\rqblockplacements\Rule::all()[0];
-    check(Runtime::diagnose($model)['status'] === 'eligible' && \IPS\Theme::$compiles === 0 && \IPS\MafraApi::$calls === 0, 'ACP diagnostics check eligibility without executing submitted template code');
+    check(Runtime::diagnose($model)['status'] === 'eligible' && \IPS\Theme::$compiles === 0 && \IPS\ExampleContent::$calls === 0, 'ACP diagnostics check eligibility without executing submitted template code');
     check(\IPS\Log::$errors === [], 'Successful template boundary tests do not log runtime errors');
 
     foreach ([

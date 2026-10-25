@@ -297,6 +297,7 @@ namespace {
     check(str_contains(runAcp('rules', 'form'), 'rqbp_rule_form'), 'The add-rule form renders in our application context');
     $fields = \IPS\Helpers\Form::$last->fields;
     check(isset($fields['rqbp_block_picker'], $fields['rqbp_block_reference'], $fields['rqbp_hook'], $fields['rqbp_selector']), 'The native form contains both block sources and placement modes');
+    check($fields['rqbp_block_reference']->description === 'rqbp_block_reference_help_v10', 'The block reference uses the new explicit help instead of a previously saved field description');
     check($fields['rqbp_rule_enabled']->value === false, 'New rules remain disabled by default');
     $deviceOptions = [
         'mobile' => 'rqbp_platform_mobile',
@@ -347,7 +348,7 @@ namespace {
     $template->id = 2;
     $template->content_type = 'template';
     $template->block_id = 0;
-    $template->template_code = '{expression="(new \\IPS\\MafraApi())->getMafraApiId(\'28\')" raw="true"}';
+    $template->template_code = '{expression="(new \\IPS\\ExampleContent())->render(\'example\')" raw="true"}';
     \IPS\rqblockplacements\Rule::$records[2] = $template;
     $row = ['rule_id' => 2, 'rule_content_type' => 'template', 'rule_template_code' => $template->template_code];
     check(($table->parsers['rule_content'])(null, $row) === 'rqbp_source_template', 'The table identifies template contents without exposing its source code');

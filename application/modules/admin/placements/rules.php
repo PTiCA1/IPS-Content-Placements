@@ -198,7 +198,7 @@ class rules extends Controller
                     throw new DomainException('rqbp_error_block');
                 }
             }, null, null, 'rqbp_block_picker'));
-            $form->add(new Text('rqbp_block_reference', $block ? '{block="' . $block->key . '"}' : '', false, ['maxLength' => 255], static function ($value) use ($source): void {
+            $referenceField = new Text('rqbp_block_reference', $block ? '{block="' . $block->key . '"}' : '', false, ['maxLength' => 255], static function ($value) use ($source): void {
                 if ($source !== 'manual') {
                     return;
                 }
@@ -207,7 +207,9 @@ class rules extends Controller
                 } catch (InvalidArgumentException | OutOfRangeException) {
                     throw new DomainException('rqbp_error_block_reference');
                 }
-            }, null, null, 'rqbp_block_reference'));
+            }, null, null, 'rqbp_block_reference');
+            $referenceField->description = self::word('rqbp_block_reference_help_v10');
+            $form->add($referenceField);
         }
         if ($canManageCode) {
             $codeField = new TextArea('rqbp_template_code', $config['template_code'], false,

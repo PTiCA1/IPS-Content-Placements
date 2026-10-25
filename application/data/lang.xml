@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <language>
- <app key="rqblockplacements" version="1000009">
+ <app key="rqblockplacements" version="1000010">
   <word key="__app_rqblockplacements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Placement rules</word>
@@ -22,7 +22,7 @@
   <word key="rqbp_block_picker" js="0">Pages block</word>
   <word key="rqbp_block_picker_desc" js="0">Select a block, not its containing folder. The block keeps its existing Pages permissions.</word>
   <word key="rqbp_block_reference" js="0">Block reference</word>
-  <word key="rqbp_block_reference_desc" js="0">Enter the block key or a Pages tag such as &lt;code&gt;{block="click_brand"}&lt;/code&gt;. The application resolves it to an existing block; it does not evaluate other template code.</word>
+  <word key="rqbp_block_reference_help_v10" js="0">Enter the block key or a Pages tag such as &lt;code&gt;{block="my_new_block"}&lt;/code&gt;. First create a block with this key, or replace it with the actual key of an existing block. The application resolves it to an existing block; it does not evaluate other template code.</word>
   <word key="rqbp_block_source" js="0">Choose the block</word>
   <word key="rqbp_block_unavailable" js="0">Block unavailable</word>
   <word key="rqbp_choose_hook" js="0">Choose a native hook</word>
@@ -55,7 +55,7 @@
   <word key="rqbp_enabled" js="0">Enable Content Placements</word>
   <word key="rqbp_enabled_desc" js="0">Switch off to stop all placements without deleting their rules.</word>
   <word key="rqbp_error_block" js="0">Select an existing Pages block.</word>
-  <word key="rqbp_error_block_reference" js="0">Enter an existing block key or a valid {block="key"} reference.</word>
+  <word key="rqbp_error_block_reference" js="0">Enter an existing block key or a valid {block="my_new_block"} reference.</word>
   <word key="rqbp_error_content_save" js="0">The configuration could not be saved. Check the content source and placement fields.</word>
   <word key="rqbp_error_content_source" js="0">Select an available content source.</word>
   <word key="rqbp_error_diagnostic_url" js="0">Enter a URL within this community using its configured scheme, host, and base path.</word>

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Polski" rtl="0" author_name="Content Placements contributors" author_url="" version="1.0.0-beta.9" long_version="1000009" update_check="">
- <app key="rqblockplacements" version="1000009">
+<language name="Polski" rtl="0" author_name="Content Placements contributors" author_url="" version="1.0.0-beta.10" long_version="1000010" update_check="">
+ <app key="rqblockplacements" version="1000010">
   <word key="__app_rqblockplacements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Reguły umieszczania</word>
@@ -22,7 +22,7 @@
   <word key="rqbp_block_picker" js="0">Blok Pages</word>
   <word key="rqbp_block_picker_desc" js="0">Wybierz blok, a nie folder, który go zawiera. Blok zachowuje dotychczasowe uprawnienia w Pages.</word>
   <word key="rqbp_block_reference" js="0">Odwołanie do bloku</word>
-  <word key="rqbp_block_reference_desc" js="0">Wprowadź klucz bloku lub znacznik Pages, na przykład &lt;code&gt;{block="click_brand"}&lt;/code&gt;. Aplikacja odnajdzie istniejący blok; nie wykonuje innego kodu szablonów z tego pola.</word>
+  <word key="rqbp_block_reference_help_v10" js="0">Wprowadź klucz bloku lub znacznik Pages, na przykład &lt;code&gt;{block="my_new_block"}&lt;/code&gt;. Najpierw utwórz blok z tym kluczem albo zastąp go rzeczywistym kluczem istniejącego bloku. Aplikacja odnajdzie istniejący blok; nie wykonuje innego kodu szablonów z tego pola.</word>
   <word key="rqbp_block_source" js="0">Wybór bloku</word>
   <word key="rqbp_block_unavailable" js="0">Blok niedostępny</word>
   <word key="rqbp_choose_hook" js="0">Wybierz natywny hook</word>
@@ -55,7 +55,7 @@
   <word key="rqbp_enabled" js="0">Włącz Content Placements</word>
   <word key="rqbp_enabled_desc" js="0">Wyłącz, aby zatrzymać umieszczanie wszystkich bloków bez usuwania ich reguł.</word>
   <word key="rqbp_error_block" js="0">Wybierz istniejący blok Pages.</word>
-  <word key="rqbp_error_block_reference" js="0">Wprowadź istniejący klucz bloku lub prawidłowe odwołanie {block="key"}.</word>
+  <word key="rqbp_error_block_reference" js="0">Wprowadź istniejący klucz bloku lub prawidłowe odwołanie {block="my_new_block"}.</word>
   <word key="rqbp_error_content_save" js="0">Nie udało się zapisać konfiguracji. Sprawdź źródło zawartości i pola umiejscowienia.</word>
   <word key="rqbp_error_content_source" js="0">Wybierz dostępne źródło zawartości.</word>
   <word key="rqbp_error_diagnostic_url" js="0">Wprowadź adres URL w tej społeczności z jej skonfigurowanym protokołem, hostem i ścieżką bazową.</word>

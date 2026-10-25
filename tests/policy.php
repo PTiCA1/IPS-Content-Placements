@@ -24,8 +24,8 @@ function rejects(callable $operation, string $label): void
     throw new RuntimeException($label . ': unsafe input was accepted');
 }
 
-same('welcome', Policy::parseBlockReference('{block="welcome"}'), 'Double-quoted native tag');
-same('welcome', Policy::parseBlockReference("{block='welcome'}"), 'Single-quoted native tag');
+same('my_new_block', Policy::parseBlockReference('{block="my_new_block"}'), 'Double-quoted native tag');
+same('my_new_block', Policy::parseBlockReference("{block='my_new_block'}"), 'Single-quoted native tag');
 same('my_block-2', Policy::parseBlockReference('my_block-2'), 'Block key');
 foreach (['', '{block="x"}{block="y"}', '<b>{block="x"}</b>', '{expression="phpinfo()"}', '{block="x"} <?php echo 1;', "{block=\"x\nother\"}"] as $unsafe) {
     rejects(static fn() => Policy::parseBlockReference($unsafe), 'Accept exactly one block reference');
@@ -36,7 +36,7 @@ same(['2', '7'], Policy::lines('[2,7]'), 'Serialized group IDs accepted');
 same(['0'], Policy::lines([0, '0', '']), 'Zero must not disappear as an empty group value');
 same('block', Policy::normalize(['rule_block_id' => 9])['content_type'], 'Older records retain Pages as their content source');
 same('', Policy::normalize(['rule_block_id' => 9])['template_code'], 'Older records have no custom template');
-$custom = '{expression="(new \\IPS\\MafraApi())->getMafraApiId(\'28\')" raw="true"}';
+$custom = '{expression="(new \\IPS\\ExampleContent())->render(\'example\')" raw="true"}';
 same($custom, Policy::normalize(['rule_content_type' => 'template', 'rule_template_code' => $custom])['template_code'], 'Preserve native template code without evaluation');
 
 $rule = ['enabled' => 1, 'mode' => 'hook', 'platforms' => [], 'allow_groups' => [], 'exclude_groups' => [], 'apps' => [], 'include_urls' => [], 'exclude_urls' => []];

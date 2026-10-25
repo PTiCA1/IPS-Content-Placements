@@ -68,9 +68,9 @@ class DistributionTests(unittest.TestCase):
                 self.assertEqual(VALIDATOR.validate_language(root, 1000008, "1.0.0-beta.8", language_name), translated)
 
     def test_translation_checks_reject_missing_keys_changed_examples_and_icons(self):
-        english = {"message": 'Rule %s: <code>{block="click_brand"}</code>', "menutab__rqblockplacements_icon": "table-cells-large"}
+        english = {"message": 'Rule %s: <code>{block="my_new_block"}</code>', "menutab__rqblockplacements_icon": "table-cells-large"}
         for changes, error in [
-            ({"message": 'Pravidlo: <code>{block="click_brand"}</code>'}, "placeholder mismatch"),
+            ({"message": 'Pravidlo: <code>{block="my_new_block"}</code>'}, "placeholder mismatch"),
             ({"message": 'Pravidlo %s: <code>{block="different"}</code>'}, "code example mismatch"),
             ({"menutab__rqblockplacements_icon": "table"}, "ACP icon differs"),
         ]:

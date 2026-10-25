@@ -32,6 +32,6 @@ U prvních dvou nálezů byly reprodukovány podmínky vzniku veřejné varianty
 
 ## Meze a ověření na fóru
 
-Vlastní šablona záměrně může spouštět PHP a reklamní HTML záměrně může obsahovat JavaScript. Tuto důvěru nelze nahradit validací syntaxe. Audit neprověřuje samotnou třídu MafraApi, jiné doplňky, konfiguraci serveru, všechny verze IPS ani pravidla CDN. Není důkazem absolutní nepřítomnosti zranitelností.
+Vlastní šablona záměrně může spouštět PHP a reklamní HTML záměrně může obsahovat JavaScript. Tuto důvěru nelze nahradit validací syntaxe. Audit neprověřuje soukromé integrační třídy, jiné doplňky, konfiguraci serveru, všechny verze IPS ani pravidla CDN. Není důkazem absolutní nepřítomnosti zranitelností.
 
 Po aktualizaci na beta.6 vyprázdněte existující CDN/reverzní proxy cache dotčených URL; nová hlavička neodstraní již uložené staré odpovědi. Na skutečném fóru ověřte výsledné `Cache-Control` a střídání skupin/zařízení na stejném URL, včetně archivovaného tématu. Stránky s odpovídajícím aktivním pravidlem nově obcházejí sdílenou cache i tehdy, když konkrétní návštěvník blok neuvidí; to je záměrná výměna části výkonu za oddělení variant.

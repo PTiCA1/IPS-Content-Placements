@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Deutsch" rtl="0" author_name="Content Placements contributors" author_url="" version="1.0.0-beta.9" long_version="1000009" update_check="">
- <app key="rqblockplacements" version="1000009">
+<language name="Deutsch" rtl="0" author_name="Content Placements contributors" author_url="" version="1.0.0-beta.10" long_version="1000010" update_check="">
+ <app key="rqblockplacements" version="1000010">
   <word key="__app_rqblockplacements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Platzierungsregeln</word>
@@ -22,7 +22,7 @@
   <word key="rqbp_block_picker" js="0">Pages-Block</word>
   <word key="rqbp_block_picker_desc" js="0">Wählen Sie einen Block und nicht dessen Ordner aus. Die bestehenden Pages-Berechtigungen des Blocks bleiben erhalten.</word>
   <word key="rqbp_block_reference" js="0">Blockreferenz</word>
-  <word key="rqbp_block_reference_desc" js="0">Geben Sie den Blockschlüssel oder ein Pages-Tag wie &lt;code&gt;{block="click_brand"}&lt;/code&gt; ein. Die Anwendung ordnet die Referenz einem vorhandenen Block zu; anderer Vorlagencode wird dabei nicht ausgeführt.</word>
+  <word key="rqbp_block_reference_help_v10" js="0">Geben Sie den Blockschlüssel oder ein Pages-Tag wie &lt;code&gt;{block="my_new_block"}&lt;/code&gt; ein. Erstellen Sie zuerst einen Block mit diesem Schlüssel oder ersetzen Sie ihn durch den tatsächlichen Schlüssel eines vorhandenen Blocks. Die Anwendung ordnet die Referenz einem vorhandenen Block zu; anderer Vorlagencode wird dabei nicht ausgeführt.</word>
   <word key="rqbp_block_source" js="0">Block auswählen</word>
   <word key="rqbp_block_unavailable" js="0">Block nicht verfügbar</word>
   <word key="rqbp_choose_hook" js="0">Nativen Hook auswählen</word>
@@ -55,7 +55,7 @@
   <word key="rqbp_enabled" js="0">Content Placements aktivieren</word>
   <word key="rqbp_enabled_desc" js="0">Deaktivieren Sie diese Option, um alle Platzierungen zu stoppen, ohne die Regeln zu löschen.</word>
   <word key="rqbp_error_block" js="0">Wählen Sie einen vorhandenen Pages-Block aus.</word>
-  <word key="rqbp_error_block_reference" js="0">Geben Sie einen vorhandenen Blockschlüssel oder eine gültige Referenz im Format {block="key"} ein.</word>
+  <word key="rqbp_error_block_reference" js="0">Geben Sie einen vorhandenen Blockschlüssel oder eine gültige Referenz im Format {block="my_new_block"} ein.</word>
   <word key="rqbp_error_content_save" js="0">Die Konfiguration konnte nicht gespeichert werden. Prüfen Sie die Inhaltsquelle und die Felder für die Platzierung.</word>
   <word key="rqbp_error_content_source" js="0">Wählen Sie eine verfügbare Inhaltsquelle aus.</word>
   <word key="rqbp_error_diagnostic_url" js="0">Geben Sie eine URL innerhalb dieser Community mit dem konfigurierten Protokoll, Host und Basispfad ein.</word>
