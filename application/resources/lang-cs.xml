@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Čeština" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.7" long_version="1000007" update_check="">
- <app key="rqblockplacements" version="1000007">
+<language name="Čeština" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.8" long_version="1000008" update_check="">
+ <app key="rqblockplacements" version="1000008">
   <word key="__app_rqblockplacements" js="0">Pages Block Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Umístění bloků</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Pravidla umístění</word>
@@ -89,7 +89,7 @@
   <word key="rqbp_hook" js="0">Nativní hook</word>
   <word key="rqbp_hook_desc" js="0">Dostupné hooky pocházejí ze zapnutých šablon veřejné části webu. Pozice, jejichž HTML kontext neumožňuje vložit blok, nejsou v nabídce.</word>
   <word key="rqbp_include_urls" js="0">Povolené vzory URL</word>
-  <word key="rqbp_include_urls_desc" js="0">Jeden vzor relativní ke kořenu komunity na řádek, začínající &lt;code&gt;/&lt;/code&gt;, například &lt;code&gt;/forums/*&lt;/code&gt;. Prázdné pole povoluje všechny URL. Jediný zástupný znak je &lt;code&gt;*&lt;/code&gt;. Cesta a parametry dotazu se porovnávají společně; &lt;code&gt;/forums/priklad/*&lt;/code&gt; umožní různé parametry stránkování. Nezadávejte doménu ani #fragment.</word>
+  <word key="rqbp_include_urls_desc" js="0">Jeden vzor relativní ke kořenu komunity na řádek, začínající &lt;code&gt;/&lt;/code&gt;, například &lt;code&gt;/forums/*&lt;/code&gt;. Prázdné pole povoluje všechny URL. Jediný zástupný znak je &lt;code&gt;*&lt;/code&gt;. Cesta a parametry dotazu se porovnávají společně; &lt;code&gt;/forums/example/*&lt;/code&gt; umožní různé parametry stránkování. Nezadávejte doménu ani #fragment.</word>
   <word key="rqbp_log_deleted" js="0">Smazáno pravidlo umístění %s</word>
   <word key="rqbp_log_duplicated" js="0">Pravidlo umístění %s zkopírováno jako vypnuté</word>
   <word key="rqbp_log_reordered" js="0">Změněno pořadí pravidel umístění</word>

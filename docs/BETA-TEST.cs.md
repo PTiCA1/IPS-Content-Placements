@@ -1,12 +1,12 @@
 # Test bety přes ACP
 
-Stav: majitel potvrdil **funkční editor pravidel v beta.2** po opravě ACP chyb beta.1. **Cílení na zařízení z beta.3, automatická čeština z beta.4 i skutečná aktualizace ještě čekají na ověření.** Automatické mocky a test prohlížeče nepotvrzují skutečnou instalaci ani aktualizaci. Výsledky zaznamenejte před zveřejněním a označením verze za stabilní.
+Stav: majitel potvrdil **funkční editor pravidel v beta.2** po opravě ACP chyb beta.1. **Cílení na zařízení, skutečná aktualizace i čtyři automatické překlady v beta.8 ještě čekají na živé ověření.** Automatické mocky a test prohlížeče nepotvrzují skutečnou instalaci ani aktualizaci. Výsledky zaznamenejte před zveřejněním a označením verze za stabilní.
 
-Použijte privátní licencovanou testovací instalaci **IPS 5.0.20 + Pages**, se zálohou databáze i souborů. Poznamenejte verzi PHP, build IPS, motiv, prohlížeč, CDN/cache a SHA256 balíčku. Aktuální balíček je **`1.0.0-beta.7`, build `1000007`**; ověřte aktualizaci z beta.2 (`1000002`) i beta.3 (`1000003`).
+Použijte privátní licencovanou testovací instalaci **IPS 5.0.20 + Pages**, se zálohou databáze i souborů. Poznamenejte verzi PHP, build IPS, motiv, prohlížeč, CDN/cache a SHA256 balíčku. Aktuální balíček je **`1.0.0-beta.8`, build `1000008`**; ověřte beta.7 → beta.8 i starší verzi s existujícími migracemi. Beta.8 nemění schéma databáze.
 
 ## Základní instalace
 
-1. V ACP nahrajte `rqblockplacements-1.0.0-beta.7.tar`. Ověřte dokončení instalace, verzi/build `1.0.0-beta.7` / `1000007` a viditelnou ikonu mřížky poblíž spodního konce běžného úzkého menu ACP. Otevřete **Block placements → Placement rules** a **Block placements → Settings**. V existujícím českém jazyce jsou cesty automaticky **Umístění bloků → Pravidla umístění / Nastavení**, bez importu XML. Jde o vlastní záložku aplikace, nikoli podmenu nativních reklam nebo Pages.
+1. V ACP nahrajte `rqblockplacements-1.0.0-beta.8.tar`. Ověřte dokončení instalace, verzi/build `1.0.0-beta.8` / `1000008` a viditelnou ikonu mřížky poblíž spodního konce běžného úzkého menu ACP. Otevřete **Block placements → Placement rules** a **Block placements → Settings**. Existující čeština, slovenština, polština a němčina získají příslušné texty aplikace automaticky bez importu XML. Jde o vlastní záložku aplikace, nikoli podmenu nativních reklam nebo Pages.
 2. V Pages vytvořte veřejný HTML blok s jednoznačným textem `RQBP TEST` a odkazem. Nejprve ověřte jeho běžné nativní zobrazení.
 3. Přidejte CSS pravidlo za skutečnou kategorii, například `li[data-categoryID="4"]`, poloha **za**, první výskyt, bez omezení. Číslo nahraďte ID ze svého fóra. Blok má být mezi kategoriemi, ne mezi příspěvky v tématu.
 4. Přepněte na polohu **před** a ověřte pořadí i absenci duplicit.
@@ -15,11 +15,12 @@ Použijte privátní licencovanou testovací instalaci **IPS 5.0.20 + Pages**, s
 
 Přímý přístup: zachovejte skutečný adresář ACP ze své aktuální adresy a otevřete jeho `index.php` s dotazem `?app=rqblockplacements&module=placements&controller=rules`. Přejmenovaný adresář ACP se nesmí změnit. V beta.1 mohla aplikaci otevřít i prázdná položka dole v úzkém menu; beta.2 musí ikonu zobrazit bez nutnosti najetí myší nebo obrazovky širší než 1 900 px.
 
-## Automatická čeština
+## Automatická čeština, slovenština, polština a němčina
 
-- Před instalací či aktualizací ponechte existující český i anglický/jiný jazyk. Podle dostupnosti ověřte varianty locale `cs_CZ`, `cs-CZ` a `Czech_…`. České menu, pole pravidel, názvy zařízení a zprávy aplikace se musí objevit bez samostatného XML; ostatním jazykům zůstane anglický výchozí text.
-- Před aktualizací upravte jeden text aplikace a jiný nastavte na záměrně prázdnou hodnotu. Obojí musí zůstat zachované. Nové klíče musí získat český text. Výchozí jazyk webu, názvy jazyků, locale i ostatní metadata se nesmějí změnit.
-- Volitelně obnovte existující překlady samostatným českým XML. Přidejte český jazyk až po instalaci aplikace a ověřte dokumentovanou cestu importu XML. Tento výslovný nativní import je oddělený od automatické aktualizace aplikace.
+- Před instalací či aktualizací ponechte existující češtinu, slovenštinu, polštinu a němčinu i anglický/nepodporovaný jazyk. Ověřte `cs`, `sk`, `pl`, `de` a regionální tvary jako `cs_CZ`, `sk-SK`, `pl_PL`, `de-DE`, také Windows názvy locale Czech/Slovak/Polish/German. Každý podporovaný jazyk musí získat vlastní překlad aplikace bez samostatného XML; ostatním jazykům zůstane anglický výchozí text.
+- V každém překladu ověřte všech 148 klíčů aplikace: menu, názvy oprávnění, pole pravidel, zařízení, nápovědu, chyby i diagnostiku. Příklady kódu, zástupné symboly a ikona menu musí zůstat funkční. Přepínání existujících jazyků musí zobrazovat odpovídající texty.
+- Před aktualizací upravte jeden text aplikace a jiný nastavte na záměrně prázdnou hodnotu v každém podporovaném jazyce. Obojí musí zůstat zachované. Chybějící překlady musí získat příslušný text. Nesmí vzniknout nový jazyk ani se změnit výchozí jazyk webu, názvy jazyků, locale či ostatní metadata.
+- Ověřte jeden TAR, čtyři volitelná `-cs.xml`, `-sk.xml`, `-pl.xml`, `-de.xml` a SHA256SUMS pro všech pět souborů vydání. Volitelně obnovte existující překlad příslušným XML. Přidejte podporovaný jazyk až po instalaci aplikace a ověřte dokumentovanou cestu importu XML. Tento výslovný nativní import je oddělený od automatické aktualizace aplikace.
 
 ## Filtry a opakování
 
@@ -42,9 +43,9 @@ Přímý přístup: zachovejte skutečný adresář ACP ze své aktuální adres
 ## Aktualizace a odinstalace
 
 1. V instalované betě uložte reprezentativní CSS/hook pravidla, pořadí a skupiny. V beta.2 ponechte i staré OS volby (Android, iPhone, iPad, Windows a Neznámá); v beta.3 zachovejte volby zařízení. Zazálohujte databázi.
-2. Výslovně ověřte **beta.2 (`1000002`) → beta.7 (`1000007`)** i **beta.3 (`1000003`) → beta.7 (`1000007`)** nahráním `rqblockplacements-1.0.0-beta.7.tar` přes ACP. Opětovné nahrání stejné bety neověřuje migrace. U předchozí aktualizace beta.1 → beta.2 byly nahlášeny chybějící ikona a `template_store_missing`; přístup do editoru beta.2 je potvrzený, ověření beta.3 stále čeká.
+2. Ověřte **beta.7 (`1000007`) → beta.8 (`1000008`)** i starší verzi, například beta.2 (`1000002`) → beta.8, nahráním `rqblockplacements-1.0.0-beta.8.tar` přes ACP. Opětovné nahrání stejné bety neověřuje aktualizaci. Beta.8 nemění schéma; dřívější aditivní migrace musí zachovat existující data. Přístup do editoru beta.2 je potvrzený, pozdější živé ověření stále čeká.
 3. Ověřte zachování pravidel/nastavení a jediné obnovení markerů. Android se musí převést na Mobil + Tablet, iPhone na Mobil, iPad/Kindle/PlayBook na Tablet a Windows/Neznámá na Desktop. Otevření pravidla normalizuje staré hodnoty; uložení zapíše nové bez změny schématu databáze. Po další úpravě nesmějí vzniknout duplicity. Běžná navigace i přímá URL musí otevřít stejnou tabulku pravidel.
-4. Bez importu XML ověřte automatickou češtinu a zachování vlastních textů podle oddílu výše. Ostatní jazyky musí nadále používat anglické výchozí texty. Pozdější výslovné obnovení XML má překládat jen tento doplněk; po nativním importu zkontrolujte zamýšlený jazyk.
+4. Bez importu XML ověřte všechny čtyři automatické překlady a zachování vlastních textů podle oddílu výše. Nepodporované jazyky musí nadále používat anglické výchozí texty. Pozdější výslovné obnovení XML má překládat jen tento doplněk; po nativním importu zkontrolujte zamýšlený jazyk.
 5. Na jednorázové testovací instalaci odinstalujte aplikaci. Vlastní tabulky/nastavení/markery mají zmizet, existující Pages bloky zůstat.
 
 Stabilní 1.0.0 vydejte až po úspěšné instalaci, kontrole oprávnění, assetů, izolace cache a skutečné aktualizaci mezi verzemi. Před sdílením chybového hlášení odstraňte cookies, CSRF klíče, osobní údaje a obsah soukromých bloků.
@@ -61,14 +62,15 @@ Stabilní 1.0.0 vydejte až po úspěšné instalaci, kontrole oprávnění, ass
 | Nativní assety / původní požadavek | Čeká | |
 | CDN cache hostů | Čeká | |
 | Diagnostika / omezení ACP | Čeká | |
-| Aktualizace beta.2 / beta.3 → beta.7 / převod platforem | Čeká | |
-| Automatická čeština / zachování vlastních textů | Čeká | |
+| Aktualizace starší bety → beta.8 / převod platforem | Čeká | |
+| Automatické překlady CS / SK / PL / DE | Čeká | |
+| Zachování vlastních textů / záměrně prázdných hodnot | Čeká | |
 | Anglické výchozí texty / nastavení jazyků beze změny | Čeká | |
 | Vypnutí / odinstalace | Čeká | |
 
-## Kód šablony v beta.5
+## Kód šablony (přidaný v beta.5)
 
-- Ověřte aktualizaci beta.4 → beta.5 a zachování všech blokových pravidel. Opakování částečné migrace nesmí ztratit data.
+- Ověřte aktualizaci beta.4 → beta.8 se zachováním všech blokových pravidel přes aditivní migraci kódu šablony. Opakování částečné migrace nesmí ztratit data.
 - Zvolte vlastní kód šablony a vložte ukázku Hello world z README. Povolená veřejná stránka musí zobrazit Hello world bez dalšího rozšíření. Uložení a ACP diagnostika mají pouze ověřit syntaxi.
 - Ověřte kód přes CSS i hook, skupiny/zařízení/URL, vyřazeného hosta, před/za, opakování a chybějící selektor. Kód se připravuje serverově před hledáním CSS cíle.
 - Omezený administrátor bez rqbp_manage_code nesmí číst kód ani odeslat podvržený formulář, zapnout, duplikovat nebo upravit pravidlo s kódem. Bloková pravidla smí dál spravovat.

@@ -2,7 +2,7 @@
 
 Samostatná aplikace pro vkládání Pages bloků nebo vlastního kódu šablony IPS před či za CSS selektor nebo nativní hook. Má vlastní pravidla pro zařízení, skupiny, aplikace a URL. Vlastní kód doplňku je pod licencí MIT. [English](README.md).
 
-**1.0.0-beta.7 — sestavení 1000007.** Bezpečnostní opravy cache a oprávnění, refaktor a další regresní testy pro IPS **5.0.20**. [Výsledky auditu a jeho meze](docs/SECURITY-AUDIT-2026-10-25.md). Po aktualizaci vyprázdněte existující CDN/reverzní proxy cache dotčených URL. Živé ověření nových verzí a vydání na GitHubu nadále čeká na test majitele.
+**1.0.0-beta.8 — sestavení 1000008.** Doplňuje úplnou slovenštinu, polštinu a němčinu vedle existující češtiny: každý překlad obsahuje 148 textů a při instalaci či aktualizaci se doplní do odpovídajících existujících jazyků. Schéma databáze se nemění. Připraveno pro IPS **5.0.20**; živé ověření překladů a vydání na GitHubu stále čeká. [Výsledky datovaného auditu a jeho meze](docs/SECURITY-AUDIT-2026-10-25.md). Po aktualizaci vyprázdněte existující CDN/reverzní proxy cache dotčených URL.
 
 ## Funkce první verze
 
@@ -32,7 +32,7 @@ Při uložení a diagnostice se ověří syntaxe bez volání vloženého výraz
 
 Potřebujete licencované IPS 5.0.20, povolené vlastní aplikace a oprávnění instalovat je v ACP. Pages jsou potřeba pro pravidla s bloky; vlastní kód může fungovat i bez Pages. Použijte testovací instalaci a zálohu databáze i souborů.
 
-1. Připravte `rqblockplacements-1.0.0-beta.7.tar` a `SHA256SUMS` z adresáře `dist/`. Ve společném adresáři souborů vydání je můžete ověřit příkazem `shasum -a 256 -c SHA256SUMS`. Samostatný český XML je volitelný.
+1. Připravte `rqblockplacements-1.0.0-beta.8.tar` z adresáře `dist/`. Pro ověření příkazem `shasum -a 256 -c SHA256SUMS` mějte ve stejném adresáři také `SHA256SUMS` a všechna čtyři překladová XML. Pro samotnou instalaci stačí TAR.
 2. V **ACP → System → Applications** zvolte nahrání/instalaci aplikace a nahrajte **TAR**. ZIP zdrojového repozitáře se neinstaluje.
 3. Otevřete **ACP → Block placements → Placement rules**. Při použití existujícího českého jazyka je cesta **Umístění bloků → Pravidla umístění**, bez samostatného importu XML. Jde o vlastní záložku aplikace poblíž spodního konce postranního menu, nikoli položku uvnitř nativních reklam nebo Pages. Dalším administrátorům případně přidělte oprávnění `rqbp_manage`.
 4. V Pages vytvořte jednoduchý HTML blok a přidejte pravidlo pro jeden známý CSS selektor nebo hook. Začněte prvním výskytem, všemi platformami a bez omezení skupin či URL.
@@ -44,11 +44,20 @@ Pro rychlé vypnutí použijte globální přepínač, vypněte konkrétní prav
 
 Nativní hook nezaručuje, že je do jeho místa vhodné vložit celý blok. Nevkládejte celý blok dovnitř `head`, `title`, odkazů ani jiných nevhodných HTML prvků. Ověřte i CSS a skripty bloku. Některé interaktivní bloky mají pevná HTML ID nebo inicializaci určenou jen pro jeden výskyt.
 
-## Čeština
+## Čeština, slovenština, polština a němčina
 
-TAR obsahuje české texty aplikace a při instalaci i aktualizaci je automaticky doplní do existujících jazyků s českým locale, například `cs_CZ`, `cs-CZ` nebo `Czech_…`. Samostatný import XML není potřeba. Vlastní úpravy textů včetně záměrně prázdné hodnoty zůstanou zachované. Aktualizace doplní nové klíče; změnu existujícího přeloženého textu provedete volitelným importem XML. Ostatní jazyky používají anglické výchozí texty; aplikace nepřepíná výchozí jazyk webu ani nemění metadata jazyků.
+Každý překlad obsahuje všech 148 textů aplikace. Instalace i aktualizace přes ACP automaticky doplní chybějící překlady do existujících jazyků podle jejich locale:
 
-Samostatný `rqblockplacements-1.0.0-beta.7-cs.xml` (uvnitř TAR jako `resources/lang-cs.xml`) zůstává pro výslovné obnovení překladu nebo český jazyk přidaný až po instalaci aplikace. Přes správu jazyků v ACP jej importujte do zamýšleného jazyka. Soubor překládá jen tento doplněk. Před volitelným nativním importem XML jazyk zálohujte; jeho zacházení s metadaty řídí IPS.
+| Jazyk | Příklady rozpoznaného locale |
+| --- | --- |
+| Čeština | `cs`, `cs_CZ`, `cs-CZ`, `Czech_…` |
+| Slovenština | `sk`, `sk_SK`, `sk-SK`, `Slovak_…` |
+| Polština | `pl`, `pl_PL`, `pl-PL`, `Polish_…` |
+| Němčina | `de`, `de_DE`, `de-DE`, `German_…` |
+
+Pro tyto existující jazyky není samostatný import XML potřeba. Vlastní texty včetně záměrně prázdných hodnot se nepřepisují. Aktualizace doplní chybějící klíče; změnu existujícího překladu provedete výslovným obnovením. Ostatním jazykům zůstávají anglické výchozí texty. Aplikace nevytváří nový jazyk, nepřepíná výchozí jazyk webu ani nemění metadata jazyků.
+
+Vydání obsahuje také volitelná `rqblockplacements-1.0.0-beta.8-cs.xml`, `-sk.xml`, `-pl.xml` a `-de.xml`; uvnitř TAR jsou jako `resources/lang-{cs,sk,pl,de}.xml`. Příslušné XML použijte ve správě jazyků ACP pro výslovné obnovení překladu nebo jazyk přidaný až po instalaci aplikace. Soubory překládají pouze tento doplněk. Před volitelným nativním importem zamýšlený jazyk zálohujte; zacházení s metadaty při tomto importu řídí IPS.
 
 ## Pravidla a diagnostika
 
@@ -69,12 +78,12 @@ npm run test:build
 npx playwright install chromium
 npm run test:browser
 python3 tools/build.py --check-reproducible
-python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.7.tar
+python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.8.tar
 ```
 
-Potřebujete PHP (ověřeno s 8.3), Python 3.10+ a pro test prohlížeče Node 20+. `PHP_BINARY` může určit jinou binárku PHP; `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` vlastní Chrome/Chromium. Překlady se generují z vlastních PHP polí `application/resources/lang/{en,cs}.php`.
+Potřebujete PHP (ověřeno s 8.3), Python 3.10+ a pro test prohlížeče Node 20+. `PHP_BINARY` může určit jinou binárku PHP; `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` vlastní Chrome/Chromium. Překlady se generují z vlastních PHP polí `application/resources/lang/{en,cs,sk,pl,de}.php`.
 
-TAR má v kořeni `data/application.json`. Pořadí souborů, práva, vlastník i časy jsou normalizované. `SOURCE_DATE_EPOCH` má výchozí hodnotu `0`; stejné zdroje tedy vytvářejí stejné bajty. `dist/SHA256SUMS` ověřuje TAR i samostatný český XML. Skript balí pouze vlastní aplikační adresář. Další informace jsou v [dokumentaci vývoje](docs/DEVELOPMENT.md).
+TAR má v kořeni `data/application.json`. Pořadí souborů, práva, vlastník i časy jsou normalizované. `SOURCE_DATE_EPOCH` má výchozí hodnotu `0`; stejné zdroje tedy vytvářejí stejné bajty. `dist/SHA256SUMS` ověřuje TAR i čtyři samostatná překladová XML. Instalátor čte přibalené překlady XML. Skript balí pouze vlastní aplikační adresář. Další informace jsou v [dokumentaci vývoje](docs/DEVELOPMENT.md).
 
 Volitelně lze jen pro čtení zkontrolovat několik API signatur podle samostatně získaných lokálních zdrojů:
 

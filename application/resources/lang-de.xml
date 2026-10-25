@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='utf-8'?>
+<language name="Deutsch" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.8" long_version="1000008" update_check="">
+ <app key="rqblockplacements" version="1000008">
+  <word key="__app_rqblockplacements" js="0">Pages Block Placements</word>
+  <word key="menu__rqblockplacements_placements" js="0">Blockplatzierungen</word>
+  <word key="menu__rqblockplacements_placements_rules" js="0">Platzierungsregeln</word>
+  <word key="menu__rqblockplacements_placements_settings" js="0">Einstellungen</word>
+  <word key="menutab__rqblockplacements" js="0">Blockplatzierungen</word>
+  <word key="menutab__rqblockplacements_icon" js="0">table-cells-large</word>
+  <word key="r__placements" js="0">Blockplatzierungen</word>
+  <word key="r__rqblockplacements" js="0">Pages Block Placements</word>
+  <word key="r__rqbp_manage" js="0">Platzierungen von Pages-Blöcken verwalten</word>
+  <word key="r__rqbp_manage_code" js="0">Benutzerdefinierten IPS-Vorlagencode verwalten (ermöglicht die Ausführung von PHP auf dem Server)</word>
+  <word key="rqbp_add_rule" js="0">Platzierungsregel hinzufügen</word>
+  <word key="rqbp_after" js="0">Nach dem Ziel</word>
+  <word key="rqbp_all_occurrences" js="0">Jedes Vorkommen</word>
+  <word key="rqbp_allow_groups" js="0">Zugelassene Benutzergruppen</word>
+  <word key="rqbp_allow_groups_desc" js="0">Lassen Sie die Auswahl leer, um alle Gruppen zuzulassen. Haupt- und Nebengruppen werden berücksichtigt. Auch der Pages-Block muss dem Mitglied die Anzeige erlauben.</word>
+  <word key="rqbp_apps" js="0">Anwendungen</word>
+  <word key="rqbp_apps_desc" js="0">Lassen Sie die Auswahl leer, um alle Frontend-Anwendungen zuzulassen. Dieser Filter verwendet die Anwendung der angeforderten Seite. Sie kann sich von der Anwendung unterscheiden, zu der eine gemeinsam genutzte Vorlage gehört.</word>
+  <word key="rqbp_before" js="0">Vor dem Ziel</word>
+  <word key="rqbp_block_picker" js="0">Pages-Block</word>
+  <word key="rqbp_block_picker_desc" js="0">Wählen Sie einen Block und nicht dessen Ordner aus. Die bestehenden Pages-Berechtigungen des Blocks bleiben erhalten.</word>
+  <word key="rqbp_block_reference" js="0">Blockreferenz</word>
+  <word key="rqbp_block_reference_desc" js="0">Geben Sie den Blockschlüssel oder ein Pages-Tag wie &lt;code&gt;{block="click_brand"}&lt;/code&gt; ein. Die Anwendung ordnet die Referenz einem vorhandenen Block zu; anderer Vorlagencode wird dabei nicht ausgeführt.</word>
+  <word key="rqbp_block_source" js="0">Block auswählen</word>
+  <word key="rqbp_block_unavailable" js="0">Block nicht verfügbar</word>
+  <word key="rqbp_choose_hook" js="0">Nativen Hook auswählen</word>
+  <word key="rqbp_content_intro" js="0">Wählen Sie einen vorhandenen Pages-Block oder benutzerdefinierten IPS-Vorlagencode und legen Sie anschließend Platzierung und Zielgruppe fest. Prüfen Sie eine deaktivierte Regel mit der Diagnose, bevor Sie sie aktivieren. Inhalt und Berechtigungen vorhandener Blöcke werden weiterhin unter Pages → Blöcke verwaltet.</word>
+  <word key="rqbp_content_section" js="0">Inhalt</word>
+  <word key="rqbp_content_source" js="0">Inhaltsquelle</word>
+  <word key="rqbp_copy_suffix" js="0">Kopie</word>
+  <word key="rqbp_delete_rule" js="0">Regel löschen</word>
+  <word key="rqbp_diag_application" js="0">Hauptschalter aktiviert</word>
+  <word key="rqbp_diag_block" js="0">Referenzierter Block vorhanden</word>
+  <word key="rqbp_diag_block_active" js="0">Block in Pages aktiviert</word>
+  <word key="rqbp_diag_block_permission" js="0">Aktueller Administrator darf den Block anzeigen</word>
+  <word key="rqbp_diag_content_scope" js="0">Diese Prüfungen rendern keine Inhalte und führen im ACP weder deren PHP-Ausdrücke noch Werbeskripte aus. Vorlagencode wird ausschließlich kompiliert und auf Syntaxfehler geprüft. Das Pages-Berechtigungsergebnis bezieht sich auf Ihr aktuelles Administratorkonto. Öffnen Sie unten eine tatsächliche Frontend-URL, um passende Hooks oder die Anzahl der Selektortreffer zu prüfen; testen Sie die vorgesehenen Benutzergruppen und Plattformen gesondert. Eine CSS-Platzierung kann weder veraltete document.write-Tags noch jedes Drittanbieter-Widget nach dem Laden der Seite funktionsfähig machen.</word>
+  <word key="rqbp_diag_fail" js="0">Nein</word>
+  <word key="rqbp_diag_hook" js="0">Nativer Hook und HTML-Kontext verfügbar</word>
+  <word key="rqbp_diag_pages" js="0">Pages installiert und aktiviert</word>
+  <word key="rqbp_diag_pass" js="0">Ja</word>
+  <word key="rqbp_diag_rule" js="0">Regel aktiviert</word>
+  <word key="rqbp_diag_scope" js="0">Diese Prüfungen rendern den Block nicht und führen im ACP keine Werbeskripte aus. Das Berechtigungsergebnis bezieht sich auf Ihr aktuelles Administratorkonto. Öffnen Sie unten eine tatsächliche Frontend-URL, um passende Hooks oder die Anzahl der Selektortreffer zu prüfen; testen Sie die vorgesehenen Benutzergruppen und Plattformen gesondert. Vorbereitete HTML-Werbeblöcke werden unterstützt; eine CSS-Platzierung kann jedoch weder veraltete document.write-Tags noch jedes Drittanbieter-Widget nach dem Laden der Seite funktionsfähig machen.</word>
+  <word key="rqbp_diag_selector" js="0">CSS-Selektor konfiguriert</word>
+  <word key="rqbp_diag_template" js="0">IPS-Vorlagencode lässt sich ohne Ausführung kompilieren</word>
+  <word key="rqbp_diagnostic_url" js="0">Frontend-Test-URL</word>
+  <word key="rqbp_diagnostic_url_desc" js="0">Geben Sie eine vollständige URL innerhalb dieser Community ein. Verwenden Sie die Seite, auf der diese Regel angezeigt werden soll. Die Frontend-Diagnose steht nur Administratoren zur Verfügung, die Platzierungen verwalten dürfen.</word>
+  <word key="rqbp_diagnostics" js="0">Diagnose</word>
+  <word key="rqbp_disable_rule" js="0">Regel deaktivieren</word>
+  <word key="rqbp_duplicate_rule" js="0">Als deaktivierte Regel duplizieren</word>
+  <word key="rqbp_duplicated_disabled" js="0">Die Kopie wurde als deaktivierte Regel erstellt. Prüfen Sie die Platzierung, bevor Sie die Regel aktivieren.</word>
+  <word key="rqbp_edit_rule" js="0">Platzierungsregel bearbeiten</word>
+  <word key="rqbp_enable_rule" js="0">Regel aktivieren</word>
+  <word key="rqbp_enabled" js="0">Pages Block Placements aktivieren</word>
+  <word key="rqbp_enabled_desc" js="0">Deaktivieren Sie diese Option, um alle Platzierungen zu stoppen, ohne die Regeln zu löschen.</word>
+  <word key="rqbp_error_block" js="0">Wählen Sie einen vorhandenen Pages-Block aus.</word>
+  <word key="rqbp_error_block_reference" js="0">Geben Sie einen vorhandenen Blockschlüssel oder eine gültige Referenz im Format {block="key"} ein.</word>
+  <word key="rqbp_error_content_save" js="0">Die Konfiguration konnte nicht gespeichert werden. Prüfen Sie die Inhaltsquelle und die Felder für die Platzierung.</word>
+  <word key="rqbp_error_content_source" js="0">Wählen Sie eine verfügbare Inhaltsquelle aus.</word>
+  <word key="rqbp_error_diagnostic_url" js="0">Geben Sie eine URL innerhalb dieser Community mit dem konfigurierten Protokoll, Host und Basispfad ein.</word>
+  <word key="rqbp_error_hook" js="0">Wählen Sie einen verfügbaren nativen Frontend-Hook aus.</word>
+  <word key="rqbp_error_hook_context" js="0">An dieser Hook-Position kann kein Block sicher eingefügt werden. Wählen Sie einen anderen Hook.</word>
+  <word key="rqbp_error_missing_rule" js="0">Diese Platzierungsregel existiert nicht mehr.</word>
+  <word key="rqbp_error_occurrence" js="0">Geben Sie für das Vorkommen eine Nummer von mindestens 1 ein.</word>
+  <word key="rqbp_error_order" js="0">Wählen Sie eine gültige Sortierrichtung aus.</word>
+  <word key="rqbp_error_save" js="0">Die Konfiguration konnte nicht gespeichert werden. Prüfen Sie die Blockreferenz und die Felder für die Platzierung.</word>
+  <word key="rqbp_error_selector" js="0">Geben Sie einen nicht leeren CSS-Selektor ohne Nullzeichen ein.</word>
+  <word key="rqbp_error_selector_browser" js="0">Der CSS-Selektor ist ungültig. Prüfen Sie die Syntax vor dem Speichern.</word>
+  <word key="rqbp_error_selector_too_long" js="0">Der CSS-Selektor darf höchstens 1.000 Zeichen lang sein.</word>
+  <word key="rqbp_error_template_empty" js="0">Geben Sie IPS-Vorlagencode ein.</word>
+  <word key="rqbp_error_template_invalid" js="0">Der IPS-Vorlagencode konnte nicht kompiliert werden. Prüfen Sie die Vorlagen- und Ausdruckssyntax.</word>
+  <word key="rqbp_error_template_php_tags" js="0">Verwenden Sie die native IPS-Vorlagensyntax anstelle von PHP-Start- oder End-Tags.</word>
+  <word key="rqbp_error_template_too_long" js="0">Der IPS-Vorlagencode darf höchstens 65.535 Bytes lang sein.</word>
+  <word key="rqbp_error_url_pattern" js="0">URL-Muster müssen mit einem einzelnen / beginnen, dürfen weder eine Domain noch ein #fragment enthalten und dürfen höchstens 2.000 Zeichen lang sein.</word>
+  <word key="rqbp_exclude_groups" js="0">Ausgeschlossene Benutzergruppen</word>
+  <word key="rqbp_exclude_groups_desc" js="0">Lassen Sie die Auswahl leer, um niemanden auszuschließen. Jede passende ausgeschlossene Haupt- oder Nebengruppe hat Vorrang vor den zugelassenen Gruppen.</word>
+  <word key="rqbp_exclude_urls" js="0">Ausgeschlossene URL-Muster</word>
+  <word key="rqbp_exclude_urls_desc" js="0">Verwenden Sie dasselbe Format wie für zugelassene URLs. Eine leere Liste schließt nichts aus. Ausgeschlossene Muster haben Vorrang.</word>
+  <word key="rqbp_filter_css" js="0">CSS-Selektoren</word>
+  <word key="rqbp_filter_disabled" js="0">Deaktiviert</word>
+  <word key="rqbp_filter_enabled" js="0">Aktiviert</word>
+  <word key="rqbp_filter_hook" js="0">Native Hooks</word>
+  <word key="rqbp_first" js="0">Erstes Vorkommen</word>
+  <word key="rqbp_form_intro" js="0">Der Inhalt wird weiterhin unter Pages → Blöcke verwaltet. Dieses Formular legt fest, wo ein vorhandener Block angezeigt wird. Prüfen Sie eine deaktivierte Regel mit der Diagnose und aktivieren Sie sie, wenn die Platzierung stimmt.</word>
+  <word key="rqbp_front_diagnostics" js="0">Diagnose der Blockplatzierungen</word>
+  <word key="rqbp_front_inserted" js="0">Eingefügt</word>
+  <word key="rqbp_front_matches" js="0">Treffer</word>
+  <word key="rqbp_hook" js="0">Nativer Hook</word>
+  <word key="rqbp_hook_desc" js="0">Die verfügbaren Hooks stammen aus aktivierten Frontend-Vorlagen. Positionen, deren HTML-Kontext keinen Block aufnehmen kann, werden nicht angeboten.</word>
+  <word key="rqbp_include_urls" js="0">Zugelassene URL-Muster</word>
+  <word key="rqbp_include_urls_desc" js="0">Ein Muster relativ zum Community-Verzeichnis pro Zeile, beginnend mit &lt;code&gt;/&lt;/code&gt;, zum Beispiel &lt;code&gt;/forums/*&lt;/code&gt;. Eine leere Liste lässt alle URLs zu. &lt;code&gt;*&lt;/code&gt; ist das einzige Platzhalterzeichen. Pfad und Abfrageparameter werden gemeinsam verglichen; verwenden Sie &lt;code&gt;/forums/example/*&lt;/code&gt;, um wechselnde Parameter für die Seitennavigation zuzulassen. Geben Sie weder die Domain noch ein #fragment an.</word>
+  <word key="rqbp_log_deleted" js="0">Platzierungsregel %s gelöscht</word>
+  <word key="rqbp_log_duplicated" js="0">Platzierungsregel %s als deaktivierte Regel dupliziert</word>
+  <word key="rqbp_log_reordered" js="0">Reihenfolge der Platzierungsregeln geändert</word>
+  <word key="rqbp_log_saved" js="0">Platzierungsregel %s gespeichert</word>
+  <word key="rqbp_log_settings" js="0">Einstellungen von Pages Block Placements geändert</word>
+  <word key="rqbp_log_toggled" js="0">Aktivierung der Platzierungsregel %s geändert</word>
+  <word key="rqbp_mode" js="0">Platzierungsart</word>
+  <word key="rqbp_mode_css" js="0">CSS-Selektor</word>
+  <word key="rqbp_mode_desc" js="0">Jede Regel verwendet genau eine Platzierungsart. Native Hooks werden auf dem Server gerendert. CSS-Regeln fügen den gerenderten Block ein, sobald das passende Element im Browser vorhanden ist.</word>
+  <word key="rqbp_mode_hook" js="0">Nativer Vorlagen-Hook</word>
+  <word key="rqbp_move_down" js="0">Nach hinten verschieben</word>
+  <word key="rqbp_move_up" js="0">Nach vorne verschieben</word>
+  <word key="rqbp_name" js="0">Name der Regel</word>
+  <word key="rqbp_nth" js="0">Nummer des Vorkommens</word>
+  <word key="rqbp_occurrence" js="0">Passende Vorkommen</word>
+  <word key="rqbp_occurrence_desc" js="0">Bei nativen Hooks werden die Renderaufrufe innerhalb jeder Anfrage gezählt. Bei CSS-Selektoren werden die passenden Elemente in Dokumentreihenfolge gezählt. Bei wiederholter Einfügung müssen das HTML und der Werbetag des Blocks mehrere Instanzen unterstützen.</word>
+  <word key="rqbp_occurrence_index" js="0">Nummer des Vorkommens</word>
+  <word key="rqbp_occurrence_index_desc" js="0">Die Nummerierung beginnt bei 1.</word>
+  <word key="rqbp_open_diagnostics" js="0">Frontend-Diagnose öffnen</word>
+  <word key="rqbp_pages_required" js="0">Installieren und aktivieren Sie Pages, bevor Sie Blockplatzierungen erstellen oder bearbeiten. Vorhandene Regeln werden wieder ausgeführt, sobald Pages verfügbar ist.</word>
+  <word key="rqbp_pages_unavailable" js="0">Pages ist nicht verfügbar. Für Inhalte aus Pages-Blöcken muss Pages installiert und aktiviert sein. Administratoren mit der Berechtigung zur Verwaltung von Vorlagencode können weiterhin Platzierungen mit benutzerdefiniertem IPS-Vorlagencode erstellen und bearbeiten.</word>
+  <word key="rqbp_platform_desktop" js="0">Desktop</word>
+  <word key="rqbp_platform_mobile" js="0">Mobil</word>
+  <word key="rqbp_platform_tablet" js="0">Tablet</word>
+  <word key="rqbp_platforms" js="0">Plattformen</word>
+  <word key="rqbp_platforms_desc" js="0">Lassen Sie die Auswahl leer, um alle drei Geräteklassen zuzulassen. Die Erkennung verwendet die IPS-Plattform und die User-Agent-Zeichenfolge, nicht die Bildschirmbreite. Nicht erkannte Geräte werden als Desktop eingestuft. Eine Änderung der Fenstergröße ändert die Geräteklasse nicht. Ein iPad mit einem Desktop-User-Agent kann als Desktop erkannt werden.</word>
+  <word key="rqbp_position" js="0">Block einfügen</word>
+  <word key="rqbp_prepare_diagnostics" js="0">Testlink vorbereiten</word>
+  <word key="rqbp_rule_enabled" js="0">Diese Regel aktivieren</word>
+  <word key="rqbp_rule_enabled_desc" js="0">Neue Regeln sind zunächst deaktiviert. Mit der Diagnose können Sie die Konfiguration prüfen, bevor Sie die Platzierung aktivieren.</word>
+  <word key="rqbp_rules" js="0">Platzierungsregeln</word>
+  <word key="rqbp_rules_intro" js="0">Platzieren Sie vorhandene Pages-Blöcke über einen nativen Vorlagen-Hook oder einen CSS-Selektor. Neue und duplizierte Regeln sind zunächst deaktiviert. Regeln mit kleineren Sortierwerten werden zuerst ausgeführt; mit den Pfeilen ändern Sie die globale Reihenfolge.</word>
+  <word key="rqbp_rules_intro_v5" js="0">Platzieren Sie einen vorhandenen Pages-Block oder benutzerdefinierten IPS-Vorlagencode über einen nativen Vorlagen-Hook oder einen CSS-Selektor. Neue und duplizierte Regeln sind zunächst deaktiviert. Regeln mit kleineren Sortierwerten werden zuerst ausgeführt; mit den Pfeilen ändern Sie die globale Reihenfolge.</word>
+  <word key="rqbp_section_audience" js="0">Zielgruppe</word>
+  <word key="rqbp_section_block" js="0">Vorhandener Pages-Block</word>
+  <word key="rqbp_section_pages" js="0">Seiten und Anwendungen</word>
+  <word key="rqbp_section_placement" js="0">Platzierung</word>
+  <word key="rqbp_section_rule" js="0">Regel</word>
+  <word key="rqbp_selector" js="0">CSS-Selektor</word>
+  <word key="rqbp_selector_desc" js="0">Verwenden Sie einen standardkonformen CSS-Selektor, zum Beispiel &lt;code&gt;#forum-category_12 &amp;gt; .ipsData__item:nth-child(2)&lt;/code&gt;. Bevorzugen Sie stabile IDs und data-Attribute. Wird kein Ziel gefunden, wird der Block nicht eingefügt. Der Browser prüft die Syntax des Selektors.</word>
+  <word key="rqbp_settings" js="0">Einstellungen für Blockplatzierungen</word>
+  <word key="rqbp_settings_intro" js="0">Der Hauptschalter steuert alle Platzierungsregeln. Für relevante Seiten wird der gemeinsam genutzte Seitencache umgangen, damit die Ausrichtung auf Plattformen und Gruppen korrekt bleibt. Leeren Sie nach Änderungen an den Platzierungen alle externen CDN- oder Reverse-Proxy-Seitencaches. Inhalte und Berechtigungen werden in Pages verwaltet.</word>
+  <word key="rqbp_sort_order" js="0">Reihenfolge</word>
+  <word key="rqbp_sort_order_desc" js="0">Kleinere Werte werden zuerst ausgeführt. Bei gleichem Sortierwert entscheidet die ID der Regel über die Reihenfolge.</word>
+  <word key="rqbp_source_manual" js="0">Blockreferenz eingeben</word>
+  <word key="rqbp_source_picker" js="0">Vorhandenen Block auswählen</word>
+  <word key="rqbp_source_template" js="0">Benutzerdefinierter IPS-Vorlagencode</word>
+  <word key="rqbp_status_disabled" js="0">Deaktiviert</word>
+  <word key="rqbp_status_enabled" js="0">Aktiviert</word>
+  <word key="rqbp_table_rule_block_id" js="0">Pages-Block</word>
+  <word key="rqbp_table_rule_content" js="0">Inhalt</word>
+  <word key="rqbp_table_rule_enabled" js="0">Status</word>
+  <word key="rqbp_table_rule_mode" js="0">Platzierungsart</word>
+  <word key="rqbp_table_rule_name" js="0">Regel</word>
+  <word key="rqbp_table_rule_sort_order" js="0">Reihenfolge</word>
+  <word key="rqbp_table_rule_target" js="0">Ziel</word>
+  <word key="rqbp_template_code" js="0">IPS-Vorlagencode</word>
+  <word key="rqbp_template_code_help_v7" js="0">Verwenden Sie HTML und die native IPS-Vorlagensyntax, zum Beispiel &lt;code&gt;&amp;#123;expression=&amp;quot;&amp;#039;Hello world&amp;#039;&amp;quot;&amp;#125;&lt;/code&gt;. Dieses Beispiel zeigt Hello world ohne zusätzliche Erweiterung an. Der Code kann PHP auf dem Server mit den Berechtigungen der Anwendung ausführen; gewähren Sie daher nur vertrauenswürdigen Administratoren Bearbeitungszugriff. PHP-Start- und End-Tags werden nicht akzeptiert. Die Obergrenze beträgt 65.535 Bytes. Berechtigungen von Pages-Blöcken gelten nicht für benutzerdefinierten Code: Die Sichtbarkeit wird durch die Benutzergruppen dieser Regel und durch den Code selbst gesteuert.</word>
+  <word key="rqbp_unavailable_hook" js="0">Der zuvor ausgewählte Hook ist nicht verfügbar</word>
+ </app>
+</language>

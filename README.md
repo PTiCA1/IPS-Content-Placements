@@ -2,7 +2,7 @@
 
 Place an existing Invision Community Pages block or custom IPS template code before or after a CSS selector or a native theme hook, with rules for platforms, groups, applications and URLs. Original standalone application, MIT licensed. [Česky](README.cs.md).
 
-**1.0.0-beta.7 — build 1000007.** Security fixes for response caching and permissions, refactoring and regression tests against IPS **5.0.20**. See [security boundaries](SECURITY.md) and the [audit report](docs/SECURITY-AUDIT-2026-10-25.md). Purge existing CDN/reverse-proxy cache for affected URLs after upgrading. Live acceptance and GitHub publication remain pending.
+**1.0.0-beta.8 — build 1000008.** Adds complete Slovak, Polish and German application translations alongside Czech, with 148 strings per language and automatic installation into existing matching languages. No schema changes. Prepared for IPS **5.0.20**; live multilingual acceptance and GitHub publication remain pending. See [security boundaries](SECURITY.md) and the [dated audit report](docs/SECURITY-AUDIT-2026-10-25.md). Purge existing CDN/reverse-proxy cache for affected URLs after upgrading.
 
 ## What this release does
 
@@ -32,7 +32,7 @@ Saving and ACP diagnostics validate syntax without invoking the expression. Rend
 
 Requirements: licensed IPS 5.0.20, custom applications permitted, and ACP application-management access. Pages is required for block rules; custom template rules can run without it. Use a test installation and a database/file backup.
 
-1. Obtain `rqblockplacements-1.0.0-beta.7.tar` and `SHA256SUMS` from `dist/` or a future GitHub release. Verify the checksum, for example `shasum -a 256 -c SHA256SUMS` from the download directory containing both release files.
+1. Obtain `rqblockplacements-1.0.0-beta.8.tar` from `dist/` or a future GitHub release. To verify with `shasum -a 256 -c SHA256SUMS`, keep `SHA256SUMS` and all four translation XML files in the same directory as the TAR. Installation itself requires only the TAR.
 2. Open **ACP → System → Applications**, choose the upload/install action and upload the **TAR**. The GitHub source ZIP is not the installable application.
 3. Open **ACP → Block placements → Placement rules**. This is the application's own tab near the bottom of the sidebar, not an entry under native Advertisements or Pages. When using an existing Czech language the path is **Umístění bloků → Pravidla umístění**, without a separate XML import. Allow access to the `rqbp_manage` permission for other administrators who need it.
 4. Create a simple existing Pages HTML block, then add a placement rule. Start with one known CSS selector or native hook, the first occurrence, all platforms and no audience/URL restriction.
@@ -44,11 +44,20 @@ The application has a global enable switch and individual rule switches. Disable
 
 Native hooks are insertion points, not a guarantee that arbitrary block markup is valid there. Avoid placing a full block inside `head`, `title`, links, or other containers that cannot contain it. Check the surrounding HTML and the block's scripts/styles. Repeated interactive blocks may contain IDs or scripts that are designed for a single instance.
 
-## Czech translation
+## Czech, Slovak, Polish and German translations
 
-The TAR includes Czech application text and applies it automatically on installation and upgrade to existing languages with Czech locale codes such as `cs_CZ`, `cs-CZ` or `Czech_…`. No separate XML import is required. Existing custom text, including an intentional empty value, is preserved. Upgrades fill new keys; changing an existing translated value requires the optional XML refresh. Other languages keep the English defaults; the application does not switch the site's default language or change language metadata.
+Each translation contains all 148 application strings. Installation and ACP upgrades fill missing translations in existing languages according to their locale:
 
-The release also includes `rqblockplacements-1.0.0-beta.7-cs.xml` (inside the TAR as `resources/lang-cs.xml`) for an explicit translation refresh or a Czech language added after the application was installed. Use ACP Languages to import it into the intended language. This file translates only this application. Back up the language before an optional native XML import, whose metadata behavior belongs to IPS.
+| Language | Recognized locale examples |
+| --- | --- |
+| Czech | `cs`, `cs_CZ`, `cs-CZ`, `Czech_…` |
+| Slovak | `sk`, `sk_SK`, `sk-SK`, `Slovak_…` |
+| Polish | `pl`, `pl_PL`, `pl-PL`, `Polish_…` |
+| German | `de`, `de_DE`, `de-DE`, `German_…` |
+
+No separate XML import is required for these existing languages. Custom text, including an intentional empty value, is preserved. Upgrades fill missing keys; changing an existing translated value requires an explicit refresh. Other languages keep English defaults. The application does not create a language, switch the site's default language or change language metadata.
+
+The release also provides optional `rqblockplacements-1.0.0-beta.8-cs.xml`, `-sk.xml`, `-pl.xml` and `-de.xml` files, bundled in the TAR as `resources/lang-{cs,sk,pl,de}.xml`. Use the appropriate XML in ACP Languages for an explicit translation refresh or a language added after application installation. These files translate only this application. Back up the intended language before an optional native XML import, whose metadata behavior belongs to IPS.
 
 ## Rules and troubleshooting
 
@@ -71,12 +80,12 @@ npm run test:build
 npx playwright install chromium
 npm run test:browser
 python3 tools/build.py --check-reproducible
-python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.7.tar
+python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.8.tar
 ```
 
-Tools require PHP (tested with 8.3), Python 3.10+ and Node 20+ for browser tests. `PHP_BINARY` can point to a specific PHP executable. Browser tests can use `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` instead of a downloaded Chromium. The builder reads the original `application/resources/lang/{en,cs}.php` arrays and generates native `data/lang.xml`, `data/installLang.json` and the Czech import XML.
+Tools require PHP (tested with 8.3), Python 3.10+ and Node 20+ for browser tests. `PHP_BINARY` can point to a specific PHP executable. Browser tests can use `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` instead of a downloaded Chromium. The builder reads the original `application/resources/lang/{en,cs,sk,pl,de}.php` arrays and generates native `data/lang.xml`, `data/installLang.json` and all four translation XML files.
 
-The TAR has `data/application.json` at its root. File ordering, modes, ownership and timestamps are normalized; `SOURCE_DATE_EPOCH` defaults to `0`. `dist/SHA256SUMS` covers the TAR and separate Czech XML. The installer reads the bundled `resources/lang-cs.xml`; Git metadata, node modules, authoring language arrays, unversioned upgrade work and parent workspace files remain excluded. See [development and release notes](docs/DEVELOPMENT.md).
+The TAR has `data/application.json` at its root. File ordering, modes, ownership and timestamps are normalized; `SOURCE_DATE_EPOCH` defaults to `0`. `dist/SHA256SUMS` covers the TAR and the four separate translation XML files. The installer reads the bundled XML translations; Git metadata, node modules, authoring language arrays, unversioned upgrade work and parent workspace files remain excluded. See [development and release notes](docs/DEVELOPMENT.md).
 
 Optional read-only API contract check against a separately obtained local platform:
 

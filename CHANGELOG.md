@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.0-beta.8 — 2026-10-25
+
+Build `1000008`; translation release, without new schema changes.
+
+- Add complete Slovak, Polish and German translations alongside Czech, with all 148 application keys in each language.
+- Fill missing translations automatically during installation and ACP upgrades for existing `cs`, `sk`, `pl`, `de` locales, including regional and Windows Czech/Slovak/Polish/German forms.
+- Preserve custom text, including intentional empty values. Do not create languages, change their metadata or switch the site's default language; other locales retain English defaults.
+- Package the TAR, four optional language XML files and SHA256SUMS. XML imports remain available for explicit refreshes or languages added later.
+- Live multilingual installation and upgrade acceptance remain pending. The dated security audit is unchanged and does not certify this translation release.
+
 ## 1.0.0-beta.7 — 2026-10-25
 
 Build `1000007`; documentation and ACP help update, without schema changes.

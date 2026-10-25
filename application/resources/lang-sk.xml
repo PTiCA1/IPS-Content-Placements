@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='utf-8'?>
+<language name="Slovenčina" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.8" long_version="1000008" update_check="">
+ <app key="rqblockplacements" version="1000008">
+  <word key="__app_rqblockplacements" js="0">Pages Block Placements</word>
+  <word key="menu__rqblockplacements_placements" js="0">Umiestnenia blokov</word>
+  <word key="menu__rqblockplacements_placements_rules" js="0">Pravidlá umiestnenia</word>
+  <word key="menu__rqblockplacements_placements_settings" js="0">Nastavenia</word>
+  <word key="menutab__rqblockplacements" js="0">Umiestnenia blokov</word>
+  <word key="menutab__rqblockplacements_icon" js="0">table-cells-large</word>
+  <word key="r__placements" js="0">Umiestnenia blokov</word>
+  <word key="r__rqblockplacements" js="0">Pages Block Placements</word>
+  <word key="r__rqbp_manage" js="0">Spravovať umiestnenia blokov Pages</word>
+  <word key="r__rqbp_manage_code" js="0">Spravovať vlastný kód šablón IPS (umožňuje spúšťať PHP na serveri)</word>
+  <word key="rqbp_add_rule" js="0">Pridať pravidlo umiestnenia</word>
+  <word key="rqbp_after" js="0">Za cieľový prvok</word>
+  <word key="rqbp_all_occurrences" js="0">Každý výskyt</word>
+  <word key="rqbp_allow_groups" js="0">Povolené skupiny členov</word>
+  <word key="rqbp_allow_groups_desc" js="0">Prázdny výber povoľuje všetky skupiny. Posudzujú sa hlavné aj vedľajšie skupiny. Člen musí mať aj oprávnenie zobraziť samotný blok Pages.</word>
+  <word key="rqbp_apps" js="0">Aplikácie</word>
+  <word key="rqbp_apps_desc" js="0">Prázdny výber povoľuje všetky aplikácie verejnej časti webu. Tento filter posudzuje aplikáciu požadovanej stránky, ktorá sa môže líšiť od aplikácie, ktorej patrí zdieľaná šablóna.</word>
+  <word key="rqbp_before" js="0">Pred cieľový prvok</word>
+  <word key="rqbp_block_picker" js="0">Blok Pages</word>
+  <word key="rqbp_block_picker_desc" js="0">Vyberte blok, nie priečinok, ktorý ho obsahuje. Blok si ponechá existujúce oprávnenia v Pages.</word>
+  <word key="rqbp_block_reference" js="0">Odkaz na blok</word>
+  <word key="rqbp_block_reference_desc" js="0">Zadajte kľúč bloku alebo značku Pages, napríklad &lt;code&gt;{block="click_brand"}&lt;/code&gt;. Aplikácia vyhľadá existujúci blok; iný kód šablóny z tohto poľa nevyhodnocuje.</word>
+  <word key="rqbp_block_source" js="0">Výber bloku</word>
+  <word key="rqbp_block_unavailable" js="0">Blok nie je k dispozícii</word>
+  <word key="rqbp_choose_hook" js="0">Vyberte natívny hook</word>
+  <word key="rqbp_content_intro" js="0">Vyberte existujúci blok Pages alebo vlastný kód šablóny IPS a nastavte jeho umiestnenie aj cieľové skupiny. Vypnuté pravidlo pred zapnutím overte v diagnostike. Obsah a oprávnenia existujúceho bloku sa naďalej spravujú v Pages → Blocks.</word>
+  <word key="rqbp_content_section" js="0">Obsah</word>
+  <word key="rqbp_content_source" js="0">Zdroj obsahu</word>
+  <word key="rqbp_copy_suffix" js="0">kópia</word>
+  <word key="rqbp_delete_rule" js="0">Odstrániť pravidlo</word>
+  <word key="rqbp_diag_application" js="0">Hlavný prepínač je zapnutý</word>
+  <word key="rqbp_diag_block" js="0">Odkazovaný blok existuje</word>
+  <word key="rqbp_diag_block_active" js="0">Blok je v Pages zapnutý</word>
+  <word key="rqbp_diag_block_permission" js="0">Aktuálny administrátor môže zobraziť blok</word>
+  <word key="rqbp_diag_content_scope" js="0">Tieto kontroly nevykresľujú obsah ani v ACP nespúšťajú jeho výrazy PHP alebo reklamné skripty. Kód šablóny sa iba skompiluje a overí sa jeho syntax. Výsledok kontroly oprávnení Pages sa týka aktuálneho účtu administrátora. Nižšie otvorte skutočnú URL verejnej časti webu a skontrolujte zhody hookov alebo počty prvkov selektora; zamýšľané skupiny členov a platformy otestujte samostatne. Vloženie cez CSS nezaručuje funkčnosť starších značiek s document.write ani každého widgetu tretej strany po načítaní stránky.</word>
+  <word key="rqbp_diag_fail" js="0">Nie</word>
+  <word key="rqbp_diag_hook" js="0">Natívny hook a HTML kontext sú dostupné</word>
+  <word key="rqbp_diag_pages" js="0">Aplikácia Pages je nainštalovaná a zapnutá</word>
+  <word key="rqbp_diag_pass" js="0">Áno</word>
+  <word key="rqbp_diag_rule" js="0">Pravidlo je zapnuté</word>
+  <word key="rqbp_diag_scope" js="0">Tieto kontroly nevykresľujú blok ani nespúšťajú reklamné skripty v ACP. Výsledok kontroly oprávnení sa týka aktuálneho účtu administrátora. Nižšie otvorte skutočnú URL verejnej časti webu a skontrolujte zhody hookov alebo počty prvkov selektora; zamýšľané skupiny členov a platformy otestujte samostatne. Podporované sú pripravené reklamné bloky HTML; vloženie cez CSS nezaručuje funkčnosť starších značiek s document.write ani každého widgetu tretej strany po načítaní stránky.</word>
+  <word key="rqbp_diag_selector" js="0">CSS selektor je nastavený</word>
+  <word key="rqbp_diag_template" js="0">Kód šablóny IPS možno skompilovať bez spustenia</word>
+  <word key="rqbp_diagnostic_url" js="0">Testovacia URL verejnej časti webu</word>
+  <word key="rqbp_diagnostic_url_desc" js="0">Zadajte úplnú URL tejto komunity. Použite stránku, na ktorej sa má toto pravidlo zobraziť. Diagnostika vo verejnej časti webu je dostupná iba administrátorom s oprávnením spravovať umiestnenia.</word>
+  <word key="rqbp_diagnostics" js="0">Diagnostika</word>
+  <word key="rqbp_disable_rule" js="0">Vypnúť pravidlo</word>
+  <word key="rqbp_duplicate_rule" js="0">Skopírovať ako vypnuté</word>
+  <word key="rqbp_duplicated_disabled" js="0">Kópia bola vytvorená ako vypnutá. Pred zapnutím skontrolujte jej umiestnenie.</word>
+  <word key="rqbp_edit_rule" js="0">Upraviť pravidlo umiestnenia</word>
+  <word key="rqbp_enable_rule" js="0">Zapnúť pravidlo</word>
+  <word key="rqbp_enabled" js="0">Zapnúť Pages Block Placements</word>
+  <word key="rqbp_enabled_desc" js="0">Vypnutím zastavíte všetky umiestnenia bez odstránenia ich pravidiel.</word>
+  <word key="rqbp_error_block" js="0">Vyberte existujúci blok Pages.</word>
+  <word key="rqbp_error_block_reference" js="0">Zadajte existujúci kľúč bloku alebo platný odkaz {block="key"}.</word>
+  <word key="rqbp_error_content_save" js="0">Nastavenia sa nepodarilo uložiť. Skontrolujte zdroj obsahu a polia umiestnenia.</word>
+  <word key="rqbp_error_content_source" js="0">Vyberte dostupný zdroj obsahu.</word>
+  <word key="rqbp_error_diagnostic_url" js="0">Zadajte URL tejto komunity s jej nastaveným protokolom, hostiteľom a základnou cestou.</word>
+  <word key="rqbp_error_hook" js="0">Vyberte dostupný natívny hook verejnej časti webu.</word>
+  <word key="rqbp_error_hook_context" js="0">Do tejto pozície hooku nemožno bezpečne vložiť blok. Vyberte iný hook.</word>
+  <word key="rqbp_error_missing_rule" js="0">Toto pravidlo umiestnenia už neexistuje.</word>
+  <word key="rqbp_error_occurrence" js="0">Zadajte číslo výskytu aspoň 1.</word>
+  <word key="rqbp_error_order" js="0">Vyberte platný smer zoradenia.</word>
+  <word key="rqbp_error_save" js="0">Nastavenia sa nepodarilo uložiť. Skontrolujte odkaz na blok a polia umiestnenia.</word>
+  <word key="rqbp_error_selector" js="0">Zadajte neprázdny CSS selektor bez nulových znakov.</word>
+  <word key="rqbp_error_selector_browser" js="0">CSS selektor je neplatný. Pred uložením skontrolujte jeho syntax.</word>
+  <word key="rqbp_error_selector_too_long" js="0">CSS selektor môže mať najviac 1 000 znakov.</word>
+  <word key="rqbp_error_template_empty" js="0">Zadajte kód šablóny IPS.</word>
+  <word key="rqbp_error_template_invalid" js="0">Kód šablóny IPS sa nepodarilo skompilovať. Skontrolujte syntax šablóny a výrazov.</word>
+  <word key="rqbp_error_template_php_tags" js="0">Použite natívnu syntax šablón IPS namiesto otváracích alebo zatváracích značiek PHP.</word>
+  <word key="rqbp_error_template_too_long" js="0">Kód šablóny IPS môže mať najviac 65 535 bajtov.</word>
+  <word key="rqbp_error_url_pattern" js="0">Vzory URL musia začínať jedným /, nesmú obsahovať doménu ani #fragment a môžu mať najviac 2 000 znakov.</word>
+  <word key="rqbp_exclude_groups" js="0">Vylúčené skupiny členov</word>
+  <word key="rqbp_exclude_groups_desc" js="0">Prázdny výber nikoho nevylučuje. Každá zhodná vylúčená hlavná alebo vedľajšia skupina má prednosť pred povolenými skupinami.</word>
+  <word key="rqbp_exclude_urls" js="0">Vylúčené vzory URL</word>
+  <word key="rqbp_exclude_urls_desc" js="0">Použite rovnaký formát ako pri povolených URL. Prázdne pole nič nevylučuje. Vylúčené vzory majú prednosť.</word>
+  <word key="rqbp_filter_css" js="0">CSS selektory</word>
+  <word key="rqbp_filter_disabled" js="0">Vypnuté</word>
+  <word key="rqbp_filter_enabled" js="0">Zapnuté</word>
+  <word key="rqbp_filter_hook" js="0">Natívne hooky</word>
+  <word key="rqbp_first" js="0">Prvý výskyt</word>
+  <word key="rqbp_form_intro" js="0">Obsah sa naďalej spravuje v Pages → Blocks. Tento formulár určuje, kde sa existujúci blok zobrazí. Vypnuté pravidlo overte v diagnostike a zapnite ho, keď bude jeho umiestnenie pripravené.</word>
+  <word key="rqbp_front_diagnostics" js="0">Diagnostika umiestnenia blokov</word>
+  <word key="rqbp_front_inserted" js="0">Vložené</word>
+  <word key="rqbp_front_matches" js="0">Zhody</word>
+  <word key="rqbp_hook" js="0">Natívny hook</word>
+  <word key="rqbp_hook_desc" js="0">Dostupné hooky pochádzajú zo zapnutých šablón verejnej časti webu. Pozície, ktorých HTML kontext neumožňuje vložiť blok, sa nezobrazujú.</word>
+  <word key="rqbp_include_urls" js="0">Povolené vzory URL</word>
+  <word key="rqbp_include_urls_desc" js="0">Jeden vzor relatívny ku koreňu komunity na riadok, začínajúci &lt;code&gt;/&lt;/code&gt;, napríklad &lt;code&gt;/forums/*&lt;/code&gt;. Prázdne pole povoľuje všetky URL. Jediným zástupným znakom je &lt;code&gt;*&lt;/code&gt;. Cesta a parametre dopytu sa porovnávajú spoločne; vzor &lt;code&gt;/forums/example/*&lt;/code&gt; umožní rôzne parametre stránkovania. Nezadávajte doménu ani #fragment.</word>
+  <word key="rqbp_log_deleted" js="0">Odstránené pravidlo umiestnenia %s</word>
+  <word key="rqbp_log_duplicated" js="0">Pravidlo umiestnenia %s skopírované ako vypnuté</word>
+  <word key="rqbp_log_reordered" js="0">Zmenené poradie pravidiel umiestnenia</word>
+  <word key="rqbp_log_saved" js="0">Uložené pravidlo umiestnenia %s</word>
+  <word key="rqbp_log_settings" js="0">Zmenené nastavenia Pages Block Placements</word>
+  <word key="rqbp_log_toggled" js="0">Zmenené zapnutie pravidla umiestnenia %s</word>
+  <word key="rqbp_mode" js="0">Spôsob umiestnenia</word>
+  <word key="rqbp_mode_css" js="0">CSS selektor</word>
+  <word key="rqbp_mode_desc" js="0">Každé pravidlo používa jeden spôsob umiestnenia. Natívne hooky vykresľujú obsah na serveri. Pravidlá CSS vložia vykreslený blok, keď je zodpovedajúci prvok prítomný v prehliadači.</word>
+  <word key="rqbp_mode_hook" js="0">Natívny hook šablóny</word>
+  <word key="rqbp_move_down" js="0">Posunúť neskôr</word>
+  <word key="rqbp_move_up" js="0">Posunúť skôr</word>
+  <word key="rqbp_name" js="0">Názov pravidla</word>
+  <word key="rqbp_nth" js="0">Výskyt podľa čísla</word>
+  <word key="rqbp_occurrence" js="0">Zodpovedajúce výskyty</word>
+  <word key="rqbp_occurrence_desc" js="0">Natívne hooky počítajú volania pri vykresľovaní v rámci každej požiadavky. CSS selektory počítajú zodpovedajúce prvky v poradí dokumentu. Pri opakovaní bloku musí jeho HTML aj reklamná značka podporovať viacero inštancií.</word>
+  <word key="rqbp_occurrence_index" js="0">Číslo výskytu</word>
+  <word key="rqbp_occurrence_index_desc" js="0">Číslovanie sa začína hodnotou 1.</word>
+  <word key="rqbp_open_diagnostics" js="0">Otvoriť diagnostiku vo verejnej časti webu</word>
+  <word key="rqbp_pages_required" js="0">Pred vytváraním alebo úpravou umiestnení blokov nainštalujte a zapnite aplikáciu Pages. Existujúce pravidlá sa obnovia, keď bude Pages k dispozícii.</word>
+  <word key="rqbp_pages_unavailable" js="0">Pages nie je k dispozícii. Ak chcete použiť bloky Pages ako zdroj obsahu, aplikácia Pages musí byť nainštalovaná a zapnutá. Administrátori s oprávnením spravovať kód šablón môžu naďalej vytvárať a upravovať umiestnenia vlastných šablón IPS.</word>
+  <word key="rqbp_platform_desktop" js="0">Počítač</word>
+  <word key="rqbp_platform_mobile" js="0">Mobil</word>
+  <word key="rqbp_platform_tablet" js="0">Tablet</word>
+  <word key="rqbp_platforms" js="0">Platformy</word>
+  <word key="rqbp_platforms_desc" js="0">Prázdny výber povoľuje všetky tri triedy zariadení. Rozpoznávanie používa platformu IPS a reťazec user-agent, nie šírku obrazovky. Nerozpoznané zariadenia patria do triedy Počítač. Zmena veľkosti okna triedu nemení. iPad s user-agentom pre počítače môže byť rozpoznaný ako Počítač.</word>
+  <word key="rqbp_position" js="0">Vložiť blok</word>
+  <word key="rqbp_prepare_diagnostics" js="0">Pripraviť testovací odkaz</word>
+  <word key="rqbp_rule_enabled" js="0">Zapnúť toto pravidlo</word>
+  <word key="rqbp_rule_enabled_desc" js="0">Nové pravidlá sú vypnuté. Pred zapnutím umiestnenia môžete jeho nastavenia overiť v diagnostike.</word>
+  <word key="rqbp_rules" js="0">Pravidlá umiestnenia</word>
+  <word key="rqbp_rules_intro" js="0">Umiestnite existujúce bloky Pages pomocou natívneho hooku šablóny alebo CSS selektora. Nové a skopírované pravidlá sú vypnuté. Pravidlá s nižšou hodnotou poradia sa spracujú skôr; šípky menia celkové poradie pravidiel.</word>
+  <word key="rqbp_rules_intro_v5" js="0">Umiestnite existujúci blok Pages alebo vlastný kód šablóny IPS pomocou natívneho hooku šablóny alebo CSS selektora. Nové a skopírované pravidlá sú vypnuté. Pravidlá s nižšou hodnotou poradia sa spracujú skôr; šípky menia celkové poradie pravidiel.</word>
+  <word key="rqbp_section_audience" js="0">Komu sa blok zobrazí</word>
+  <word key="rqbp_section_block" js="0">Existujúci blok Pages</word>
+  <word key="rqbp_section_pages" js="0">Stránky a aplikácie</word>
+  <word key="rqbp_section_placement" js="0">Umiestnenie</word>
+  <word key="rqbp_section_rule" js="0">Pravidlo</word>
+  <word key="rqbp_selector" js="0">CSS selektor</word>
+  <word key="rqbp_selector_desc" js="0">Použite štandardný CSS selektor, napríklad &lt;code&gt;#forum-category_12 &amp;gt; .ipsData__item:nth-child(2)&lt;/code&gt;. Uprednostnite stabilné ID a dátové atribúty. Ak cieľ chýba, blok sa nevloží. Syntax selektora kontroluje prehliadač.</word>
+  <word key="rqbp_settings" js="0">Nastavenia umiestnenia blokov</word>
+  <word key="rqbp_settings_intro" js="0">Hlavný prepínač ovláda všetky pravidlá umiestnenia. Pri zodpovedajúcich stránkach sa obchádza zdieľaná vyrovnávacia pamäť celej stránky, aby správne fungovalo cielenie na platformy a skupiny. Po zmene umiestnení vyprázdnite aj prípadnú externú vyrovnávaciu pamäť stránok na CDN alebo reverznom proxy serveri. Obsah a oprávnenia sa spravujú v Pages.</word>
+  <word key="rqbp_sort_order" js="0">Poradie</word>
+  <word key="rqbp_sort_order_desc" js="0">Nižšie hodnoty sa spracujú skôr. Pri zhodnom poradí rozhoduje ID pravidla.</word>
+  <word key="rqbp_source_manual" js="0">Zadať odkaz na blok</word>
+  <word key="rqbp_source_picker" js="0">Vybrať existujúci blok</word>
+  <word key="rqbp_source_template" js="0">Vlastný kód šablóny IPS</word>
+  <word key="rqbp_status_disabled" js="0">Vypnuté</word>
+  <word key="rqbp_status_enabled" js="0">Zapnuté</word>
+  <word key="rqbp_table_rule_block_id" js="0">Blok Pages</word>
+  <word key="rqbp_table_rule_content" js="0">Obsah</word>
+  <word key="rqbp_table_rule_enabled" js="0">Stav</word>
+  <word key="rqbp_table_rule_mode" js="0">Spôsob umiestnenia</word>
+  <word key="rqbp_table_rule_name" js="0">Pravidlo</word>
+  <word key="rqbp_table_rule_sort_order" js="0">Poradie</word>
+  <word key="rqbp_table_rule_target" js="0">Cieľ</word>
+  <word key="rqbp_template_code" js="0">Kód šablóny IPS</word>
+  <word key="rqbp_template_code_help_v7" js="0">Použite HTML a natívnu syntax šablón IPS, napríklad &lt;code&gt;&amp;#123;expression=&amp;quot;&amp;#039;Hello world&amp;#039;&amp;quot;&amp;#125;&lt;/code&gt;. Tento príklad zobrazí Hello world bez ďalšieho rozšírenia. Kód môže spúšťať PHP na serveri s oprávneniami aplikácie; úpravy povoľujte iba dôveryhodným administrátorom. Otváracie a zatváracie značky PHP nie sú povolené. Limit je 65 535 bajtov. Na vlastný kód sa nevzťahujú oprávnenia blokov Pages: viditeľnosť určujú skupiny členov nastavené v tomto pravidle a samotný kód.</word>
+  <word key="rqbp_unavailable_hook" js="0">Predtým vybraný hook nie je k dispozícii</word>
+ </app>
+</language>

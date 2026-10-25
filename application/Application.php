@@ -6,7 +6,7 @@ if (!\defined('\IPS\SUITE_UNIQUE_KEY')) { exit; }
 
 class Application extends \IPS\Application
 {
-    public const RQBP_BUILD = 1000007;
+    public const RQBP_BUILD = 1000008;
 
     public static function asset(string $name): string
     {
@@ -17,7 +17,7 @@ class Application extends \IPS\Application
     public function installLanguages(int $offset = null, int $limit = null): int
     {
         $count = parent::installLanguages($offset, $limit);
-        Translation::install($this->getApplicationPath() . '/resources/lang-cs.xml');
+        Translation::installBundled($this->getApplicationPath() . '/resources');
         return $count;
     }
 

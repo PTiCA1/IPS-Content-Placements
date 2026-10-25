@@ -16,6 +16,7 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "application"
 KEY = "rqblockplacements"
+TRANSLATIONS = {"cs": "Čeština", "sk": "Slovenčina", "pl": "Polski", "de": "Deutsch"}
 
 
 def require(condition: bool, message: str) -> None:
@@ -31,6 +32,40 @@ def validate_acp_menu(menu: dict, words: dict[str, str]) -> None:
             require(bool(words.get(f"menutab__{tab}")), f"ACP tab label missing: {tab}")
             icon = words.get(f"menutab__{tab}_icon", "")
             require(bool(re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", icon)), f"ACP tab icon missing or invalid: {tab}")
+
+
+def validate_language(language: ET.Element, build: int, version: str, language_name: str | None = None) -> dict[str, str]:
+    """Check native XML metadata before comparing any translated strings."""
+    label = language_name or "English"
+    require(language.tag == "language", f"{label}: invalid language root")
+    applications = language.findall("app")
+    require(len(applications) == 1 and applications[0].get("key") == KEY, f"{label}: language app key mismatch")
+    application = applications[0]
+    require(application.get("version") == str(build), f"{label}: language build version mismatch")
+    if language_name is not None:
+        require(language.get("name") == language_name, f"{label}: language name mismatch")
+        require(language.get("version") == version and language.get("long_version") == str(build), f"{label}: language version metadata mismatch")
+    words = application.findall("word")
+    keys = [word.get("key") for word in words]
+    require(bool(keys) and all(isinstance(key, str) and key for key in keys) and len(keys) == len(set(keys)), f"{label}: language keys missing or duplicated")
+    require(len(application) == len(words) and all(word.get("js") == "0" and len(word) == 0 for word in words), f"{label}: only non-JavaScript text words may be packaged")
+    values = {word.get("key"): word.text or "" for word in words}
+    require(all(values.values()), f"{label}: empty translation value")
+    return values
+
+
+def validate_translation(english: dict[str, str], translated: dict[str, str], label: str) -> None:
+    """A translation may change prose while preserving functional examples and parameters."""
+    require(english.keys() == translated.keys(), f"{label}: translation keys differ from English")
+    placeholders = r"%(?:\d+\$)?[-+ 0#]*(?:\d+|\*)?(?:\.(?:\d+|\*))?[bcdeEfFgGosuxX%]"
+    literals = r'<code>.*?</code>|\{block=(?:"[^"]*"|\x27[^\x27]*\x27)\}|document\.write|Hello world'
+    for key, original in english.items():
+        value = translated[key]
+        require(isinstance(value, str) and bool(value), f"{label}: empty or invalid translation: {key}")
+        require(re.findall(placeholders, original) == re.findall(placeholders, value), f"{label}: placeholder mismatch: {key}")
+        require(re.findall(literals, original, re.S) == re.findall(literals, value, re.S), f"{label}: code example mismatch: {key}")
+        if key.startswith("menutab__") and key.endswith("_icon"):
+            require(value == original, f"{label}: ACP icon differs from English: {key}")
 
 
 def signature(source: str, name: str) -> tuple[str, str, str]:
@@ -62,17 +97,14 @@ def validate(ips_source: Path | None = None, archive: Path | None = None) -> Non
     require(set(data["customtemplates"]) == {"rqbp_prepare", "rqbp_payload"}, "Only the two static lifecycle templates may ship")
     for name in data["customtemplates"]:
         require(not re.search(r"(?:rule|placement)[_-]?\d+", name, re.I), "Runtime rule markers must not enter the release")
-    en = ET.parse(APP / "data/lang.xml").getroot()
-    cs = ET.parse(APP / "resources/lang-cs.xml").getroot()
-    for language in (en, cs):
-        application = language.find("app")
-        require(application is not None and application.get("key") == KEY, "Language app key mismatch")
-        require(application.get("version") == str(ids[-1]), "Language build version mismatch")
-        words = application.findall("word")
-        keys = [word.get("key") for word in words]
-        require(len(keys) == len(set(keys)) and bool(keys), "Language keys missing or duplicated")
-        validate_acp_menu(data["acpmenu"], {word.get("key"): word.text or "" for word in words})
-    require({w.get("key") for w in en.find("app")} == {w.get("key") for w in cs.find("app")}, "English/Czech translation keys differ")
+    version = data["versions"][str(ids[-1])]
+    english = validate_language(ET.parse(APP / "data/lang.xml").getroot(), ids[-1], version)
+    validate_acp_menu(data["acpmenu"], english)
+    require(english.get(f"menutab__{KEY}_icon") == "table-cells-large", "Unexpected native ACP icon token")
+    for code, language_name in TRANSLATIONS.items():
+        translated = validate_language(ET.parse(APP / f"resources/lang-{code}.xml").getroot(), ids[-1], version, language_name)
+        validate_acp_menu(data["acpmenu"], translated)
+        validate_translation(english, translated, language_name)
     for name in ("Application.php", "sources/Policy/Policy.php", "sources/RuleAccess/RuleAccess.php", "sources/PageCache/PageCache.php", "sources/Translation/Translation.php", "sources/TemplateContent/TemplateContent.php", "setup/upg_1000005/upgrade.php", "modules/admin/placements/rules.php", "modules/admin/placements/settings.php", "extensions/core/Loader/Placements.php"):
         require((APP / name).is_file(), f"Missing runtime file {name}")
     for name in ("resources/admin.js", "resources/placements.js"):

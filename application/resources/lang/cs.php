@@ -101,7 +101,7 @@ return [
     'rqbp_apps' => 'Aplikace',
     'rqbp_apps_desc' => 'Prázdný výběr povoluje všechny aplikace veřejné části webu. Filtr posuzuje aplikaci požadované stránky, která se může lišit od vlastníka sdílené šablony.',
     'rqbp_include_urls' => 'Povolené vzory URL',
-    'rqbp_include_urls_desc' => 'Jeden vzor relativní ke kořenu komunity na řádek, začínající <code>/</code>, například <code>/forums/*</code>. Prázdné pole povoluje všechny URL. Jediný zástupný znak je <code>*</code>. Cesta a parametry dotazu se porovnávají společně; <code>/forums/priklad/*</code> umožní různé parametry stránkování. Nezadávejte doménu ani #fragment.',
+    'rqbp_include_urls_desc' => 'Jeden vzor relativní ke kořenu komunity na řádek, začínající <code>/</code>, například <code>/forums/*</code>. Prázdné pole povoluje všechny URL. Jediný zástupný znak je <code>*</code>. Cesta a parametry dotazu se porovnávají společně; <code>/forums/example/*</code> umožní různé parametry stránkování. Nezadávejte doménu ani #fragment.',
     'rqbp_exclude_urls' => 'Vyloučené vzory URL',
     'rqbp_exclude_urls_desc' => 'Použijte stejný formát jako u povolených URL. Prázdné pole nic nevylučuje. Vyloučené vzory mají přednost.',
     'rqbp_settings_intro' => 'Hlavní přepínač ovládá všechna pravidla umístění. U odpovídajících stránek se vypíná sdílená mezipaměť celé stránky, aby správně fungovalo cílení na platformy a skupiny. Po změně umístění vyprázdněte také případnou externí CDN nebo reverzní proxy cache. Obsah a oprávnění se spravují v Pages.',

@@ -1,12 +1,12 @@
 # ACP beta acceptance test
 
-Status: the owner confirmed that the **beta.2 rule editor works** after the beta.1 ACP fixes. **Device targeting introduced in beta.3, automatic Czech added in beta.4 and native upgrade acceptance remain pending.** Automated mocks and browser fixtures do not establish native installation or upgrade compatibility. Record results before publishing or calling the package stable.
+Status: the owner confirmed that the **beta.2 rule editor works** after the beta.1 ACP fixes. **Device targeting, native upgrade acceptance and the four automatic translations in beta.8 remain pending live verification.** Automated mocks and browser fixtures do not establish native installation or upgrade compatibility. Record results before publishing or calling the package stable.
 
-Use a licensed, private IPS **5.0.20 + Pages** test installation with a database/file backup. Record the PHP version, IPS build, theme, browser, CDN/cache configuration and application TAR SHA256. The current package is **`1.0.0-beta.7`, build `1000007`**; test upgrading from beta.2 (`1000002`) and beta.3 (`1000003`).
+Use a licensed, private IPS **5.0.20 + Pages** test installation with a database/file backup. Record the PHP version, IPS build, theme, browser, CDN/cache configuration and application TAR SHA256. The current package is **`1.0.0-beta.8`, build `1000008`**; test beta.7 → beta.8 and an earlier-beta upgrade that exercises existing migrations. Beta.8 introduces no schema changes.
 
 ## Installation and basic placement
 
-1. Upload `rqblockplacements-1.0.0-beta.7.tar` through ACP Applications. Confirm no installer error, version/build `1.0.0-beta.7` / `1000007`, and a visible grid icon near the bottom of the normal compact ACP sidebar. Open **Block placements → Placement rules**, then **Block placements → Settings**. In an existing Czech language these are automatically **Umístění bloků → Pravidla umístění / Nastavení**, without importing XML. This is a separate application tab, not a submenu of native Advertisements or Pages.
+1. Upload `rqblockplacements-1.0.0-beta.8.tar` through ACP Applications. Confirm no installer error, version/build `1.0.0-beta.8` / `1000008`, and a visible grid icon near the bottom of the normal compact ACP sidebar. Open **Block placements → Placement rules**, then **Block placements → Settings**. Existing Czech, Slovak, Polish and German languages receive the matching application text automatically, without importing XML. This is a separate application tab, not a submenu of native Advertisements or Pages.
 2. Create a public Pages HTML block with a unique `RQBP TEST` heading and a link. Confirm its original native display works first.
 3. Create a CSS rule for a category actually on your forum, for example `li[data-categoryID="4"]`, **after**, first match, unrestricted audience. Check it appears between categories and does not appear between topic posts. Inspect the real category ID before choosing the selector.
 4. Change to **before**. Check the target/category ordering and absence of duplicated block output.
@@ -15,11 +15,12 @@ Use a licensed, private IPS **5.0.20 + Pages** test installation with a database
 
 Direct navigation fallback: retain the actual ACP directory in your current address and open its `index.php` with `?app=rqblockplacements&module=placements&controller=rules`. A renamed ACP folder must remain unchanged. On beta.1 a blank item near the bottom of the compact sidebar may still open the application; beta.2 must show its icon without depending on hover or a screen wider than 1,900 px.
 
-## Automatic Czech
+## Automatic Czech, Slovak, Polish and German
 
-- Before installation or upgrade, retain an existing Czech language and an English/non-Czech language. Test Czech locale variants `cs_CZ`, `cs-CZ` and `Czech_…` where available. The app's Czech menu, rule fields, device labels and messages must appear without a separate XML import; non-Czech languages keep English defaults.
-- Before upgrading, customize one application text and set another to an intentional empty value. Both must survive. New translation keys must receive Czech text. The site's default language and each language's name, locale and other metadata must remain unchanged.
-- Optionally refresh existing translated values using the separate Czech XML. Add a Czech language after installing the application and verify the documented XML import path. This explicit native import is separate from the automatic app update.
+- Before installation or upgrade, retain existing Czech, Slovak, Polish and German languages plus an English/unsupported locale. Exercise `cs`, `sk`, `pl`, `de` and regional forms such as `cs_CZ`, `sk-SK`, `pl_PL`, `de-DE`, as well as Windows Czech/Slovak/Polish/German locale names. Each supported locale must receive its own application translation without a separate XML import; other locales keep English defaults.
+- Check all 148 application keys in each translation: menus, permission labels, rule fields, device labels, help, errors and diagnostics. Preserve working code examples, placeholders and the navigation icon. Switching between existing languages must select the appropriate text.
+- Before upgrading, customize one application text and set another to an intentional empty value in each supported language. Both must survive. Missing translations must receive the matching text. No language may be created, and the site's default language, language names, locale codes and other metadata must remain unchanged.
+- Verify the release provides one TAR, four optional `-cs.xml`, `-sk.xml`, `-pl.xml`, `-de.xml` files and SHA256SUMS covering all five artifacts. Optionally refresh an existing translation with the matching XML. Add a supported language after installing the application and verify its documented XML import path. This explicit native import is separate from the automatic app update.
 
 ## Filtering and occurrences
 
@@ -42,9 +43,9 @@ Direct navigation fallback: retain the actual ACP directory in your current addr
 ## Upgrade and cleanup
 
 1. Save representative CSS and native-hook rules, ordering and group filters in the installed beta. In beta.2, also retain legacy platform selections (Android, iPhone, iPad, Windows and Unknown); in beta.3, retain canonical device choices. Export a backup of the database.
-2. Specifically test **beta.2 (`1000002`) → beta.7 (`1000007`)** and **beta.3 (`1000003`) → beta.7 (`1000007`)** using `rqblockplacements-1.0.0-beta.7.tar` through ACP. Re-uploading the same beta does **not** establish migration compatibility. For the earlier beta.1 → beta.2 upgrade, the missing icon and `template_store_missing` were the reported defects; beta.2 editor access is confirmed, while beta.3 acceptance remains pending.
+2. Test **beta.7 (`1000007`) → beta.8 (`1000008`)** and an older version such as beta.2 (`1000002`) → beta.8 using `rqblockplacements-1.0.0-beta.8.tar` through ACP. Re-uploading the same beta does **not** establish upgrade compatibility. Beta.8 adds no schema changes; earlier additive migrations must still preserve existing data. Beta.2 editor access is confirmed, while subsequent live acceptance remains pending.
 3. Confirm rules/settings remain and native hook markers are restored once. Android must become Mobile + Tablet, iPhone Mobile, iPad/Kindle/PlayBook Tablet, and Windows/Unknown Desktop. Opening a rule normalizes old values; saving persists canonical values without a schema migration. Repeat an edit/reconcile and check no duplicate markers or placements. Normal menu navigation and the direct URL must open the same rule table.
-4. Check automatic Czech and preservation of custom text as described above, without importing XML. Confirm non-Czech languages still use English defaults. A later explicitly requested XML refresh must affect only this application's translations; verify the intended language after native import.
+4. Check all four automatic translations and preservation of custom text as described above, without importing XML. Confirm unsupported locales still use English defaults. A later explicitly requested XML refresh must affect only this application's translations; verify the intended language after native import.
 5. On the disposable test installation, uninstall. Confirm this app's tables/settings/markers are removed and existing Pages blocks still exist.
 
 Keep stable 1.0.0 pending until installation, assets, permissions, cache isolation and a real version-to-version upgrade all pass. Before sharing a defect report, remove cookies, CSRF keys, personal data and any private block contents.
@@ -61,14 +62,15 @@ Keep stable 1.0.0 pending until installation, assets, permissions, cache isolati
 | Native assets / original request | Pending | |
 | Guest CDN isolation | Pending | |
 | Diagnostics / ACP restrictions | Pending | |
-| Earlier beta → beta.7 upgrade / platform conversion | Pending | |
-| Automatic Czech / custom text preservation | Pending | |
+| Earlier beta → beta.8 upgrade / platform conversion | Pending | |
+| Automatic CS / SK / PL / DE translations | Pending | |
+| Custom text / intentional empty values preserved | Pending | |
 | English defaults / unchanged language settings | Pending | |
 | Disable / uninstall | Pending | |
 
-## Template code in beta.5
+## Template code (introduced in beta.5)
 
-- Upgrade beta.4 → beta.5 and retain existing block rules. Retrying a partial migration must preserve data.
+- Upgrade beta.4 → beta.8 and retain existing block rules through the additive template-code migration. Retrying a partial migration must preserve data.
 - Choose custom IPS template code and use the Hello world example from README. An eligible front-end request must display Hello world without an additional extension. Save and ACP diagnostics must only validate syntax.
 - Exercise both placement modes, device/group/URL filters, excluded guests, before/after, repetition and absent selectors. Code is prepared server-side before CSS target discovery.
 - A restricted administrator without rqbp_manage_code must not read code or submit a forged source, enable, duplicate or edit code rules. Block management remains available.

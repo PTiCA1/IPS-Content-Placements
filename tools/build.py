@@ -17,6 +17,7 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "application"
 KEY = "rqblockplacements"
+TRANSLATIONS = {"cs": "Čeština", "sk": "Slovenčina", "pl": "Polski", "de": "Deutsch"}
 
 
 def load_package_files(path: Path) -> frozenset[str]:
@@ -50,8 +51,9 @@ def php_words(path: Path) -> dict[str, str]:
     return dict(sorted(words.items()))
 
 
-def xml_bytes(words: dict[str, str], build: int, version: str, translated: bool = False) -> bytes:
-    attrs = ({"name": "Čeština", "rtl": "0", "author_name": "Pages Block Placements contributors",
+def xml_bytes(words: dict[str, str], build: int, version: str, translated: bool = False,
+              language_name: str = "Čeština") -> bytes:
+    attrs = ({"name": language_name, "rtl": "0", "author_name": "Pages Block Placements contributors",
               "author_url": "", "version": version, "long_version": str(build), "update_check": ""}
              if translated else {})
     language = ET.Element("language", attrs)
@@ -64,17 +66,22 @@ def xml_bytes(words: dict[str, str], build: int, version: str, translated: bool 
 
 def generate_languages(build: int, version: str) -> None:
     english = php_words(APP / "resources/lang/en.php")
-    czech = php_words(APP / "resources/lang/cs.php")
-    if english.keys() != czech.keys():
-        missing = sorted(english.keys() - czech.keys())
-        extra = sorted(czech.keys() - english.keys())
-        raise ValueError(f"Translation key mismatch: missing Czech={missing}, extra Czech={extra}")
+    translated = {}
+    for code in TRANSLATIONS:
+        words = php_words(APP / f"resources/lang/{code}.php")
+        if english.keys() != words.keys():
+            missing = sorted(english.keys() - words.keys())
+            extra = sorted(words.keys() - english.keys())
+            raise ValueError(f"Translation key mismatch ({code}): missing={missing}, extra={extra}")
+        translated[code] = words
     (APP / "data/lang.xml").write_bytes(xml_bytes(english, build, version))
     # The native installer accepts this bootstrap map before importing lang.xml.
     # Keep only identity strings here; normal UI strings remain translatable defaults.
     bootstrap = {k: v for k, v in english.items() if k in {f"__app_{KEY}", f"__app_{KEY}_description"}}
     (APP / "data/installLang.json").write_text(json.dumps(bootstrap, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    (APP / "resources/lang-cs.xml").write_bytes(xml_bytes(czech, build, version, translated=True))
+    for code, words in translated.items():
+        (APP / f"resources/lang-{code}.xml").write_bytes(
+            xml_bytes(words, build, version, translated=True, language_name=TRANSLATIONS[code]))
 
 
 def distribution_files() -> list[tuple[str, bytes, int]]:
@@ -136,10 +143,12 @@ def main() -> int:
         args.output.mkdir(parents=True, exist_ok=True)
         name = f"{KEY}-{version}.tar"
         (args.output / name).write_bytes(content)
-        cs_name = f"{KEY}-{version}-cs.xml"
-        cs = (APP / "resources/lang-cs.xml").read_bytes()
-        (args.output / cs_name).write_bytes(cs)
-        checksums = f"{hashlib.sha256(content).hexdigest()}  {name}\n{hashlib.sha256(cs).hexdigest()}  {cs_name}\n"
+        checksums = f"{hashlib.sha256(content).hexdigest()}  {name}\n"
+        for code in TRANSLATIONS:
+            translation_name = f"{KEY}-{version}-{code}.xml"
+            translation = (APP / f"resources/lang-{code}.xml").read_bytes()
+            (args.output / translation_name).write_bytes(translation)
+            checksums += f"{hashlib.sha256(translation).hexdigest()}  {translation_name}\n"
         (args.output / "SHA256SUMS").write_text(checksums, encoding="ascii")
         print(f"Built {name} ({len(files)} original files, {len(content)} bytes)")
         print(checksums, end="")

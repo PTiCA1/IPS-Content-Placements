@@ -6,6 +6,7 @@ from pathlib import Path
 import tarfile
 import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 
 SPEC = importlib.util.spec_from_file_location("rqbp_build", Path(__file__).resolve().parents[1] / "tools/build.py")
 BUILD = importlib.util.module_from_spec(SPEC)
@@ -35,23 +36,63 @@ class DistributionTests(unittest.TestCase):
             self.assertEqual(archive.getnames(), ["Application.php", "data/application.json"])
             self.assertTrue(all((entry.uid, entry.gid, entry.mtime, entry.uname) == (0, 0, 0, "") for entry in archive))
 
-    def test_authoring_languages_are_excluded_but_import_is_included(self):
+    def test_authoring_languages_are_excluded_but_all_imports_are_included(self):
         original_root, original_app, original_files = BUILD.ROOT, BUILD.APP, BUILD.PACKAGE_FILES
         try:
             with tempfile.TemporaryDirectory() as temporary:
                 BUILD.ROOT = Path(temporary)
                 BUILD.APP = BUILD.ROOT / "application"
-                BUILD.PACKAGE_FILES = frozenset({"resources/lang-cs.xml"})
+                BUILD.PACKAGE_FILES = frozenset(f"resources/lang-{code}.xml" for code in VALIDATOR.TRANSLATIONS)
                 (BUILD.APP / "resources/lang").mkdir(parents=True)
-                (BUILD.APP / "resources/lang/en.php").write_text("<?php return [];", encoding="utf-8")
-                (BUILD.APP / "resources/lang-cs.xml").write_text("<language/>", encoding="utf-8")
+                for code in ("en", *VALIDATOR.TRANSLATIONS):
+                    (BUILD.APP / f"resources/lang/{code}.php").write_text("<?php return [];", encoding="utf-8")
+                for code in VALIDATOR.TRANSLATIONS:
+                    (BUILD.APP / f"resources/lang-{code}.xml").write_text("<language/>", encoding="utf-8")
                 (BUILD.ROOT / "LICENSE").write_text("MIT", encoding="utf-8")
-                names = [name for name, _, _ in BUILD.distribution_files()]
-                self.assertNotIn("resources/lang/en.php", names)
-                self.assertIn("resources/lang-cs.xml", names)
-                self.assertIn("LICENSE", names)
+                files = BUILD.distribution_files()
+                with tarfile.open(fileobj=io.BytesIO(BUILD.archive_bytes(files, 0))) as archive:
+                    self.assertEqual(set(archive.getnames()), set(BUILD.PACKAGE_FILES) | {"LICENSE"})
+                    for code in ("en", *VALIDATOR.TRANSLATIONS):
+                        self.assertNotIn(f"resources/lang/{code}.php", archive.getnames())
         finally:
             BUILD.ROOT, BUILD.APP, BUILD.PACKAGE_FILES = original_root, original_app, original_files
+
+    def test_all_translation_sources_preserve_keys_examples_and_parameters(self):
+        self.assertEqual(BUILD.TRANSLATIONS, VALIDATOR.TRANSLATIONS)
+        english = BUILD.php_words(BUILD.APP / "resources/lang/en.php")
+        for code, language_name in VALIDATOR.TRANSLATIONS.items():
+            with self.subTest(language=code):
+                translated = BUILD.php_words(BUILD.APP / f"resources/lang/{code}.php")
+                VALIDATOR.validate_translation(english, translated, language_name)
+                root = ET.fromstring(BUILD.xml_bytes(translated, 1000008, "1.0.0-beta.8", translated=True, language_name=language_name))
+                self.assertEqual(VALIDATOR.validate_language(root, 1000008, "1.0.0-beta.8", language_name), translated)
+
+    def test_translation_checks_reject_missing_keys_changed_examples_and_icons(self):
+        english = {"message": 'Rule %s: <code>{block="click_brand"}</code>', "menutab__rqblockplacements_icon": "table-cells-large"}
+        for changes, error in [
+            ({"message": 'Pravidlo: <code>{block="click_brand"}</code>'}, "placeholder mismatch"),
+            ({"message": 'Pravidlo %s: <code>{block="different"}</code>'}, "code example mismatch"),
+            ({"menutab__rqblockplacements_icon": "table"}, "ACP icon differs"),
+        ]:
+            with self.subTest(error=error):
+                with self.assertRaisesRegex(ValueError, error):
+                    VALIDATOR.validate_translation(english, english | changes, "Test")
+        with self.assertRaisesRegex(ValueError, "translation keys differ"):
+            VALIDATOR.validate_translation(english, {"message": english["message"]}, "Test")
+
+    def test_translated_xml_requires_its_own_name_and_current_versions(self):
+        for code, language_name in VALIDATOR.TRANSLATIONS.items():
+            xml = BUILD.xml_bytes({"label": "Translated label"}, 1000008, "1.0.0-beta.8", translated=True, language_name=language_name)
+            for attribute, wrong in [("name", "Wrong language"), ("version", "1.0.0-beta.7"), ("long_version", "1000007")]:
+                with self.subTest(language=code, attribute=attribute):
+                    root = ET.fromstring(xml)
+                    root.set(attribute, wrong)
+                    with self.assertRaisesRegex(ValueError, "language (name|version metadata) mismatch"):
+                        VALIDATOR.validate_language(root, 1000008, "1.0.0-beta.8", language_name)
+            root = ET.fromstring(xml)
+            root.find("app").set("version", "1000007")
+            with self.assertRaisesRegex(ValueError, "language build version mismatch"):
+                VALIDATOR.validate_language(root, 1000008, "1.0.0-beta.8", language_name)
 
     def test_unreviewed_nested_file_cannot_enter_package(self):
         original_root, original_app, original_files = BUILD.ROOT, BUILD.APP, BUILD.PACKAGE_FILES
