@@ -2,9 +2,11 @@
 
 for Invision Community 5
 
+[GitHub project](https://github.com/PTiCA1/IPS-Content-Placements) · [Issues](https://github.com/PTiCA1/IPS-Content-Placements/issues)
+
 Place an existing Invision Community Pages block or custom IPS template code before or after a CSS selector or a native theme hook, with rules for platforms, groups, applications and URLs. Original standalone application, MIT licensed. [Česky](README.cs.md).
 
-**1.0.0-beta.10 — build 1000010.** Uses universal block and template examples throughout the help and documentation. Includes complete Czech, Slovak, Polish and German translations. No schema changes. Prepared for IPS **5.0.20**; live acceptance and GitHub publication remain pending. See [security boundaries](SECURITY.md) and the [dated audit report](docs/SECURITY-AUDIT-2026-10-25.md). Purge existing CDN/reverse-proxy cache for affected URLs after upgrading.
+**1.0.0-beta.11 — build 1000011.** Adds the canonical GitHub project and issue-reporting links. No feature or schema changes. Includes complete Czech, Slovak, Polish and German translations. Prepared for IPS **5.0.20**; native installation and upgrade acceptance remain pending before a stable release. See [security boundaries](SECURITY.md) and the [dated audit report](docs/SECURITY-AUDIT-2026-10-25.md). Purge existing CDN/reverse-proxy cache for affected URLs after upgrading.
 
 ## What this release does
 
@@ -36,7 +38,7 @@ Requirements: licensed IPS 5.0.20, custom applications permitted, and ACP applic
 
 Upgrade the existing application rather than installing a second copy. The internal key `rqblockplacements` and release filename prefix remain unchanged. The upgrade refreshes the application's standard names while preserving administrator-customized text, rules and settings.
 
-1. Obtain `rqblockplacements-1.0.0-beta.10.tar` from `dist/` or a future GitHub release. To verify with `shasum -a 256 -c SHA256SUMS`, keep `SHA256SUMS` and all four translation XML files in the same directory as the TAR. Installation itself requires only the TAR.
+1. Obtain `rqblockplacements-1.0.0-beta.11.tar` from `dist/` or a [GitHub release](https://github.com/PTiCA1/IPS-Content-Placements/releases), when available. To verify with `shasum -a 256 -c SHA256SUMS`, keep `SHA256SUMS` and all four translation XML files in the same directory as the TAR. Installation itself requires only the TAR.
 2. Open **ACP → System → Applications**, choose the upload/install action and upload the **TAR**. The GitHub source ZIP is not the installable application.
 3. Open **ACP → Content Placements → Placement rules**. This is the application's own tab near the bottom of the sidebar, not an entry under native Advertisements or Pages. The standard main tab name is **Content Placements** in every language; for example, the Czech submenu is **Pravidla umístění**. Allow access to the `rqbp_manage` permission for other administrators who need it.
 4. Create a simple existing Pages HTML block, then add a placement rule. Start with one known CSS selector or native hook, the first occurrence, all platforms and no audience/URL restriction.
@@ -61,7 +63,7 @@ Each translation covers all application strings. Installation and ACP upgrades f
 
 No separate XML import is required for these existing languages. Custom text, including an intentional empty value, is preserved. Upgrades fill missing keys; changing an existing translated value requires an explicit refresh. Beta.9 also renames the exact known standard product labels from earlier betas; different custom labels stay unchanged. Other languages keep English defaults. The application does not create a language, switch the site's default language or change language metadata.
 
-The release also provides optional `rqblockplacements-1.0.0-beta.10-cs.xml`, `-sk.xml`, `-pl.xml` and `-de.xml` files, bundled in the TAR as `resources/lang-{cs,sk,pl,de}.xml`. Use the appropriate XML in ACP Languages for an explicit translation refresh or a language added after application installation. These files translate only this application. Back up the intended language before an optional native XML import, whose metadata behavior belongs to IPS.
+The release also provides optional `rqblockplacements-1.0.0-beta.11-cs.xml`, `-sk.xml`, `-pl.xml` and `-de.xml` files, bundled in the TAR as `resources/lang-{cs,sk,pl,de}.xml`. Use the appropriate XML in ACP Languages for an explicit translation refresh or a language added after application installation. These files translate only this application. Back up the intended language before an optional native XML import, whose metadata behavior belongs to IPS.
 
 ## Rules and troubleshooting
 
@@ -84,7 +86,7 @@ npm run test:build
 npx playwright install chromium
 npm run test:browser
 python3 tools/build.py --check-reproducible
-python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.10.tar
+python3 tools/validate.py --archive dist/rqblockplacements-1.0.0-beta.11.tar
 ```
 
 Tools require PHP (tested with 8.3), Python 3.10+ and Node 20+ for browser tests. `PHP_BINARY` can point to a specific PHP executable. Browser tests can use `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` instead of a downloaded Chromium. The builder reads the original `application/resources/lang/{en,cs,sk,pl,de}.php` arrays and generates native `data/lang.xml`, `data/installLang.json` and all four translation XML files.
@@ -98,6 +100,10 @@ python3 tools/validate.py --ips-source /absolute/path/to/ips_v5.0.20
 ```
 
 These checks establish syntax, metadata and selected behavior. They do not substitute for the native ACP install/upgrade and block-rendering acceptance test.
+
+## Support and bug reports
+
+Use [GitHub Issues](https://github.com/PTiCA1/IPS-Content-Placements/issues) for ordinary bugs and feature requests. Include the application, IPS, PHP and theme versions, reproduction steps and redacted logs. Remove credentials, cookies, CSRF tokens and private content. Report suspected security vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
 
 ## License
 

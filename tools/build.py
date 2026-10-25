@@ -17,6 +17,7 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "application"
 KEY = "rqblockplacements"
+PROJECT_URL = "https://github.com/PTiCA1/IPS-Content-Placements"
 TRANSLATIONS = {"cs": "Čeština", "sk": "Slovenčina", "pl": "Polski", "de": "Deutsch"}
 
 
@@ -54,7 +55,7 @@ def php_words(path: Path) -> dict[str, str]:
 def xml_bytes(words: dict[str, str], build: int, version: str, translated: bool = False,
               language_name: str = "Čeština") -> bytes:
     attrs = ({"name": language_name, "rtl": "0", "author_name": "Content Placements contributors",
-              "author_url": "", "version": version, "long_version": str(build), "update_check": ""}
+              "author_url": PROJECT_URL, "version": version, "long_version": str(build), "update_check": ""}
              if translated else {})
     language = ET.Element("language", attrs)
     app = ET.SubElement(language, "app", {"key": KEY, "version": str(build)})

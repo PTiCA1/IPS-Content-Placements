@@ -1,6 +1,6 @@
 {
   "name": "ips-content-placements",
-  "version": "1.0.0-beta.10",
+  "version": "1.0.0-beta.11",
   "private": true,
   "description": "Content Placements for Invision Community 5: Pages blocks and custom IPS template code using CSS selectors and native hooks",
   "license": "MIT",
@@ -14,5 +14,13 @@
   },
   "devDependencies": {
     "playwright": "1.64.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PTiCA1/IPS-Content-Placements.git"
+  },
+  "homepage": "https://github.com/PTiCA1/IPS-Content-Placements#readme",
+  "bugs": {
+    "url": "https://github.com/PTiCA1/IPS-Content-Placements/issues"
   }
 }

@@ -1,17 +1,18 @@
 # ACP beta acceptance test
 
-Status: the owner confirmed that the **beta.2 rule editor works** after the beta.1 ACP fixes. **Device targeting, translations and native upgrades remain pending live verification.** Beta.10 updates universal help examples without changing the product name or schema. Automated mocks and browser fixtures do not establish native installation or upgrade compatibility. Record results before publishing or calling the package stable.
+Status: the owner confirmed that the **beta.2 rule editor works** after the beta.1 ACP fixes. **Device targeting, translations and native upgrades remain pending live verification.** Beta.11 adds project metadata without feature or schema changes. Source publication is separate from this acceptance checklist. Automated mocks and browser fixtures do not establish native installation or upgrade compatibility. Record results before calling the package stable.
 
-Use a licensed, private IPS **5.0.20 + Pages** test installation with a database/file backup. Record the PHP version, IPS build, theme, browser, CDN/cache configuration and application TAR SHA256. The current package is **`1.0.0-beta.10`, build `1000010`**; test beta.9 → beta.10 and an earlier-beta upgrade that exercises existing migrations. Beta.10 introduces no schema changes.
+Use a licensed, private IPS **5.0.20 + Pages** test installation with a database/file backup. Record the PHP version, IPS build, theme, browser, CDN/cache configuration and application TAR SHA256. The current package is **`1.0.0-beta.11`, build `1000011`**; test beta.10 → beta.11 and an earlier-beta upgrade that exercises existing migrations. Beta.11 introduces no schema changes.
 
 ## Installation and basic placement
 
-1. Upload `rqblockplacements-1.0.0-beta.10.tar` through ACP Applications. Confirm no installer error, version/build `1.0.0-beta.10` / `1000010`, and a visible grid icon near the bottom of the normal compact ACP sidebar. Open **Content Placements → Placement rules**, then **Content Placements → Settings**. The main tab uses the brand in every language; submenus remain localized, such as **Pravidla umístění / Nastavení** in Czech. Confirm the subtitle **for Invision Community 5**. This is a separate application tab, not a submenu of native Advertisements or Pages.
+1. Upload `rqblockplacements-1.0.0-beta.11.tar` through ACP Applications. Confirm no installer error, version/build `1.0.0-beta.11` / `1000011`, and a visible grid icon near the bottom of the normal compact ACP sidebar. Open **Content Placements → Placement rules**, then **Content Placements → Settings**. The main tab uses the brand in every language; submenus remain localized, such as **Pravidla umístění / Nastavení** in Czech. Confirm the subtitle **for Invision Community 5**. This is a separate application tab, not a submenu of native Advertisements or Pages.
 2. Create a public Pages HTML block with the key `my_new_block`, a unique `RQBP TEST` heading and a link. If using an existing block, replace `my_new_block` in the example with its actual key. Confirm its original native display works first.
 3. Create a CSS rule for a category actually on your forum, for example `li[data-categoryID="4"]`, **after**, first match, unrestricted audience. Check it appears between categories and does not appear between topic posts. Inspect the real category ID before choosing the selector.
 4. Change to **before**. Check the target/category ordering and absence of duplicated block output.
 5. Create a separate native-hook rule using an available safe hook, such as the `main` hook in `core/front/global/globalTemplate`, **before** or **after**. Check it displays once with valid surrounding markup. A native hook missing from your installed version is not a selectable target.
 6. Select the block through the picker, then switch to the manual source and use one exact `{block="my_new_block"}`. A block with that key must exist; otherwise use your block's actual key. Both methods should select the same existing block. Extra HTML, two tags and other template expressions must be rejected.
+7. Confirm the application project link targets [PTiCA1/IPS-Content-Placements](https://github.com/PTiCA1/IPS-Content-Placements) and ordinary bug reports use its [Issues](https://github.com/PTiCA1/IPS-Content-Placements/issues). Reporting a security issue must follow the private-reporting guidance in SECURITY.md.
 
 Direct navigation fallback: retain the actual ACP directory in your current address and open its `index.php` with `?app=rqblockplacements&module=placements&controller=rules`. A renamed ACP folder must remain unchanged. On beta.1 a blank item near the bottom of the compact sidebar may still open the application; beta.2 must show its icon without depending on hover or a screen wider than 1,900 px.
 
@@ -24,7 +25,7 @@ Direct navigation fallback: retain the actual ACP directory in your current addr
 
 ## Preserving the existing product name
 
-- Upgrade beta.9 to beta.10 through the existing application entry. Confirm the key `rqblockplacements`, rules, settings and administrator permissions remain unchanged; no second application should appear.
+- Upgrade beta.10 to beta.11 through the existing application entry. Confirm the key `rqblockplacements`, rules, settings and administrator permissions remain unchanged; no second application should appear.
 - Keep the standard product and main-tab labels **Content Placements**, the subtitle **for Invision Community 5** and localized submenus. Administrator-customized labels, including intentional empty text, must remain intact.
 
 ## Filtering and occurrences
@@ -48,7 +49,7 @@ Direct navigation fallback: retain the actual ACP directory in your current addr
 ## Upgrade and cleanup
 
 1. Save representative CSS and native-hook rules, ordering and group filters in the installed beta. In beta.2, also retain legacy platform selections (Android, iPhone, iPad, Windows and Unknown); in beta.3, retain canonical device choices. Export a backup of the database.
-2. Test **beta.9 (`1000009`) → beta.10 (`1000010`)** and an older version such as beta.2 (`1000002`) → beta.10 using `rqblockplacements-1.0.0-beta.10.tar` through ACP. Re-uploading the same beta does **not** establish upgrade compatibility. Beta.10 adds no schema changes; earlier additive migrations must still preserve existing data. Beta.2 editor access is confirmed, while subsequent live acceptance remains pending.
+2. Test **beta.10 (`1000010`) → beta.11 (`1000011`)** and an older version such as beta.2 (`1000002`) → beta.11 using `rqblockplacements-1.0.0-beta.11.tar` through ACP. Re-uploading the same beta does **not** establish upgrade compatibility. Beta.11 adds no schema changes; earlier additive migrations must still preserve existing data. Beta.2 editor access is confirmed, while subsequent live acceptance remains pending.
 3. Confirm rules/settings remain and native hook markers are restored once. Android must become Mobile + Tablet, iPhone Mobile, iPad/Kindle/PlayBook Tablet, and Windows/Unknown Desktop. Opening a rule normalizes old values; saving persists canonical values without a schema migration. Repeat an edit/reconcile and check no duplicate markers or placements. Normal menu navigation and the direct URL must open the same rule table.
 4. Check all four automatic translations and preservation of custom text as described above, without importing XML. Confirm unsupported locales still use English defaults. A later explicitly requested XML refresh must affect only this application's translations; verify the intended language after native import.
 5. On the disposable test installation, uninstall. Confirm this app's tables/settings/markers are removed and existing Pages blocks still exist.
@@ -67,7 +68,8 @@ Keep stable 1.0.0 pending until installation, assets, permissions, cache isolati
 | Native assets / original request | Pending | |
 | Guest CDN isolation | Pending | |
 | Diagnostics / ACP restrictions | Pending | |
-| Earlier beta → beta.10 upgrade / platform conversion | Pending | |
+| Earlier beta → beta.11 upgrade / platform conversion | Pending | |
+| Project / issue-reporting metadata | Pending | |
 | Application identity / product name / custom labels | Pending | |
 | Automatic CS / SK / PL / DE translations | Pending | |
 | Custom text / intentional empty values preserved | Pending | |
@@ -76,7 +78,7 @@ Keep stable 1.0.0 pending until installation, assets, permissions, cache isolati
 
 ## Template code (introduced in beta.5)
 
-- Upgrade beta.4 → beta.10 and retain existing block rules through the additive template-code migration. Retrying a partial migration must preserve data.
+- Upgrade beta.4 → beta.11 and retain existing block rules through the additive template-code migration. Retrying a partial migration must preserve data.
 - Choose custom IPS template code and use the Hello world example from README. An eligible front-end request must display Hello world without an additional extension. Save and ACP diagnostics must only validate syntax.
 - Exercise both placement modes, device/group/URL filters, excluded guests, before/after, repetition and absent selectors. Code is prepared server-side before CSS target discovery.
 - A restricted administrator without rqbp_manage_code must not read code or submit a forged source, enable, duplicate or edit code rules. Block management remains available.

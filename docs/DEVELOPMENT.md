@@ -2,19 +2,24 @@
 
 The repository is the standalone application, not an IPS installation. Application runtime files are under `application/`; `tools/`, `tests/` and documentation remain outside the installable TAR. Do not add IPS source/developer packages, a forum database, uploads, `conf_global.php`, credentials or private placement exports to Git or CI artifacts.
 
-The product is **Content Placements**, with the subtitle **for Invision Community 5**. The npm package and planned public repository use `ips-content-placements`; an existing local checkout may keep its historical `ips-pages-block-placements` directory name. Neither name changes the installed application identity.
+The product is **Content Placements**, with the subtitle **for Invision Community 5**. The canonical project is [PTiCA1/IPS-Content-Placements](https://github.com/PTiCA1/IPS-Content-Placements), with [Issues](https://github.com/PTiCA1/IPS-Content-Placements/issues) for ordinary bug reports. The npm package slug remains `ips-content-placements`; the GitHub display name and canonical URL use `IPS-Content-Placements`. An existing local checkout may keep its historical `ips-pages-block-placements` directory name. None of these names changes the installed application identity.
+
+```sh
+git clone https://github.com/PTiCA1/IPS-Content-Placements.git
+cd IPS-Content-Placements
+```
 
 ## Build contract
 
 - `data/application.json` fixes the installed key `rqblockplacements`; it must not change after release.
 - Release TARs retain the `rqblockplacements-` prefix. Beta.9 updates the standard product and ACP main-tab names to Content Placements in every language, while submenus remain localized and administrator-customized text is preserved. Upgrade the existing application; do not create a second app key or rename stored rule identities.
-- `data/versions.json` maps strictly increasing integer build IDs to human versions. The current beta is `1000010 → 1.0.0-beta.10`; earlier IDs remain in the map. Use new IDs for every update; never overwrite an existing published build.
+- `data/versions.json` maps strictly increasing integer build IDs to human versions. The current beta is `1000011 → 1.0.0-beta.11`; earlier IDs remain in the map. Use new IDs for every update; never overwrite an existing published build.
 - Keep the package version, asset version, application constants, language build and release filename consistent. Run the builder after a language change.
 - `data/schema.json` is the clean-install schema. Later persisted-data changes need corresponding versioned `setup/upg_<build>/` migrations, not just an edited install schema.
 - Beta.3 uses canonical `mobile`, `tablet`, `desktop` platform values. `Policy::platforms()` normalizes legacy OS selections on read and save, so this change needs no schema migration. An empty array permits all three classes.
 - Author only the app's own original PHP, JS, JSON, XML and docs. The English, Czech, Slovak, Polish and German source arrays return string-to-string maps with identical key sets. Preserve placeholders and code examples when translating. The builder generates `data/lang.xml`, identity bootstrap `data/installLang.json` and `resources/lang-{cs,sk,pl,de}.xml` with the native application/version envelope.
 - Beta.8 extends automatic translation installation from Czech to Slovak, Polish and German. Match existing locales by `cs`, `sk`, `pl`, `de` codes, including region variants, or Windows names beginning with Czech, Slovak, Polish or German. Read the matching bundled XML during installation and ACP upgrade. Fill missing translations only; preserve every existing custom value, including intentional empty text. Keep English defaults for other locales. Do not create a language, change language metadata or switch the site's default language. Existing translations can be refreshed explicitly, and languages added later can use the optional XML import.
-- Beta.8 through beta.10 have no new schema changes; existing versioned migrations still apply when upgrading from older betas.
+- Beta.8 through beta.11 have no new schema changes; existing versioned migrations still apply when upgrading from older betas. Beta.11 adds repository metadata without feature changes.
 - Keep positive Pages-tag examples universal: `{block="my_new_block"}` requires an existing block with that key, or the reader must replace it with the actual key. Use the README Hello world expression for template examples; describe site-specific integrations generically.
 - The native installer preserves `word_custom`, including bootstrap application titles. Beta.9 renames only the ten exact previous branding labels listed in `Translation::LEGACY_BRANDING` with a known beta.1–8 custom version; different or empty custom text survives. English and the four bundled locales receive their own updated labels. Other locales receive only the common application identity rename. A byte-exact text/version comparison in the SQL update protects concurrent edits; refresh language caches only after an affected row. An administrator's value identical to the old standard label cannot be distinguished from our original text.
 - Runtime native-hook templates are derived from the site's rules. They must never be shipped from a developer's database. `data/customtemplates.json` contains only the static prepare/payload templates; app export keeps an explicit static allowlist. After native template import, `Application::installCustomTemplates()` recreates runtime markers from the surviving app table and invalidates their caches.
@@ -51,8 +56,8 @@ Before release, test assets from real Pages widget/feed blocks, deferred script 
 1. Review changes and increase versions/migrations as needed. Update changelog and translations.
 2. Run `npm ci`, `npm test`, `npm run build`, and validate the resulting TAR. Check the archive listing contains only this application and the original MIT license.
 3. Check the generated files are committed and inspect `git diff`. A repeat build from the same checkout/epoch must have the same SHA256.
-4. Give the beta TAR, four optional `-cs.xml`, `-sk.xml`, `-pl.xml`, `-de.xml` translation files, SHA256SUMS and acceptance checklist to the owner. SHA256SUMS covers all five release artifacts. Do not publish while the native acceptance test is pending.
-5. After acceptance, tag the tested commit (for example `v1.0.0-beta.10`) and attach exactly those tested artifacts to a GitHub release. The workflow deliberately does not publish releases automatically.
+4. Give the beta TAR, four optional `-cs.xml`, `-sk.xml`, `-pl.xml`, `-de.xml` translation files, SHA256SUMS and acceptance checklist to the owner. SHA256SUMS covers all five release artifacts. Sharing source code is separate from stable-release acceptance; native testing must finish before calling a release stable.
+5. After acceptance, tag the tested commit (for example `v1.0.0-beta.11`) and attach exactly those tested artifacts to a [GitHub release](https://github.com/PTiCA1/IPS-Content-Placements/releases). Source publication does not create a release or upload its artifacts. The workflow deliberately does not publish releases automatically.
 6. Call a release stable only after the native requirements and real version-to-version upgrade have passed. Record the exact IPS/PHP/theme versions tested rather than assuming compatibility with every IPS 5 version.
 
 MIT covers this add-on's original code only. The [Invision Community software EULA](https://invisioncommunity.com/legal/license/) applies separately to the platform; no IPS code or license keys belong in this repository or its downloadable artifacts.

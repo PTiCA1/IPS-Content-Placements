@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0-beta.11 — 2026-10-25
+
+Build `1000011`; repository metadata update, without feature or schema changes.
+
+- Set the canonical project to [PTiCA1/IPS-Content-Placements](https://github.com/PTiCA1/IPS-Content-Placements) and link ordinary bug reports to its [Issues](https://github.com/PTiCA1/IPS-Content-Placements/issues).
+- Keep the npm slug `ips-content-placements`, installed key `rqblockplacements` and release filename prefix unchanged.
+- Document source checkout and reporting routes. Source publication is separate from release-artifact uploads and native testing required before a stable release.
+- Native beta.10 → beta.11 installation and upgrade acceptance remain pending.
+
 ## 1.0.0-beta.10 — 2026-10-25
 
 Build `1000010`; universal examples and documentation update, without schema changes.
@@ -95,4 +104,4 @@ Initial beta, build `1000001`, prepared for Invision Community 5.0.20 with Pages
 - English UI, optional Czech application translation and standalone MIT source.
 - Offline deterministic TAR, SHA256 checksums, metadata/syntax validation and automated tests.
 
-Native advertisement integration is outside this release. ACP installation/upgrade and production behavior remain pending the owner's test installation. The beta has not been published to GitHub.
+Native advertisement integration is outside this release. ACP installation/upgrade and production behavior remain pending the owner's test installation. The initial beta.1 was not published to GitHub.
