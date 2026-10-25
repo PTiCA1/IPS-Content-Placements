@@ -1,5 +1,5 @@
 <?php
-/** Pages Block Placements - original application code, MIT licensed. */
+/** Content Placements - original application code, MIT licensed. */
 namespace IPS\rqblockplacements;
 
 if (!\defined('\IPS\SUITE_UNIQUE_KEY')) { exit; }

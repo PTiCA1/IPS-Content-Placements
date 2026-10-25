@@ -1,4 +1,4 @@
-/* Pages Block Placements | MIT | IPS controls conditional form visibility. */
+/* Content Placements | MIT | IPS controls conditional form visibility. */
 (function () {
     'use strict';
 

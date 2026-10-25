@@ -1,15 +1,15 @@
 <?xml version='1.0' encoding='utf-8'?>
 <language>
- <app key="rqblockplacements" version="1000008">
-  <word key="__app_rqblockplacements" js="0">Pages Block Placements</word>
-  <word key="menu__rqblockplacements_placements" js="0">Block placements</word>
+ <app key="rqblockplacements" version="1000009">
+  <word key="__app_rqblockplacements" js="0">Content Placements</word>
+  <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Placement rules</word>
   <word key="menu__rqblockplacements_placements_settings" js="0">Settings</word>
-  <word key="menutab__rqblockplacements" js="0">Block placements</word>
+  <word key="menutab__rqblockplacements" js="0">Content Placements</word>
   <word key="menutab__rqblockplacements_icon" js="0">table-cells-large</word>
-  <word key="r__placements" js="0">Block placements</word>
-  <word key="r__rqblockplacements" js="0">Pages Block Placements</word>
-  <word key="r__rqbp_manage" js="0">Manage Pages block placements</word>
+  <word key="r__placements" js="0">Content Placements</word>
+  <word key="r__rqblockplacements" js="0">Content Placements</word>
+  <word key="r__rqbp_manage" js="0">Manage content placements</word>
   <word key="r__rqbp_manage_code" js="0">Manage custom IPS template code (allows server-side PHP execution)</word>
   <word key="rqbp_add_rule" js="0">Add placement rule</word>
   <word key="rqbp_after" js="0">After the target</word>
@@ -52,7 +52,7 @@
   <word key="rqbp_duplicated_disabled" js="0">The copy was created disabled. Review its placement before enabling it.</word>
   <word key="rqbp_edit_rule" js="0">Edit placement rule</word>
   <word key="rqbp_enable_rule" js="0">Enable rule</word>
-  <word key="rqbp_enabled" js="0">Enable Pages Block Placements</word>
+  <word key="rqbp_enabled" js="0">Enable Content Placements</word>
   <word key="rqbp_enabled_desc" js="0">Switch off to stop all placements without deleting their rules.</word>
   <word key="rqbp_error_block" js="0">Select an existing Pages block.</word>
   <word key="rqbp_error_block_reference" js="0">Enter an existing block key or a valid {block="key"} reference.</word>
@@ -83,7 +83,7 @@
   <word key="rqbp_filter_hook" js="0">Native hooks</word>
   <word key="rqbp_first" js="0">First occurrence</word>
   <word key="rqbp_form_intro" js="0">Content remains in Pages → Blocks. This form controls where an existing block appears. Test a disabled rule in diagnostics, then enable it when its placement is ready.</word>
-  <word key="rqbp_front_diagnostics" js="0">Block placement diagnostics</word>
+  <word key="rqbp_front_diagnostics" js="0">Content placement diagnostics</word>
   <word key="rqbp_front_inserted" js="0">Inserted</word>
   <word key="rqbp_front_matches" js="0">Matches</word>
   <word key="rqbp_hook" js="0">Native hook</word>
@@ -94,7 +94,7 @@
   <word key="rqbp_log_duplicated" js="0">Duplicated placement rule %s as disabled</word>
   <word key="rqbp_log_reordered" js="0">Changed placement rule order</word>
   <word key="rqbp_log_saved" js="0">Saved placement rule %s</word>
-  <word key="rqbp_log_settings" js="0">Changed Pages Block Placements settings</word>
+  <word key="rqbp_log_settings" js="0">Changed Content Placements settings</word>
   <word key="rqbp_log_toggled" js="0">Changed activation of placement rule %s</word>
   <word key="rqbp_mode" js="0">Placement mode</word>
   <word key="rqbp_mode_css" js="0">CSS selector</word>
@@ -130,7 +130,7 @@
   <word key="rqbp_section_rule" js="0">Rule</word>
   <word key="rqbp_selector" js="0">CSS selector</word>
   <word key="rqbp_selector_desc" js="0">Use a standard CSS selector, for example &lt;code&gt;#forum-category_12 &amp;gt; .ipsData__item:nth-child(2)&lt;/code&gt;. Prefer stable IDs and data attributes. A missing target leaves the block unplaced. The browser checks selector syntax.</word>
-  <word key="rqbp_settings" js="0">Block placement settings</word>
+  <word key="rqbp_settings" js="0">Content placement settings</word>
   <word key="rqbp_settings_intro" js="0">The master switch controls every placement rule. Eligible pages bypass shared page caching so platform and group targeting remain correct. Purge any external CDN or reverse-proxy page cache after changing placements. Content and permissions are managed in Pages.</word>
   <word key="rqbp_sort_order" js="0">Order</word>
   <word key="rqbp_sort_order_desc" js="0">Lower values run first. Rules with the same order use their ID as a tie breaker.</word>

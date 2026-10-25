@@ -1,8 +1,8 @@
 {
-  "name": "ips-pages-block-placements",
-  "version": "1.0.0-beta.8",
+  "name": "ips-content-placements",
+  "version": "1.0.0-beta.9",
   "private": true,
-  "description": "Original CSS selector and native-hook Pages block placements for Invision Community 5.0.20",
+  "description": "Content Placements for Invision Community 5: Pages blocks and custom IPS template code using CSS selectors and native hooks",
   "license": "MIT",
   "scripts": {
     "test:php": "php tests/policy.php && php tests/runtime.php && php tests/page-cache.php && php tests/template-content.php && php tests/acp-context.php && php tests/translations.php && php tests/migration.php",

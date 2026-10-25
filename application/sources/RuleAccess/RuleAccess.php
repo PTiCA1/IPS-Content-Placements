@@ -1,5 +1,5 @@
 <?php
-/** Pages Block Placements — ACP rule permissions. MIT. */
+/** Content Placements — ACP rule permissions. MIT. */
 namespace IPS\rqblockplacements;
 
 if (!\defined('\IPS\SUITE_UNIQUE_KEY')) { exit; }

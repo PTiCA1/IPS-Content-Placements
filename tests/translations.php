@@ -24,12 +24,14 @@ namespace IPS {
         public static array $rows = [];
         public static array $writes = [];
         public static ?int $raceId = null;
+        public static ?array $raceValues = null;
         public static function i(): self { static $instance; return $instance ??= new self; }
         private function matches(array $row, array $where): bool {
             $argument = 1;
-            preg_match_all('/(word_id|word_app|lang_id|word_js)\s*=\s*(\?|0)/i', $where[0], $matches, PREG_SET_ORDER);
+            preg_match_all('/\b(word_id|word_app|lang_id|word_js|word_custom_version|word_custom)\s*=\s*(\?|0)/i', $where[0], $matches, PREG_SET_ORDER);
             foreach ($matches as $match) {
                 $expected = $match[2] === '?' ? $where[$argument++] : 0;
+                if (strtolower($match[1]) === 'word_custom' && $row['word_custom'] !== $expected) { return false; }
                 if ((string) $row[strtolower($match[1])] !== (string) $expected) { return false; }
             }
             if (preg_match('/word_custom\s+IS\s+NULL/i', $where[0]) && $row['word_custom'] !== null) { return false; }
@@ -44,13 +46,21 @@ namespace IPS {
             foreach (['word_app', 'lang_id', 'word_js', 'word_id'] as $column) {
                 if (!preg_match('/\b' . $column . '\s*=/', $where[0])) { throw new \RuntimeException('Unscoped translation update: ' . $column); }
             }
-            if (!preg_match('/word_custom\s+IS\s+NULL/i', $where[0])) { throw new \RuntimeException('An administrator edit must win a concurrent update'); }
+            $fillsMissing = preg_match('/word_custom\s+IS\s+NULL/i', $where[0]);
+            $rebrands = preg_match('/\bBINARY\s+word_custom\s*=\s*\?/i', $where[0])
+                && preg_match('/\bword_custom_version\s*=\s*\?/i', $where[0]);
+            if (!$fillsMissing && !$rebrands) { throw new \RuntimeException('An administrator edit must win a concurrent update through a NULL or byte-and-version guard'); }
             if (array_diff(array_keys($values), ['word_custom', 'word_custom_version'])) { throw new \RuntimeException('English defaults and all other columns must remain unchanged'); }
             self::$writes[] = [$values, $where];
             $changed = 0;
             foreach (self::$rows as &$row) {
                 if (!$this->matches($row, $where)) { continue; }
-                if ($row['word_id'] === self::$raceId) { $row['word_custom'] = 'Concurrent administrator text'; self::$raceId = null; continue; }
+                if ($row['word_id'] === self::$raceId) {
+                    $row = array_replace($row, self::$raceValues ?? ['word_custom' => 'Concurrent administrator text']);
+                    self::$raceId = null;
+                    self::$raceValues = null;
+                    if (!$this->matches($row, $where)) { continue; }
+                }
                 $row = array_replace($row, $values);
                 $changed++;
             }
@@ -224,10 +234,14 @@ namespace {
     } finally { unlink($invalid); }
 
     // Every file must be validated before even the first supported language is updated.
-    $temporaryDirectory = tempnam(sys_get_temp_dir(), 'rqbp-dictionaries-');
-    unlink($temporaryDirectory);
+    $temporaryRoot = tempnam(sys_get_temp_dir(), 'rqbp-dictionaries-');
+    unlink($temporaryRoot);
+    mkdir($temporaryRoot);
+    $temporaryDirectory = $temporaryRoot . '/resources';
     mkdir($temporaryDirectory);
+    mkdir($temporaryRoot . '/data');
     try {
+        copy(dirname($resourceDirectory) . '/data/lang.xml', $temporaryRoot . '/data/lang.xml');
         foreach (array_keys($dictionaries) as $code) {
             copy($resourceDirectory . '/lang-' . $code . '.xml', $temporaryDirectory . '/lang-' . $code . '.xml');
         }
@@ -256,9 +270,158 @@ namespace {
         $rejected = false;
         try { Translation::installBundled($temporaryDirectory); } catch (\Throwable) { $rejected = true; }
         check($rejected && \IPS\Db::$rows === $rowsBefore && count(\IPS\Db::$writes) === $writesBefore, 'A missing last dictionary also prevents partial installation');
+        file_put_contents($lastDictionary, $original);
+        $englishPath = $temporaryRoot . '/data/lang.xml';
+        $originalEnglish = file_get_contents($englishPath);
+        file_put_contents($englishPath, '<language><app key="otherapp"><word key="__app_rqblockplacements" js="0">Foreign title</word></app></language>');
+        $rejected = false;
+        try { Translation::installBundled($temporaryDirectory); } catch (\Throwable) { $rejected = true; }
+        check($rejected && \IPS\Db::$rows === $rowsBefore && count(\IPS\Db::$writes) === $writesBefore, 'The English dictionary is also validated before any database mutation');
+        file_put_contents($englishPath, $originalEnglish);
+        unlink($englishPath);
+        $rejected = false;
+        try { Translation::installBundled($temporaryDirectory); } catch (\Throwable) { $rejected = true; }
+        check($rejected && \IPS\Db::$rows === $rowsBefore && count(\IPS\Db::$writes) === $writesBefore, 'A missing English dictionary prevents all bundled translation writes');
     } finally {
         foreach (glob($temporaryDirectory . '/*') as $file) { unlink($file); }
         rmdir($temporaryDirectory);
+        foreach (glob($temporaryRoot . '/data/*') as $file) { unlink($file); }
+        rmdir($temporaryRoot . '/data');
+        rmdir($temporaryRoot);
+    }
+    // Upgrade from shipped beta.1–8 wording, independently specified here.
+    $legacyBranding = [];
+    foreach ([
+        'en' => ['Block placements', 'Manage Pages block placements', 'Block placement settings', 'Block placement diagnostics', 'Enable Pages Block Placements', 'Changed Pages Block Placements settings'],
+        'cs' => ['Umístění bloků', 'Spravovat umístění bloků Pages', 'Nastavení umístění bloků', 'Diagnostika umístění bloků', 'Zapnout Pages Block Placements', 'Změněno nastavení Pages Block Placements'],
+        'sk' => ['Umiestnenia blokov', 'Spravovať umiestnenia blokov Pages', 'Nastavenia umiestnenia blokov', 'Diagnostika umiestnenia blokov', 'Zapnúť Pages Block Placements', 'Zmenené nastavenia Pages Block Placements'],
+        'pl' => ['Umieszczanie bloków', 'Zarządzanie umieszczaniem bloków Pages', 'Ustawienia umieszczania bloków', 'Diagnostyka umieszczania bloków', 'Włącz Pages Block Placements', 'Zmieniono ustawienia Pages Block Placements'],
+        'de' => ['Blockplatzierungen', 'Platzierungen von Pages-Blöcken verwalten', 'Einstellungen für Blockplatzierungen', 'Diagnose der Blockplatzierungen', 'Pages Block Placements aktivieren', 'Einstellungen von Pages Block Placements geändert'],
+    ] as $code => $labels) {
+        $legacyBranding[$code] = [
+            '__app_rqblockplacements' => 'Pages Block Placements',
+            'menutab__rqblockplacements' => $labels[0],
+            'menu__rqblockplacements_placements' => $labels[0],
+            'r__rqblockplacements' => 'Pages Block Placements',
+            'r__placements' => $labels[0],
+            'r__rqbp_manage' => $labels[1],
+            'rqbp_settings' => $labels[2],
+            'rqbp_front_diagnostics' => $labels[3],
+            'rqbp_enabled' => $labels[4],
+            'rqbp_log_settings' => $labels[5],
+        ];
+    }
+    $allWords = ['en' => $english] + $dictionaries;
+    \IPS\Db::$rows = \IPS\Db::$writes = [];
+    \IPS\Lang::$installed = [];
+    $expectedRebrands = [];
+    $nextWord = 400;
+    foreach ([1 => ['en_US', 'en'], 2 => ['cs_CZ', 'cs'], 5 => ['sk_SK', 'sk'], 6 => ['pl_PL', 'pl'], 7 => ['de_DE', 'de']] as $language => [$locale, $code]) {
+        \IPS\Lang::$installed[$language] = new \IPS\Lang($language, $locale, 'Unrelated display title');
+        foreach ($legacyBranding[$code] as $key => $oldText) {
+            $row = word(++$nextWord, $language, $key, $oldText);
+            $row['word_custom_version'] = 1000001 + (($nextWord - 401) % 8);
+            \IPS\Db::$rows[] = $row;
+            $expectedRebrands[$row['word_id']] = $allWords[$code][$key];
+        }
+    }
+    check(count($expectedRebrands) === 50, 'Upgrade fixtures cover all ten renamed keys in all five bundled languages');
+
+    // Unknown locales share only the old product identity; their other text is not ours to replace.
+    \IPS\Lang::$installed[20] = new \IPS\Lang(20, 'fr_FR', 'English');
+    foreach ($legacyBranding['en'] as $key => $oldText) {
+        $row = word(++$nextWord, 20, $key, $oldText);
+        $row['word_custom_version'] = 1000008;
+        \IPS\Db::$rows[] = $row;
+        if (in_array($key, ['__app_rqblockplacements', 'r__rqblockplacements'], true)) {
+            $expectedRebrands[$row['word_id']] = 'Content Placements';
+        }
+    }
+    foreach (['en', 'en-GB', 'en_US.UTF-8', 'English', 'English_United States.1252', 'English.United States',
+        'English-United States', 'English United States', ' english_Australia.1252 '] as $index => $locale) {
+        $language = 21 + $index;
+        \IPS\Lang::$installed[$language] = new \IPS\Lang($language, $locale, 'Čeština');
+        $row = word(++$nextWord, $language, 'rqbp_settings', $legacyBranding['en']['rqbp_settings']);
+        $row['word_custom_version'] = 1000008;
+        \IPS\Db::$rows[] = $row;
+        $expectedRebrands[$row['word_id']] = $english['rqbp_settings'];
+    }
+    $preservedCases = [
+        ['en_US', 'rqbp_settings', 'My chosen placement wording', 1000008, 0, 'rqblockplacements'],
+        ['cs_CZ', 'rqbp_enabled', '', 1000008, 0, 'rqblockplacements'],
+        ['pl_PL', '__app_rqblockplacements', 'pages block placements', 1000008, 0, 'rqblockplacements'],
+        ['de_DE', '__app_rqblockplacements', 'Pages Block Placements ', 1000008, 0, 'rqblockplacements'],
+        ['cs_CZ', '__app_rqblockplacements', 'Pages Block Placements', null, 0, 'rqblockplacements'],
+        ['en_US', '__app_rqblockplacements', 'Pages Block Placements', 0, 0, 'rqblockplacements'],
+        ['sk_SK', '__app_rqblockplacements', 'Pages Block Placements', 1000000, 0, 'rqblockplacements'],
+        ['pl_PL', '__app_rqblockplacements', 'Pages Block Placements', 1000009, 0, 'rqblockplacements'],
+        ['de_DE', '__app_rqblockplacements', 'Pages Block Placements', 9999999, 0, 'rqblockplacements'],
+        ['en_US', 'rqbp_copy_suffix', null, null, 0, 'rqblockplacements'],
+        ['en_US', '__app_rqblockplacements', null, null, 0, 'rqblockplacements'],
+        ['fr_FR', '__app_rqblockplacements', null, null, 0, 'rqblockplacements'],
+        ['enough', 'rqbp_settings', 'Block placement settings', 1000008, 0, 'rqblockplacements'],
+        ['englishman', 'rqbp_settings', 'Block placement settings', 1000008, 0, 'rqblockplacements'],
+        ['cs_CZ', 'rqbp_add_rule', $dictionaries['cs']['rqbp_add_rule'], 1000008, 0, 'rqblockplacements'],
+        ['en_US', '__app_rqblockplacements', 'Pages Block Placements', 1000008, 1, 'rqblockplacements'],
+        ['cs_CZ', '__app_rqblockplacements', 'Pages Block Placements', 1000008, 0, 'otherapp'],
+    ];
+    foreach ($preservedCases as $index => [$locale, $key, $custom, $version, $js, $app]) {
+        $language = 50 + $index;
+        \IPS\Lang::$installed[$language] = new \IPS\Lang($language, $locale, 'English');
+        $row = word(++$nextWord, $language, $key, $custom, $js, $app);
+        $row['word_custom_version'] = $version;
+        \IPS\Db::$rows[] = $row;
+    }
+    foreach (\IPS\Db::$rows as $row) {
+        \IPS\Lang::$installed[$row['lang_id']]->words[$row['word_key']] = $row['word_custom'] ?: $row['word_default'];
+    }
+    $upgradeBefore = \IPS\Db::$rows;
+    $languageMetadata = array_map(fn ($language) => [$language->id, $language->short, $language->title], \IPS\Lang::$installed);
+    Translation::install($path);
+    check(\IPS\Db::$writes === [] && \IPS\Db::$rows === $upgradeBefore, 'The legacy Czech installer only fills NULL text and never rebrands existing text');
+    Translation::installBundled($resourceDirectory);
+    check(count(\IPS\Db::$rows) === count($upgradeBefore), 'The rebrand only updates existing language words');
+    $changedLanguages = [];
+    foreach (\IPS\Db::$rows as $index => $row) {
+        $expected = $expectedRebrands[$row['word_id']] ?? null;
+        if ($expected !== null) {
+            check($row['word_custom'] === $expected && $row['word_custom_version'] === Application::RQBP_BUILD, 'Rename the exact shipped label with a known beta version: ' . $row['word_key']);
+            check(\IPS\Lang::$installed[$row['lang_id']]->words[$row['word_key']] === $expected, 'Update the request language cache after a successful rebrand');
+            $changedLanguages[$row['lang_id']] = true;
+        } else {
+            check($row === $upgradeBefore[$index], 'Preserve custom/empty/case-different text, unknown versions, other locales, unrelated keys, apps and JS words');
+        }
+        check($row['word_default'] === $upgradeBefore[$index]['word_default'] && $row['word_default_version'] === $upgradeBefore[$index]['word_default_version'], 'Rebranding does not modify native English defaults or their versions');
+    }
+    check(count(\IPS\Db::$writes) === count($expectedRebrands), 'Only exact known legacy labels issue a database update');
+    check($languageMetadata === array_map(fn ($language) => [$language->id, $language->short, $language->title], \IPS\Lang::$installed), 'The rebrand does not alter or add language metadata');
+    foreach (\IPS\Lang::$installed as $id => $language) {
+        check($language->cacheClears === (isset($changedLanguages[$id]) ? 1 : 0), 'Clear only a language cache that was changed by the rebrand');
+    }
+    $upgraded = \IPS\Db::$rows;
+    $upgradeWrites = count(\IPS\Db::$writes);
+    $clearedCaches = array_map(fn ($language) => $language->cacheClears, \IPS\Lang::$installed);
+    Translation::installBundled($resourceDirectory);
+    check(\IPS\Db::$rows === $upgraded && count(\IPS\Db::$writes) === $upgradeWrites
+        && $clearedCaches === array_map(fn ($language) => $language->cacheClears, \IPS\Lang::$installed), 'Repeating the rebrand writes nothing and invalidates no additional caches');
+
+    foreach ([
+        ['word_custom' => 'PAGES BLOCK PLACEMENTS', 'word_custom_version' => 1000008],
+        ['word_custom' => 'Concurrent administrator branding', 'word_custom_version' => 1000008],
+        ['word_custom' => 'Pages Block Placements', 'word_custom_version' => 9999999],
+    ] as $racingEdit) {
+        \IPS\Lang::$installed = [2 => new \IPS\Lang(2, 'cs_CZ', 'Čeština')];
+        \IPS\Lang::$installed[2]->words['__app_rqblockplacements'] = 'Pages Block Placements';
+        $row = word(900, 2, '__app_rqblockplacements', 'Pages Block Placements');
+        $row['word_custom_version'] = 1000008;
+        \IPS\Db::$rows = [$row];
+        \IPS\Db::$writes = [];
+        \IPS\Db::$raceId = 900;
+        \IPS\Db::$raceValues = $racingEdit;
+        Translation::installBundled($resourceDirectory);
+        check(\IPS\Db::$rows[0]['word_custom'] === $racingEdit['word_custom'] && \IPS\Db::$rows[0]['word_custom_version'] === $racingEdit['word_custom_version'], 'A concurrent case, text or version edit wins the byte-and-version comparison');
+        check(\IPS\Lang::$installed[2]->words['__app_rqblockplacements'] === 'Pages Block Placements'
+            && \IPS\Lang::$installed[2]->cacheClears === 0, 'A lost rebrand race does not inject stale text into the request cache');
     }
     echo "Translation installation boundary tests: {$checks} passed\n";
 }

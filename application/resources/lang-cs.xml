@@ -1,15 +1,15 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Čeština" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.8" long_version="1000008" update_check="">
- <app key="rqblockplacements" version="1000008">
-  <word key="__app_rqblockplacements" js="0">Pages Block Placements</word>
-  <word key="menu__rqblockplacements_placements" js="0">Umístění bloků</word>
+<language name="Čeština" rtl="0" author_name="Content Placements contributors" author_url="" version="1.0.0-beta.9" long_version="1000009" update_check="">
+ <app key="rqblockplacements" version="1000009">
+  <word key="__app_rqblockplacements" js="0">Content Placements</word>
+  <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Pravidla umístění</word>
   <word key="menu__rqblockplacements_placements_settings" js="0">Nastavení</word>
-  <word key="menutab__rqblockplacements" js="0">Umístění bloků</word>
+  <word key="menutab__rqblockplacements" js="0">Content Placements</word>
   <word key="menutab__rqblockplacements_icon" js="0">table-cells-large</word>
-  <word key="r__placements" js="0">Umístění bloků</word>
-  <word key="r__rqblockplacements" js="0">Pages Block Placements</word>
-  <word key="r__rqbp_manage" js="0">Spravovat umístění bloků Pages</word>
+  <word key="r__placements" js="0">Content Placements</word>
+  <word key="r__rqblockplacements" js="0">Content Placements</word>
+  <word key="r__rqbp_manage" js="0">Spravovat umístění obsahu</word>
   <word key="r__rqbp_manage_code" js="0">Spravovat vlastní kód šablon IPS (umožňuje spouštět PHP na serveru)</word>
   <word key="rqbp_add_rule" js="0">Přidat pravidlo umístění</word>
   <word key="rqbp_after" js="0">Za cílový prvek</word>
@@ -52,7 +52,7 @@
   <word key="rqbp_duplicated_disabled" js="0">Kopie byla vytvořena vypnutá. Před zapnutím zkontrolujte její umístění.</word>
   <word key="rqbp_edit_rule" js="0">Upravit pravidlo umístění</word>
   <word key="rqbp_enable_rule" js="0">Zapnout pravidlo</word>
-  <word key="rqbp_enabled" js="0">Zapnout Pages Block Placements</word>
+  <word key="rqbp_enabled" js="0">Zapnout Content Placements</word>
   <word key="rqbp_enabled_desc" js="0">Vypnutím zastavíte všechna umístění bez smazání pravidel.</word>
   <word key="rqbp_error_block" js="0">Vyberte existující blok Pages.</word>
   <word key="rqbp_error_block_reference" js="0">Zadejte existující klíč bloku nebo platný odkaz {block="key"}.</word>
@@ -83,7 +83,7 @@
   <word key="rqbp_filter_hook" js="0">Nativní hooky</word>
   <word key="rqbp_first" js="0">První výskyt</word>
   <word key="rqbp_form_intro" js="0">Obsah se upravuje v Pages → Blocks. Tento formulář určuje, kde se existující blok zobrazí. Vypnuté pravidlo zkontrolujte v diagnostice a poté je zapněte.</word>
-  <word key="rqbp_front_diagnostics" js="0">Diagnostika umístění bloků</word>
+  <word key="rqbp_front_diagnostics" js="0">Diagnostika umístění obsahu</word>
   <word key="rqbp_front_inserted" js="0">Vloženo</word>
   <word key="rqbp_front_matches" js="0">Shody</word>
   <word key="rqbp_hook" js="0">Nativní hook</word>
@@ -94,7 +94,7 @@
   <word key="rqbp_log_duplicated" js="0">Pravidlo umístění %s zkopírováno jako vypnuté</word>
   <word key="rqbp_log_reordered" js="0">Změněno pořadí pravidel umístění</word>
   <word key="rqbp_log_saved" js="0">Uloženo pravidlo umístění %s</word>
-  <word key="rqbp_log_settings" js="0">Změněno nastavení Pages Block Placements</word>
+  <word key="rqbp_log_settings" js="0">Změněno nastavení Content Placements</word>
   <word key="rqbp_log_toggled" js="0">Změněno zapnutí pravidla umístění %s</word>
   <word key="rqbp_mode" js="0">Způsob umístění</word>
   <word key="rqbp_mode_css" js="0">CSS selektor</word>
@@ -130,7 +130,7 @@
   <word key="rqbp_section_rule" js="0">Pravidlo</word>
   <word key="rqbp_selector" js="0">CSS selektor</word>
   <word key="rqbp_selector_desc" js="0">Použijte běžný CSS selektor, například &lt;code&gt;#forum-category_12 &amp;gt; .ipsData__item:nth-child(2)&lt;/code&gt;. Upřednostněte stabilní ID a datové atributy. Pokud cíl chybí, blok se nevloží. Syntaxi kontroluje prohlížeč.</word>
-  <word key="rqbp_settings" js="0">Nastavení umístění bloků</word>
+  <word key="rqbp_settings" js="0">Nastavení umístění obsahu</word>
   <word key="rqbp_settings_intro" js="0">Hlavní přepínač ovládá všechna pravidla umístění. U odpovídajících stránek se vypíná sdílená mezipaměť celé stránky, aby správně fungovalo cílení na platformy a skupiny. Po změně umístění vyprázdněte také případnou externí CDN nebo reverzní proxy cache. Obsah a oprávnění se spravují v Pages.</word>
   <word key="rqbp_sort_order" js="0">Pořadí</word>
   <word key="rqbp_sort_order_desc" js="0">Nižší hodnota se zpracuje dříve. Při shodném pořadí rozhoduje ID pravidla.</word>

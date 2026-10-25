@@ -1,6 +1,6 @@
 <?php
 /**
- * Pages Block Placements — rule administration.
+ * Content Placements — rule administration.
  * SPDX-License-Identifier: MIT
  */
 

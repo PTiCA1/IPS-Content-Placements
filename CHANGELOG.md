@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0-beta.9 — 2026-10-25
+
+Build `1000009`; rebranding release, without new schema changes.
+
+- Rename the product to **Content Placements**, with the subtitle **for Invision Community 5**. Use Content Placements for the standard ACP main-tab name in every language while keeping submenus localized.
+- Refresh the application's standard names during upgrades and preserve administrator-customized text, existing rules, settings and permissions.
+- Use `ips-content-placements` for the npm package and planned public repository. Keep the installed app key `rqblockplacements`, release TAR prefix and historical local checkout directory unchanged so updates target the existing application.
+- Native rebranding and upgrade acceptance remain pending. Earlier changelog entries and the dated security audit retain their historical names.
+
 ## 1.0.0-beta.8 — 2026-10-25
 
 Build `1000008`; translation release, without new schema changes.

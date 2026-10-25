@@ -53,7 +53,7 @@ def php_words(path: Path) -> dict[str, str]:
 
 def xml_bytes(words: dict[str, str], build: int, version: str, translated: bool = False,
               language_name: str = "Čeština") -> bytes:
-    attrs = ({"name": language_name, "rtl": "0", "author_name": "Pages Block Placements contributors",
+    attrs = ({"name": language_name, "rtl": "0", "author_name": "Content Placements contributors",
               "author_url": "", "version": version, "long_version": str(build), "update_check": ""}
              if translated else {})
     language = ET.Element("language", attrs)

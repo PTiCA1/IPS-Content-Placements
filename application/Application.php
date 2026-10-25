@@ -1,12 +1,12 @@
 <?php
-/** Pages Block Placements - MIT. */
+/** Content Placements - MIT. */
 namespace IPS\rqblockplacements;
 
 if (!\defined('\IPS\SUITE_UNIQUE_KEY')) { exit; }
 
 class Application extends \IPS\Application
 {
-    public const RQBP_BUILD = 1000008;
+    public const RQBP_BUILD = 1000009;
 
     public static function asset(string $name): string
     {

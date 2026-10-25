@@ -1,15 +1,15 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Slovenčina" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.8" long_version="1000008" update_check="">
- <app key="rqblockplacements" version="1000008">
-  <word key="__app_rqblockplacements" js="0">Pages Block Placements</word>
-  <word key="menu__rqblockplacements_placements" js="0">Umiestnenia blokov</word>
+<language name="Slovenčina" rtl="0" author_name="Content Placements contributors" author_url="" version="1.0.0-beta.9" long_version="1000009" update_check="">
+ <app key="rqblockplacements" version="1000009">
+  <word key="__app_rqblockplacements" js="0">Content Placements</word>
+  <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Pravidlá umiestnenia</word>
   <word key="menu__rqblockplacements_placements_settings" js="0">Nastavenia</word>
-  <word key="menutab__rqblockplacements" js="0">Umiestnenia blokov</word>
+  <word key="menutab__rqblockplacements" js="0">Content Placements</word>
   <word key="menutab__rqblockplacements_icon" js="0">table-cells-large</word>
-  <word key="r__placements" js="0">Umiestnenia blokov</word>
-  <word key="r__rqblockplacements" js="0">Pages Block Placements</word>
-  <word key="r__rqbp_manage" js="0">Spravovať umiestnenia blokov Pages</word>
+  <word key="r__placements" js="0">Content Placements</word>
+  <word key="r__rqblockplacements" js="0">Content Placements</word>
+  <word key="r__rqbp_manage" js="0">Spravovať umiestnenia obsahu</word>
   <word key="r__rqbp_manage_code" js="0">Spravovať vlastný kód šablón IPS (umožňuje spúšťať PHP na serveri)</word>
   <word key="rqbp_add_rule" js="0">Pridať pravidlo umiestnenia</word>
   <word key="rqbp_after" js="0">Za cieľový prvok</word>
@@ -52,7 +52,7 @@
   <word key="rqbp_duplicated_disabled" js="0">Kópia bola vytvorená ako vypnutá. Pred zapnutím skontrolujte jej umiestnenie.</word>
   <word key="rqbp_edit_rule" js="0">Upraviť pravidlo umiestnenia</word>
   <word key="rqbp_enable_rule" js="0">Zapnúť pravidlo</word>
-  <word key="rqbp_enabled" js="0">Zapnúť Pages Block Placements</word>
+  <word key="rqbp_enabled" js="0">Zapnúť Content Placements</word>
   <word key="rqbp_enabled_desc" js="0">Vypnutím zastavíte všetky umiestnenia bez odstránenia ich pravidiel.</word>
   <word key="rqbp_error_block" js="0">Vyberte existujúci blok Pages.</word>
   <word key="rqbp_error_block_reference" js="0">Zadajte existujúci kľúč bloku alebo platný odkaz {block="key"}.</word>
@@ -83,7 +83,7 @@
   <word key="rqbp_filter_hook" js="0">Natívne hooky</word>
   <word key="rqbp_first" js="0">Prvý výskyt</word>
   <word key="rqbp_form_intro" js="0">Obsah sa naďalej spravuje v Pages → Blocks. Tento formulár určuje, kde sa existujúci blok zobrazí. Vypnuté pravidlo overte v diagnostike a zapnite ho, keď bude jeho umiestnenie pripravené.</word>
-  <word key="rqbp_front_diagnostics" js="0">Diagnostika umiestnenia blokov</word>
+  <word key="rqbp_front_diagnostics" js="0">Diagnostika umiestnenia obsahu</word>
   <word key="rqbp_front_inserted" js="0">Vložené</word>
   <word key="rqbp_front_matches" js="0">Zhody</word>
   <word key="rqbp_hook" js="0">Natívny hook</word>
@@ -94,7 +94,7 @@
   <word key="rqbp_log_duplicated" js="0">Pravidlo umiestnenia %s skopírované ako vypnuté</word>
   <word key="rqbp_log_reordered" js="0">Zmenené poradie pravidiel umiestnenia</word>
   <word key="rqbp_log_saved" js="0">Uložené pravidlo umiestnenia %s</word>
-  <word key="rqbp_log_settings" js="0">Zmenené nastavenia Pages Block Placements</word>
+  <word key="rqbp_log_settings" js="0">Zmenené nastavenia Content Placements</word>
   <word key="rqbp_log_toggled" js="0">Zmenené zapnutie pravidla umiestnenia %s</word>
   <word key="rqbp_mode" js="0">Spôsob umiestnenia</word>
   <word key="rqbp_mode_css" js="0">CSS selektor</word>
@@ -130,7 +130,7 @@
   <word key="rqbp_section_rule" js="0">Pravidlo</word>
   <word key="rqbp_selector" js="0">CSS selektor</word>
   <word key="rqbp_selector_desc" js="0">Použite štandardný CSS selektor, napríklad &lt;code&gt;#forum-category_12 &amp;gt; .ipsData__item:nth-child(2)&lt;/code&gt;. Uprednostnite stabilné ID a dátové atribúty. Ak cieľ chýba, blok sa nevloží. Syntax selektora kontroluje prehliadač.</word>
-  <word key="rqbp_settings" js="0">Nastavenia umiestnenia blokov</word>
+  <word key="rqbp_settings" js="0">Nastavenia umiestnenia obsahu</word>
   <word key="rqbp_settings_intro" js="0">Hlavný prepínač ovláda všetky pravidlá umiestnenia. Pri zodpovedajúcich stránkach sa obchádza zdieľaná vyrovnávacia pamäť celej stránky, aby správne fungovalo cielenie na platformy a skupiny. Po zmene umiestnení vyprázdnite aj prípadnú externú vyrovnávaciu pamäť stránok na CDN alebo reverznom proxy serveri. Obsah a oprávnenia sa spravujú v Pages.</word>
   <word key="rqbp_sort_order" js="0">Poradie</word>
   <word key="rqbp_sort_order_desc" js="0">Nižšie hodnoty sa spracujú skôr. Pri zhodnom poradí rozhoduje ID pravidla.</word>

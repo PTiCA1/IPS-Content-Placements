@@ -1,15 +1,15 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Polski" rtl="0" author_name="Pages Block Placements contributors" author_url="" version="1.0.0-beta.8" long_version="1000008" update_check="">
- <app key="rqblockplacements" version="1000008">
-  <word key="__app_rqblockplacements" js="0">Pages Block Placements</word>
-  <word key="menu__rqblockplacements_placements" js="0">Umieszczanie bloków</word>
+<language name="Polski" rtl="0" author_name="Content Placements contributors" author_url="" version="1.0.0-beta.9" long_version="1000009" update_check="">
+ <app key="rqblockplacements" version="1000009">
+  <word key="__app_rqblockplacements" js="0">Content Placements</word>
+  <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Reguły umieszczania</word>
   <word key="menu__rqblockplacements_placements_settings" js="0">Ustawienia</word>
-  <word key="menutab__rqblockplacements" js="0">Umieszczanie bloków</word>
+  <word key="menutab__rqblockplacements" js="0">Content Placements</word>
   <word key="menutab__rqblockplacements_icon" js="0">table-cells-large</word>
-  <word key="r__placements" js="0">Umieszczanie bloków</word>
-  <word key="r__rqblockplacements" js="0">Pages Block Placements</word>
-  <word key="r__rqbp_manage" js="0">Zarządzanie umieszczaniem bloków Pages</word>
+  <word key="r__placements" js="0">Content Placements</word>
+  <word key="r__rqblockplacements" js="0">Content Placements</word>
+  <word key="r__rqbp_manage" js="0">Zarządzanie umieszczaniem treści</word>
   <word key="r__rqbp_manage_code" js="0">Zarządzanie własnym kodem szablonów IPS (umożliwia wykonywanie PHP na serwerze)</word>
   <word key="rqbp_add_rule" js="0">Dodaj regułę umieszczania</word>
   <word key="rqbp_after" js="0">Za elementem docelowym</word>
@@ -52,7 +52,7 @@
   <word key="rqbp_duplicated_disabled" js="0">Kopia została utworzona jako wyłączona. Sprawdź jej umiejscowienie przed włączeniem.</word>
   <word key="rqbp_edit_rule" js="0">Edytuj regułę umieszczania</word>
   <word key="rqbp_enable_rule" js="0">Włącz regułę</word>
-  <word key="rqbp_enabled" js="0">Włącz Pages Block Placements</word>
+  <word key="rqbp_enabled" js="0">Włącz Content Placements</word>
   <word key="rqbp_enabled_desc" js="0">Wyłącz, aby zatrzymać umieszczanie wszystkich bloków bez usuwania ich reguł.</word>
   <word key="rqbp_error_block" js="0">Wybierz istniejący blok Pages.</word>
   <word key="rqbp_error_block_reference" js="0">Wprowadź istniejący klucz bloku lub prawidłowe odwołanie {block="key"}.</word>
@@ -83,7 +83,7 @@
   <word key="rqbp_filter_hook" js="0">Natywne hooki</word>
   <word key="rqbp_first" js="0">Pierwsze wystąpienie</word>
   <word key="rqbp_form_intro" js="0">Zawartość pozostaje w Pages → Blocks. Ten formularz określa, gdzie pojawi się istniejący blok. Sprawdź wyłączoną regułę w diagnostyce, a następnie włącz ją, gdy jej umiejscowienie będzie gotowe.</word>
-  <word key="rqbp_front_diagnostics" js="0">Diagnostyka umieszczania bloków</word>
+  <word key="rqbp_front_diagnostics" js="0">Diagnostyka umieszczania treści</word>
   <word key="rqbp_front_inserted" js="0">Wstawiono</word>
   <word key="rqbp_front_matches" js="0">Dopasowania</word>
   <word key="rqbp_hook" js="0">Natywny hook</word>
@@ -94,7 +94,7 @@
   <word key="rqbp_log_duplicated" js="0">Zduplikowano regułę umieszczania %s jako wyłączoną</word>
   <word key="rqbp_log_reordered" js="0">Zmieniono kolejność reguł umieszczania</word>
   <word key="rqbp_log_saved" js="0">Zapisano regułę umieszczania %s</word>
-  <word key="rqbp_log_settings" js="0">Zmieniono ustawienia Pages Block Placements</word>
+  <word key="rqbp_log_settings" js="0">Zmieniono ustawienia Content Placements</word>
   <word key="rqbp_log_toggled" js="0">Zmieniono stan włączenia reguły umieszczania %s</word>
   <word key="rqbp_mode" js="0">Tryb umieszczania</word>
   <word key="rqbp_mode_css" js="0">Selektor CSS</word>
@@ -130,7 +130,7 @@
   <word key="rqbp_section_rule" js="0">Reguła</word>
   <word key="rqbp_selector" js="0">Selektor CSS</word>
   <word key="rqbp_selector_desc" js="0">Użyj standardowego selektora CSS, na przykład &lt;code&gt;#forum-category_12 &amp;gt; .ipsData__item:nth-child(2)&lt;/code&gt;. Wybieraj stabilne identyfikatory i atrybuty danych. Jeśli element docelowy nie istnieje, blok nie zostanie umieszczony. Przeglądarka sprawdza składnię selektora.</word>
-  <word key="rqbp_settings" js="0">Ustawienia umieszczania bloków</word>
+  <word key="rqbp_settings" js="0">Ustawienia umieszczania treści</word>
   <word key="rqbp_settings_intro" js="0">Przełącznik główny steruje wszystkimi regułami umieszczania. Strony spełniające warunki pomijają współdzieloną pamięć podręczną stron, aby kierowanie według platform i grup działało poprawnie. Po zmianie reguł umieszczania wyczyść pamięć podręczną stron w zewnętrznej sieci CDN lub na odwrotnym serwerze proxy. Zawartością i uprawnieniami zarządza się w Pages.</word>
   <word key="rqbp_sort_order" js="0">Kolejność</word>
   <word key="rqbp_sort_order_desc" js="0">Niższe wartości są przetwarzane wcześniej. Przy jednakowej kolejności decyduje identyfikator reguły.</word>

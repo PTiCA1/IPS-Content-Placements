@@ -1,4 +1,4 @@
-/* Pages Block Placements | MIT | No dependency on the IPS JavaScript bundle. */
+/* Content Placements | MIT | No dependency on the IPS JavaScript bundle. */
 (function () {
     'use strict';
 
@@ -77,7 +77,7 @@
             } catch (error) {
                 // A malformed payload must never stop the forum's own scripts.
                 if (window.console) {
-                    console.warn('Pages Block Placements: invalid JSON payload.', error);
+                    console.warn('Content Placements: invalid JSON payload.', error);
                 }
             }
         });
@@ -253,7 +253,7 @@
         panel.setAttribute('data-rqbp-diagnostics', '');
         panel.className = 'ipsBox i-padding_3';
         const summary = document.createElement('summary');
-        summary.textContent = strings.diagnostics || 'Pages Block Placements — diagnostics';
+        summary.textContent = strings.diagnostics || 'Content Placements — diagnostics';
         panel.append(summary);
         const context = document.createElement('p');
         context.textContent = currentUrl() + (payload.diagnostic_only ? ' (preview only)' : '');
@@ -421,7 +421,7 @@
                 return scan(roots);
             }).catch((error) => {
                 if (window.console) {
-                    console.warn('Pages Block Placements: insertion was skipped.', error);
+                    console.warn('Content Placements: insertion was skipped.', error);
                 }
             });
         }

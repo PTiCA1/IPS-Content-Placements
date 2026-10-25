@@ -1,6 +1,6 @@
 <?php
 /**
- * Pages Block Placements — global settings.
+ * Content Placements — global settings.
  * SPDX-License-Identifier: MIT
  */
 

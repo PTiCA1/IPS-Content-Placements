@@ -1,5 +1,5 @@
 <?php
-/** Pages Block Placements — additive beta.5 upgrade. MIT. */
+/** Content Placements — additive beta.5 upgrade. MIT. */
 namespace IPS\rqblockplacements\setup\upg_1000005;
 
 if (!\defined('\IPS\SUITE_UNIQUE_KEY')) { exit; }

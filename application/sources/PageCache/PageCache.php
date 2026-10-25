@@ -1,5 +1,5 @@
 <?php
-/** Pages Block Placements — private response cache policy. MIT. */
+/** Content Placements — private response cache policy. MIT. */
 namespace IPS\rqblockplacements;
 
 if (!\defined('\IPS\SUITE_UNIQUE_KEY')) { exit; }
