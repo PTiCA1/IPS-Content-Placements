@@ -65,8 +65,10 @@ final class ServerDocument
                 continue;
             }
             if (substr($html, $offset, 2) === '</') {
-                if (!preg_match('~\G</([a-z][a-z0-9:-]*)[\x09\x0A\x0C\x0D\x20]*>~i', $html, $closing, 0, $offset)
-                    || count($stack) === 1 || $document->nodes[$parent]['tag'] !== strtolower($closing[1])) { self::unsupported(); }
+                if (!preg_match('~\G</([a-z][a-z0-9:-]*)[\x09\x0A\x0C\x0D\x20]*>~i', $html, $closing, 0, $offset)) { self::unsupported(); }
+                self::optionalLi($document, $stack, strtolower($closing[1]), true, $offset);
+                $parent = $stack[count($stack) - 1];
+                if (count($stack) === 1 || $document->nodes[$parent]['tag'] !== strtolower($closing[1])) { self::unsupported(); }
                 $document->nodes[$parent]['closeStart'] = $offset;
                 $offset += strlen($closing[0]);
                 $document->nodes[$parent]['end'] = $offset;
@@ -81,6 +83,8 @@ final class ServerDocument
             }
             $start = $offset;
             [$tag, $attrs, $offset, $selfClosing] = self::opening($html, $offset, $length);
+            self::optionalLi($document, $stack, $tag, false, $start);
+            $parent = $stack[count($stack) - 1];
             $namespace = $document->nodes[$parent]['namespace'];
             if ($namespace === 'html' && ($tag === 'svg' || $tag === 'math')) { $namespace = $tag; }
             elseif ($namespace !== 'html' && in_array($tag, self::FOREIGN_BREAKOUT, true)) { self::unsupported(); }
@@ -131,13 +135,15 @@ final class ServerDocument
             if (substr($html, $offset, 2) === '/>') { return [$tag, $attrs, $offset + 2, true]; }
             if ($offset === $before || !preg_match('~\G[^\x00-\x20\x7F"\x27<>/=`]+~', $html, $attribute, 0, $offset)) { self::unsupported(); }
             $name = strtolower($attribute[0]);
-            if (array_key_exists($name, $attrs)) { self::unsupported(); }
+            // HTML keeps the first case-insensitive attribute occurrence. The
+            // later spelling/value remains untouched in the original bytes.
+            $duplicate = array_key_exists($name, $attrs);
             $offset += strlen($attribute[0]);
             $afterName = $offset;
             self::whitespace($html, $offset, $length);
             if ($offset === $length) { self::unsupported(); }
             if ($html[$offset] !== '=') {
-                $attrs[$name] = '';
+                if (!$duplicate) { $attrs[$name] = ''; }
                 $offset = $afterName;
                 continue;
             }
@@ -154,9 +160,24 @@ final class ServerDocument
                 $value = $valueMatch[0];
                 $offset += strlen($value);
             }
-            $attrs[$name] = self::attributeValue($value);
+            if (!$duplicate) { $attrs[$name] = self::attributeValue($value); }
         }
         self::unsupported();
+    }
+
+    /** Only the unambiguous direct-list LI end-tag omission is supported. */
+    private static function optionalLi(self $document, array &$stack, string $incoming, bool $closing, int $offset): void
+    {
+        $id = $stack[count($stack) - 1];
+        if ($document->nodes[$id]['tag'] !== 'li') { return; }
+        $parent = $document->nodes[$id]['parent'];
+        if ($parent === null) { return; }
+        $parentTag = $document->nodes[$parent]['tag'];
+        if (!in_array($parentTag, ['ul', 'ol', 'menu'], true)
+            || ($closing ? $incoming !== $parentTag : $incoming !== 'li')) { return; }
+        $document->nodes[$id]['closeStart'] = $offset;
+        $document->nodes[$id]['end'] = $offset;
+        array_pop($stack);
     }
 
     private static function structure(string $tag, int $parent, array $stack, array $nodes): void

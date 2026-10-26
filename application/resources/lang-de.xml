@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<language name="Deutsch" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.15" long_version="1000015" update_check="">
- <app key="rqblockplacements" version="1000015">
+<language name="Deutsch" rtl="0" author_name="Content Placements contributors" author_url="https://github.com/PTiCA1/IPS-Content-Placements" version="1.0.0-beta.16" long_version="1000016" update_check="">
+ <app key="rqblockplacements" version="1000016">
   <word key="__app_rqblockplacements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements" js="0">Content Placements</word>
   <word key="menu__rqblockplacements_placements_rules" js="0">Platzierungsregeln</word>

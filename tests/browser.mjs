@@ -598,6 +598,43 @@ try {
         assert.equal(await page.locator('[data-rqbp-placement]').count(), 1);
     });
 
+    await test('Pages article selectors tolerate duplicate attributes and omitted metadata list-item closers', async () => {
+        const card = (index) => `<article class="ipsData__item" id="record-${index}"><a class="record-image" href="#record-${index}" ARIA-hidden="true" aria-hidden="false" tabindex="-1" tabindex="0">Image</a><ul class="record-metadata"><li class="author">Example author</li><li class="rating">Rating</ul></article>`;
+        const content = `<div class="ipsData--cms-category-articles">${[1, 2, 3, 4].map(card).join('')}</div>`;
+        const selector = '#ipsLayout__main .ipsData--cms-category-articles > article.ipsData__item:nth-child(3)';
+        const selectors = [selector, '#ipsLayout__main .record-image[aria-hidden="true"][tabindex="-1"]', '#ipsLayout__main .record-image[aria-hidden="false"]', '#ipsLayout__main .record-metadata > li:nth-child(2)'];
+        const matched = serverFixture({ operation: 'select', html: content, selectors });
+        fixture = `<!doctype html><html><head><title>Pages records</title></head><body><div id="ipsLayout__main">${content}</div></body></html>`;
+        await page.goto(`${origin}/server-pages-original`);
+        const native = await page.evaluate((selectors) => selectors.map((selector) => Array.from(document.querySelectorAll(selector), (node) => node.id || node.tagName.toLowerCase())), selectors);
+        assert.deepEqual(matched, native);
+        const result = serverFixture({ html: content, rules: [rule(1, { selector, html: '<b id="pages-ad">Advertisement</b><script>window.pagesAdRuns=(window.pagesAdRuns||0)+1;</script>' })] });
+        assert.equal(result.reports[0].matches, 1);
+        assert.equal(result.reports[0].inserted, 1);
+        assert.ok(result.html.includes(card(3)), 'The original third article remains byte-identical');
+        fixture = `<!doctype html><html><head><title>Pages placement</title></head><body><div id="ipsLayout__main">${result.html}</div><script>window.pagesAdFound=Boolean(document.getElementById("pages-ad"));</script></body></html>`;
+        await page.goto(`${origin}/server-pages-placement`);
+        assert.equal(await page.locator('#record-3 + [data-rqbp-placement="1"]').count(), 1);
+        assert.equal(await page.locator('.ipsData--cms-category-articles > article').count(), 4);
+        assert.equal(await page.evaluate(() => window.pagesAdFound), true);
+        assert.equal(await page.evaluate(() => window.pagesAdRuns), 1);
+    });
+
+    await test('all insertion positions beside implicitly closed list items preserve browser nesting and order', async () => {
+        const content = '<ul id="list"><li id="first">First<li id="last">Last</ul>';
+        const rules = ['before', 'inside-start', 'inside-end', 'after'].flatMap((position, index) => [
+            rule(index * 2 + 1, { selector: '#first', position }), rule(index * 2 + 2, { selector: '#first', position })
+        ]).reverse();
+        const result = serverFixture({ html: content, rules });
+        assert.equal(result.reports.reduce((total, report) => total + report.inserted, 0), 8);
+        fixture = `<!doctype html><html><head><title>Optional list closing</title></head><body><div id="ipsLayout__main">${result.html}</div></body></html>`;
+        await page.goto(`${origin}/server-optional-list`);
+        assert.deepEqual(await page.locator('#list > *').evaluateAll((nodes) => nodes.map((node) => node.dataset.rqbpPlacement || node.id)), ['1', '2', 'first', '7', '8', 'last']);
+        assert.deepEqual(await page.locator('#first > *').evaluateAll((nodes) => nodes.map((node) => node.dataset.rqbpPlacement)), ['3', '4', '5', '6']);
+        assert.equal(await page.locator('#list > [data-rqbp-placement]:not(li)').count(), 0);
+        assert.equal(await page.locator('#first > [data-rqbp-placement]:not(div)').count(), 0);
+    });
+
     await test('ACP server CSS retains all positions and browser syntax validation independently of native hooks', async () => {
         fixture = acpFixture({ rqbp_mode: 'server', rqbp_hook_app: 'core', rqbp_hook_template: 'core/front/global/globalTemplate', rqbp_hook: 'core/front/global/globalTemplate|head', rqbp_position: 'after' });
         await page.goto(`${origin}/admin`);

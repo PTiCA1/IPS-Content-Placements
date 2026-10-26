@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.0-beta.16 — 2026-10-26
+
+Build `1000016`; Pages database parser compatibility fix, without schema or rule changes.
+
+- Accept duplicate attributes using the browser's first-value-wins behavior, with case-insensitive attribute names. Beta.15 could reject native CMS record-image links with repeated attributes even when the selector matched correctly in the browser.
+- Support omitted `li` ends only at a direct list-sibling `li` start or a matching parent `ul`/`ol`/`menu` close while `li` is the top open element. This covers native metadata-list markup without enabling generic HTML repair or other implied closures.
+- Preserve original HTML bytes without serialization. Keep unsafe-context, raw-script, nested-form, permission, cache and insertion guards unchanged; retain all existing rules and modes without automatic conversion.
+- Add original browser/parser regression coverage. Native Pages database output is supported when its final HTML reaches the supported Loader stage; the later global sidebar remains outside the controller fragment. Do not claim all standalone Pages/direct-output routes are supported or bundle private forum HTML, IPS source or tokens.
+- No database migration is required. Retain the 5.0.20+ target and 5.0.20 source-verification baseline. Native beta.15 → beta.16 installation, Pages database placement and upgrade acceptance remain pending. Earlier release notes and the dated audit remain historical.
+
 ## 1.0.0-beta.15 — 2026-10-25
 
 Build `1000015`; native pagination parser compatibility fix, without schema or rule changes.

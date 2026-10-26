@@ -42,6 +42,8 @@ check(select('<div data-x="&amp;lt;">Text</div>', '[data-x="&lt;"]') === [1], 'E
 check(ServerDocument::parse("<div title=\"line\r\nnext\rline\"></div>")->nodes[1]['attrs']['title'] === "line\nnext\nline", 'Literal attribute newlines follow HTML input preprocessing');
 check(ServerDocument::parse('<div title="&copy=example &unknown text"></div>')->nodes[1]['attrs']['title'] === '&copy=example &unknown text', 'Literal ampersands and equals-suffixed names are not weakened into entities');
 check(ServerDocument::parse('<div title="&#65; &#x41; &copy;"></div>')->nodes[1]['attrs']['title'] === 'A A ©', 'Standard terminated numeric and HTML5 named references match browser values');
+check(ServerDocument::parse('<a aria-hidden="true" ARIA-HIDDEN="false" tabindex="-1" TABINDEX="0">Example</a>')->nodes[1]['attrs'] === ['aria-hidden' => 'true', 'tabindex' => '-1'], 'Duplicate attributes keep the first value after ASCII case folding');
+check(ServerDocument::parse('<input disabled DISABLED="false">')->nodes[1]['attrs']['disabled'] === '', 'A first boolean attribute is not replaced by a later value');
 check(select('<div>A < 2 and > 1</div>', 'div') === [0, 1], 'Literal less-than text is preserved instead of becoming a tag');
 check(select('<div><fileStore.example><___base_url___></div>', 'div') === [0, 1], 'Native unresolved file placeholders remain opaque text');
 check(select('<div><template><div id="inert"></div></template><div id="live"></div></div>', '#inert, #live') === [4], 'Inert template contents are excluded from the active tree');
@@ -50,10 +52,11 @@ check(count(ServerDocument::parse($foreign)->nodes) === 8, 'Balanced SVG and Mat
 
 $malformed = [
     '<div>', '</div>', '<div><p>Text</div></p>', '<div/><div></div>', '<div a="one"b="two"></div>', '<div a="unterminated></div>',
-    '<div a=></div>', '<div a=x a=y></div>', '<div><!-- unclosed</div>', '<!--><div>Visible</div>-->', '<!---><div></div>-->',
+    '<div a=></div>', '<div><!-- unclosed</div>', '<!--><div>Visible</div>-->', '<!---><div></div>-->',
     '<!-- --!><div></div>-->', '<!-- nested <!-- comment --><div></div>', '<script>unclosed', '<style>x</script>',
     '<script><!--<script>text</script><div></div>', '<script>x</script invalid><div></div>', '<script/>', '<style/>',
-    '<p><div>Implicit paragraph close</div></p>', '<ul><li>First<li>Second</li></ul>', '<ul><li><li>Nested</li></li></ul>',
+    '<p><div>Implicit paragraph close</div></p>', '<ul><li><li>Nested</li></li></ul>', '<ul><li><div>Still open</li></ul>',
+    '<ul><li>Wrong parent</ol>', '<ul><li>Wrong closer</div></ul>',
     '<ul><div>Invalid list child</div></ul>', '<li>Orphan list item</li>', '<dl><dt>Term<dd>Definition</dd></dl>',
     '<table><tr><td>Missing tbody</td></tr></table>', '<table>fostered text<tbody><tr><td>x</td></tr></tbody></table>',
     '<table><tbody><div>Fostered element</div></tbody></table>', '<td>Orphan cell</td>', '<select><div>Ignored element</div></select>',
@@ -102,6 +105,76 @@ $result = ServerPlacement::apply($list, [rule(1, ['selector' => '#first', 'posit
 check(str_contains($result['html'], '</li>' . wrap(1, '<em>Inserted</em>', 'li') . '<li>Two'), 'List item siblings use li instead of div');
 $result = ServerPlacement::apply($list, [rule(1, ['selector' => '#first', 'position' => 'inside-end'])], static fn (): string => '<em>Inserted</em>');
 check(str_contains($result['html'], 'One' . wrap(1) . '</li>'), 'List item children use a div wrapper');
+
+foreach (['ul', 'ol', 'menu'] as $listTag) {
+    $optional = '<' . $listTag . ' id="items"><li id="first">One<li id="second">Two</' . $listTag . '>';
+    $optionalDocument = ServerDocument::parse($optional);
+    check($optionalDocument->nodes[1]['children'] === [2, 3]
+        && $optionalDocument->nodes[2]['parent'] === 1 && $optionalDocument->nodes[3]['parent'] === 1,
+        'Omitted LI end tags produce sibling nodes in their direct list: ' . $listTag);
+    check($optionalDocument->nodes[2]['closeStart'] === strpos($optional, '<li id="second">')
+        && $optionalDocument->nodes[2]['end'] === $optionalDocument->nodes[2]['closeStart']
+        && $optionalDocument->nodes[3]['closeStart'] === strpos($optional, '</' . $listTag . '>')
+        && $optionalDocument->nodes[3]['end'] === $optionalDocument->nodes[3]['closeStart'],
+        'Implicit LI boundaries use incoming tag offsets without inventing source bytes: ' . $listTag);
+}
+$optional = '<ul id="items"><li id="first">One<li id="second">Two</ul>';
+$optionalExpected = [
+    'before' => '<ul id="items">' . wrap(1, '<em>Inserted</em>', 'li') . '<li id="first">One<li id="second">Two</ul>',
+    'inside-start' => '<ul id="items"><li id="first">' . wrap(1) . 'One<li id="second">Two</ul>',
+    'inside-end' => '<ul id="items"><li id="first">One' . wrap(1) . '<li id="second">Two</ul>',
+    'after' => '<ul id="items"><li id="first">One' . wrap(1, '<em>Inserted</em>', 'li') . '<li id="second">Two</ul>',
+];
+foreach ($optionalExpected as $position => $expected) {
+    $optionalResult = ServerPlacement::apply($optional, [rule(1, ['selector' => '#first', 'position' => $position])], static fn (): string => '<em>Inserted</em>');
+    check($optionalResult['html'] === $expected && $optionalResult['reports'][0]['inserted'] === 1,
+        'Optional LI preserves the correct wrapper and byte offset for ' . $position);
+}
+$optionalShared = ServerPlacement::apply($optional, [
+    rule(1, ['selector' => '#second', 'position' => 'before']),
+    rule(2, ['selector' => '#first', 'position' => 'after']),
+    rule(3, ['selector' => '#first', 'position' => 'inside-end']),
+], static fn (array $rule): string => '<em>' . $rule['id'] . '</em>');
+check($optionalShared['html'] === '<ul id="items"><li id="first">One' . wrap(3, '<em>3</em>')
+    . wrap(2, '<em>2</em>', 'li') . wrap(1, '<em>1</em>', 'li') . '<li id="second">Two</ul>',
+    'Inside-end, after and next-sibling before retain physical order at one implicit LI boundary');
+$optionalTree = ServerDocument::parse($optionalShared['html']);
+$directWrappers = array_values(array_filter($optionalTree->nodes[1]['children'], static fn (int $id): bool => isset($optionalTree->nodes[$id]['attrs']['data-rqbp-placement'])));
+$insideWrappers = array_filter($optionalTree->nodes[2]['children'], static fn (int $id): bool => ($optionalTree->nodes[$id]['attrs']['data-rqbp-placement'] ?? '') === '3');
+check(array_map(static fn (int $id): string => $optionalTree->nodes[$id]['attrs']['data-rqbp-placement'], $directWrappers) === ['2', '1']
+    && count($insideWrappers) === 1,
+    'The expected sibling and child tree survives insertion at an omitted LI end tag');
+$optionalFinal = ServerPlacement::apply($optional, [
+    rule(1, ['selector' => '#items', 'position' => 'inside-end']),
+    rule(2, ['selector' => '#second', 'position' => 'after']),
+    rule(3, ['selector' => '#second', 'position' => 'inside-end']),
+], static fn (array $rule): string => '<em>' . $rule['id'] . '</em>');
+check($optionalFinal['html'] === '<ul id="items"><li id="first">One<li id="second">Two' . wrap(3, '<em>3</em>')
+    . wrap(2, '<em>2</em>', 'li') . wrap(1, '<em>1</em>', 'li') . '</ul>',
+    'Last LI and parent list share an implicit boundary without reversing insertions');
+
+// Original cards exercise the Pages markup patterns without copying vendor HTML.
+$cards = '<div class="ipsData--cms-category-articles">';
+for ($card = 1; $card <= 3; $card++) {
+    $cards .= '<article class="ipsData__item" id="card-' . $card . '"><a class="card-image" aria-hidden="true" ARIA-HIDDEN="false" tabindex="-1" TABINDEX="0">'
+        . '<img src="/example.png" alt="Example"></a><ul class="card-metadata"><li>Published<li>Rating</ul></article>';
+}
+$cards .= '</div>';
+$cardsSelector = '#ipsLayout__main .ipsData--cms-category-articles > article.ipsData__item:nth-child(3)';
+$cardsDocument = ServerDocument::parse($cards);
+$cardIds = ServerSelector::select(ServerSelector::parse($cardsSelector), $cardsDocument->nodes);
+check(count($cardIds) === 1 && $cardsDocument->nodes[$cardIds[0]]['attrs']['id'] === 'card-3', 'Duplicate image attributes and omitted metadata LI tags permit the third Pages article selector');
+check(count(ServerSelector::select(ServerSelector::parse('a[aria-hidden="true"][tabindex="-1"]'), $cardsDocument->nodes)) === 3
+    && ServerSelector::select(ServerSelector::parse('a[aria-hidden="false"], a[tabindex="0"]'), $cardsDocument->nodes) === [],
+    'Only the first duplicate attribute values participate in CSS matching');
+$cardsCalls = 0;
+$cardsResult = ServerPlacement::apply($cards, [rule(1, ['selector' => $cardsSelector])], static function () use (&$cardsCalls): string { $cardsCalls++; return '<em>Inserted</em>'; });
+$cardEnd = $cardsDocument->nodes[$cardIds[0]]['end'];
+check($cardsCalls === 1 && $cardsResult['reports'][0]['matches'] === 1 && $cardsResult['reports'][0]['inserted'] === 1,
+    'The Pages-style article receives exactly one lazy server insertion');
+check($cardsResult['html'] === substr($cards, 0, $cardEnd) . wrap(1) . substr($cards, $cardEnd)
+    && str_replace(wrap(1), '', $cardsResult['html']) === $cards,
+    'Duplicate spelling and omitted source end tags stay byte-for-byte unchanged after placement');
 
 // Original pagination-shaped fixture: no vendor template or forum response data.
 $pagination = static fn (string $id): string => '<nav id="' . $id . '"><form action="/example"><ul class="page-controls"><input type="number" name="page" min="1" max="10"><button type="submit">Go</button></ul></form></nav>';
